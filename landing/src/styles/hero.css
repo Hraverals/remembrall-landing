@@ -68,10 +68,20 @@
     margin-top: var(--space-xxl);
 }
 
-/* 두 버튼이 한 줄에 들어가지 않는 폭에서는 같은 폭으로 쌓는다. */
+/* 좁은 폰: 두 버튼을 같은 폭으로 쌓고, 세로 간격을 줄여 375×667 첫 화면에 폰 윗부분이 보이게 한다. */
 @media (max-width: 479px) {
+    .hero {
+        gap: var(--space-xl);
+        padding-top: var(--space-lg);
+    }
+
+    .hero__lead {
+        margin-top: var(--space-lg);
+    }
+
     .hero__actions {
         flex-direction: column;
+        margin-top: var(--space-xl);
     }
 }
 
@@ -167,6 +177,15 @@
     background: var(--bg-screen);
 }
 
+/* 장면 자막. 한 줄 높이를 미리 잡아 글자가 바뀌어도 레이아웃이 흔들리지 않는다. */
+.phone__caption {
+    min-height: 1.6em;
+    margin-top: var(--space-lg);
+    font: 400 0.9375rem / 1.6 var(--font-body);
+    color: var(--text-secondary);
+    text-align: center;
+}
+
 .phone__canvas {
     position: absolute;
     top: 0;
@@ -253,8 +272,8 @@
         padding-block: 0 var(--space-xxl);
     }
 
-    /* 첫 화면에 폰 전체가 들어오도록 높이로 정하고 폭은 384 : 824 로 따른다. */
+    /* 첫 화면에 폰 전체와 자막이 들어오도록 높이로 정하고 폭은 384 : 824 로 따른다. */
     .hero__stage {
-        --phone-width: calc(clamp(560px, 100svh - 140px, 760px) * 384 / 824);
+        --phone-width: calc(clamp(560px, 100svh - 184px, 760px) * 384 / 824);
     }
 }

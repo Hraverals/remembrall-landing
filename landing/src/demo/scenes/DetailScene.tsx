@@ -1,12 +1,18 @@
 // 08 장소 상세. 지도 위에 시트. 시트 구성과 수치는 앱 features/content-detail(DetailSheet · DetailFooter)과 같다.
 // 지도: 현재 위치 → 장소 점선 경로(text/secondary 2, 점선 4 · 4), 장소 사진 핀(폭 40, 테두리 3, 그림자)과 이름표.
-// fade 는 핀 · 썸네일의 바램이다. 데모가 이 장면에 닿으면 바랬던 사진이 원래 색(recent)으로 돌아온다.
+// fade 는 핀 · 썸네일의 바램이다. 근처에서 알림으로 열면 원래 색(recent)이다. 3번 커밋에서 30% → 0 전환을 시간에 맞춰 보인다.
 import type { CSSProperties } from "react";
 
-import { photo } from "../../assets/photos";
 import { detailMap, sungsimdang as detail } from "../data";
+import { AppButton } from "../ui/AppButton";
 import { DemoMap } from "../ui/DemoMap";
 import { Icon } from "../ui/Icon";
+import {
+    CurrentLocation,
+    PhotoPin,
+    PinLabel,
+    RouteLine,
+} from "../ui/MapMarkers";
 import {
     NAV_BAR_HEIGHT,
     NavigationBar,
@@ -15,70 +21,20 @@ import {
 } from "../ui/StatusBar";
 import { type Fade, Thumb } from "../ui/Thumb";
 
-const FADE_OPACITY: Record<Fade, string> = {
-    recent: "var(--fade-recent)",
-    weeks: "var(--fade-weeks)",
-    months: "var(--fade-months)",
-};
-
-const PIN_WIDTH = 40;
-const PIN_HEIGHT = (PIN_WIDTH * 16) / 9;
-
 export function DetailScene({ fade }: { fade: Fade }) {
     const { place, current } = detailMap;
     return (
         <div style={styles.screen}>
             <DemoMap />
-
-            <svg width="360" height="800" style={styles.overlay}>
-                <line
-                    x1={current.x}
-                    y1={current.y}
-                    x2={place.x}
-                    y2={place.y}
-                    stroke="var(--text-secondary)"
-                    strokeWidth="2"
-                    strokeDasharray="4 4"
-                />
-            </svg>
-
-            <div
-                style={{
-                    ...styles.current,
-                    left: current.x - 22,
-                    top: current.y - 22,
-                }}
-            >
-                <span style={styles.halo} />
-                <span style={styles.dot} />
-            </div>
-
-            <div
-                style={{
-                    ...styles.pin,
-                    left: place.x - PIN_WIDTH / 2,
-                    top: place.y - PIN_HEIGHT,
-                }}
-            >
-                <img
-                    src={photo(detail.photo, "sm")}
-                    alt=""
-                    style={styles.fill}
-                />
-                <span
-                    data-fade={fade}
-                    style={{
-                        ...styles.fill,
-                        ...styles.fadeLayer,
-                        opacity: FADE_OPACITY[fade],
-                    }}
-                />
-            </div>
-            <div
-                style={{ ...styles.pinLabel, left: place.x, top: place.y + 7 }}
-            >
-                {detail.place}
-            </div>
+            <RouteLine from={current} to={place} />
+            <CurrentLocation {...current} />
+            <PhotoPin
+                {...place}
+                photo={detail.photo}
+                fade={fade}
+                variant="detail"
+            />
+            <PinLabel {...place} label={detail.place} />
 
             <StatusBar />
 
@@ -126,12 +82,8 @@ export function DetailScene({ fade }: { fade: Fade }) {
                 </div>
 
                 <div style={styles.actions}>
-                    <div style={{ ...styles.button, ...styles.primary }}>
-                        길 안내 시작
-                    </div>
-                    <div style={{ ...styles.button, ...styles.textButton }}>
-                        이 장소가 아니에요
-                    </div>
+                    <AppButton kind="primary" label="길 안내 시작" />
+                    <AppButton kind="text" label="이 장소가 아니에요" />
                 </div>
             </div>
 
@@ -152,64 +104,6 @@ const styles = {
         inset: 0,
         overflow: "hidden",
         background: "var(--bg-screen)",
-    },
-    overlay: {
-        position: "absolute",
-        inset: 0,
-    },
-    fill: {
-        position: "absolute",
-        inset: 0,
-        width: "100%",
-        height: "100%",
-        objectFit: "cover",
-    },
-    fadeLayer: {
-        background: "var(--bg-fade)",
-    },
-    // 현재 위치: 바깥 원 44(status/info-fg 15%), 안쪽 점 14(bg/surface 테두리 3).
-    current: {
-        position: "absolute",
-        width: 44,
-        height: 44,
-        display: "grid",
-        placeItems: "center",
-    },
-    halo: {
-        position: "absolute",
-        inset: 0,
-        borderRadius: "var(--radius-full)",
-        background: "var(--status-info-fg)",
-        opacity: 0.15,
-    },
-    dot: {
-        position: "relative",
-        width: 14,
-        height: 14,
-        borderRadius: "var(--radius-full)",
-        border: "3px solid var(--bg-surface)",
-        background: "var(--status-info-fg)",
-    },
-    // 08 장소 핀(variant detail): 테두리는 크기 안쪽, 그림자 Elevation/Low.
-    pin: {
-        position: "absolute",
-        width: PIN_WIDTH,
-        height: PIN_HEIGHT,
-        overflow: "hidden",
-        border: "3px solid var(--bg-surface)",
-        borderRadius: "var(--radius-md)",
-        background: "var(--bg-placeholder)",
-        boxShadow: "var(--elevation-low)",
-    },
-    pinLabel: {
-        position: "absolute",
-        transform: "translateX(-50%)",
-        padding: "3px 8px",
-        borderRadius: "var(--radius-full)",
-        background: "var(--text-primary)",
-        color: "var(--text-on-primary)",
-        font: "var(--type-caption)",
-        whiteSpace: "nowrap",
     },
     // 뒤로가기: 상태 표시줄 아래 md, 왼쪽 16, 38 원.
     back: {
@@ -331,20 +225,5 @@ const styles = {
         flexDirection: "column",
         gap: 4,
         padding: `16px 20px ${24 + NAV_BAR_HEIGHT}px`,
-    },
-    button: {
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        height: 48,
-        borderRadius: "var(--radius-md)",
-        font: "var(--type-label-button)",
-    },
-    primary: {
-        background: "var(--brand-primary)",
-        color: "var(--text-on-primary)",
-    },
-    textButton: {
-        color: "var(--text-on-subtle)",
     },
 } satisfies Record<string, CSSProperties>;

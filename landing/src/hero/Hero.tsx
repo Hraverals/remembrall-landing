@@ -1,9 +1,18 @@
 // 히어로. 왼쪽 카피 · 버튼, 오른쪽 폰(지금은 08 정지 화면). 좁은 화면에서는 카피 → 폰 순으로 쌓는다.
 // 폰 뒤에는 바랜 사진 카드 세 장을 겹친다(앱 00a 일러스트의 회전값). 폰 폭 화면에서는 숨긴다.
+// 폰 안 화면은 프레임으로 고른다. 배포 빌드는 POSTER_FRAME(08) 고정이고, 개발 서버에서만 장면 스위치가 뜬다.
+import { lazy, Suspense, useState } from "react";
+
 import { photo, type PhotoId } from "../assets/photos";
-import { DetailScene } from "../demo/scenes/DetailScene";
+import { DemoScreen } from "../demo/DemoScreen";
+import { type DemoFrameId, frameById, POSTER_FRAME } from "../demo/frames";
 import { APK_URL } from "../links";
 import { PhoneFrame } from "./PhoneFrame";
+
+// 배포 빌드에서는 import.meta.env.DEV 가 false 로 바뀌어 동적 import 자체가 빠진다.
+const DevSceneSwitch = import.meta.env.DEV
+    ? lazy(() => import("../demo/DevSceneSwitch"))
+    : null;
 
 const MEMORIES: readonly { id: PhotoId; fade: "weeks" | "months" }[] = [
     { id: 488, fade: "months" },
@@ -12,6 +21,7 @@ const MEMORIES: readonly { id: PhotoId; fade: "weeks" | "months" }[] = [
 ];
 
 export function Hero() {
+    const [frame, setFrame] = useState<DemoFrameId>(POSTER_FRAME);
     return (
         <section className="hero" aria-labelledby="hero-title">
             <div className="hero__copy">
@@ -53,10 +63,19 @@ export function Hero() {
                         </div>
                     ))}
                 </div>
-                <PhoneFrame label="REMEMBRALL 장소 상세 화면. 3주 전에 저장한 성심당 본점이 도보 4분 거리에 있고, 바랬던 사진이 원래 색으로 돌아와 있어요.">
-                    <DetailScene fade="recent" />
+                <PhoneFrame
+                    label="REMEMBRALL 장소 상세 화면. 3주 전에 저장한 성심당 본점이 도보 4분 거리에 있고, 바랬던 사진이 원래 색으로 돌아와 있어요."
+                    caption={frameById(frame).caption}
+                >
+                    <DemoScreen frame={frame} />
                 </PhoneFrame>
             </div>
+
+            {DevSceneSwitch != null && (
+                <Suspense fallback={null}>
+                    <DevSceneSwitch frame={frame} onChange={setFrame} />
+                </Suspense>
+            )}
         </section>
     );
 }

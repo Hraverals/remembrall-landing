@@ -1,6 +1,9 @@
 // 안드로이드 시스템 바. 위 상태 표시줄(시각 · 카메라 구멍 · 신호 · 와이파이 · 배터리)과 아래 제스처 막대.
 // 특정 기기를 따라 그리지 않는다. tone 은 바탕에 따라 글자 색을 바꾼다(dark: 밝은 바탕 위 진한 글자).
+// notification: 시각 옆에 앱 알림 아이콘(notification-icon, 흰 글리프)을 글자색으로 칠해 보인다(CSS mask).
 import type { CSSProperties } from "react";
+
+import notificationIcon from "../../assets/icon/notification-icon.png";
 
 export const STATUS_BAR_HEIGHT = 28;
 export const NAV_BAR_HEIGHT = 20;
@@ -12,11 +15,24 @@ const INK: Record<Tone, string> = {
     light: "var(--text-on-primary)",
 };
 
-export function StatusBar({ tone = "dark" }: { tone?: Tone }) {
+type Props = {
+    tone?: Tone;
+    notification?: boolean;
+};
+
+export function StatusBar({ tone = "dark", notification = false }: Props) {
     const ink = INK[tone];
     return (
         <div style={{ ...styles.status, color: ink }}>
-            <span style={styles.time}>2:14</span>
+            <span style={styles.left}>
+                <span style={styles.time}>2:14</span>
+                {notification && (
+                    <span
+                        data-notification-icon
+                        style={{ ...styles.notification, background: ink }}
+                    />
+                )}
+            </span>
             <span style={styles.camera} />
             <span style={styles.indicators}>
                 <svg width="14" height="12" viewBox="0 0 14 12">
@@ -75,6 +91,19 @@ const styles = {
         justifyContent: "space-between",
         paddingInline: 20,
         pointerEvents: "none",
+    },
+    left: {
+        display: "flex",
+        alignItems: "center",
+        gap: 8,
+    },
+    notification: {
+        width: 16,
+        height: 16,
+        maskImage: `url(${notificationIcon})`,
+        maskSize: "contain",
+        maskRepeat: "no-repeat",
+        maskPosition: "center",
     },
     time: {
         font: "500 13px / 16px var(--font-body)",

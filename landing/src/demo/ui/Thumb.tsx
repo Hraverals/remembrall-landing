@@ -3,15 +3,10 @@
 import type { CSSProperties } from "react";
 
 import { photo, type PhotoId } from "../../assets/photos";
+import { FADE_OPACITY } from "../album";
 import { Icon } from "./Icon";
 
 export type Fade = "recent" | "weeks" | "months";
-
-const FADE_OPACITY: Record<Fade, string> = {
-    recent: "var(--fade-recent)",
-    weeks: "var(--fade-weeks)",
-    months: "var(--fade-months)",
-};
 
 // sm(270 폭)은 화면 배율 1 · DPR 2 기준 135 논리 px 까지 충분하다.
 const SM_MAX_WIDTH = 135;
