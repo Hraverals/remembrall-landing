@@ -1,5 +1,6 @@
 // 저장물 썸네일. 앱 C/Thumb. 9:16 사진 위에 bg/fade 를 덮어 오래 잊은 것일수록 바래게 한다.
-// 폰 화면 안(논리 px)에서만 쓴다. 스타일은 앱 StyleSheet 과 나란히 비교할 수 있게 객체로 둔다.
+// 폰 화면 안에서는 width(논리 px)를 준다. width 를 빼면 부모 폭을 채우고 9:16 을 지킨다(페이지 섹션용, 사진은 lg).
+// 바램 층에는 data-thumb-fade 가 있어 페이지 CSS 가 전환을 걸 수 있다. 스타일은 앱 StyleSheet 과 나란히 비교할 수 있게 객체로 둔다.
 import type { CSSProperties } from "react";
 
 import { photo, type PhotoId } from "../../assets/photos";
@@ -15,7 +16,7 @@ type Props = {
     id: PhotoId;
     // 단계 또는 불투명도 숫자(전환 중).
     fade: Fade | number;
-    width: number;
+    width?: number;
     radius?: number;
     showSource?: boolean;
 };
@@ -31,18 +32,23 @@ export function Thumb({
         <div
             style={{
                 ...styles.frame,
-                width,
-                height: (width * 16) / 9,
+                ...(width == null
+                    ? { width: "100%", aspectRatio: "9 / 16" }
+                    : { width, height: (width * 16) / 9 }),
                 borderRadius: radius,
             }}
         >
             <img
-                src={photo(id, width > SM_MAX_WIDTH ? "lg" : "sm")}
+                src={photo(
+                    id,
+                    width != null && width <= SM_MAX_WIDTH ? "sm" : "lg",
+                )}
                 alt=""
                 decoding="async"
                 style={styles.fill}
             />
             <div
+                data-thumb-fade
                 data-fade={typeof fade === "number" ? undefined : fade}
                 style={{
                     ...styles.fill,

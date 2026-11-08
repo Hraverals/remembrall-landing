@@ -1,5 +1,8 @@
 import appIcon from "./assets/icon/app-icon.png";
 import { Hero } from "./hero/Hero";
+import { FadedMemory } from "./sections/FadedMemory";
+import { HowItWorks } from "./sections/HowItWorks";
+import { SiteFooter } from "./sections/SiteFooter";
 
 export function App() {
     return (
@@ -10,7 +13,10 @@ export function App() {
             </header>
             <main>
                 <Hero />
+                <HowItWorks />
+                <FadedMemory />
             </main>
+            <SiteFooter />
         </div>
     );
 }

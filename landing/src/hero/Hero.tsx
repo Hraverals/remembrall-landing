@@ -61,7 +61,7 @@ export function Hero() {
                     </span>
                 </div>
                 <p className="hero__note">
-                    Android 전용 · 카카오테크캠퍼스 4기 충남 3팀
+                    Android 전용 · 카카오테크캠퍼스 4기 충남대 3팀
                 </p>
             </div>
 

@@ -1,0 +1,86 @@
+/* OG 카드 1200×630. 페이지와 같은 바탕 · 서체 · 폰 모형. */
+body {
+    width: 1200px;
+    height: 630px;
+    overflow: hidden;
+}
+
+.og {
+    position: relative;
+    display: grid;
+    grid-template-columns: 700px minmax(0, 1fr);
+    width: 1200px;
+    height: 630px;
+    overflow: hidden;
+    background: var(--bg-screen);
+}
+
+.og__copy {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding-left: 88px;
+}
+
+.og__brand {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    font: 400 1.375rem / 1 var(--font-heading);
+    letter-spacing: 0.14em;
+}
+
+.og__brand img {
+    border-radius: 10px;
+}
+
+.og__title {
+    margin-top: 44px;
+    font: 400 3.25rem / 1.32 var(--font-heading);
+    letter-spacing: -0.02em;
+    white-space: nowrap;
+}
+
+.og__note {
+    margin-top: 36px;
+    font: 400 1.25rem / 1.5 var(--font-body);
+    color: var(--text-secondary);
+}
+
+/* 폰은 위에서 64 내려와 아래로 잘린다. 바랜 카드 한 장이 폰 왼쪽 뒤에 겹친다. */
+.og__stage {
+    position: relative;
+    --phone-width: 360px;
+}
+
+.og__phone {
+    position: absolute;
+    top: 64px;
+    left: 80px;
+}
+
+.og__memory {
+    position: absolute;
+    top: 150px;
+    left: 0;
+    width: 160px;
+    aspect-ratio: 9 / 16;
+    overflow: hidden;
+    border-radius: var(--radius-lg);
+    background: var(--bg-placeholder);
+    rotate: -8deg;
+}
+
+.og__memory img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.og__memory::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: var(--bg-fade);
+    opacity: var(--fade-months);
+}

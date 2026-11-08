@@ -15,28 +15,35 @@ type Props = {
     children: ReactNode;
 };
 
-export function PhoneFrame({ label, captions, controls, children }: Props) {
+// 몸체와 360×800 캔버스. OG 카드도 이것만 쓴다.
+export function PhoneBody({ children }: { children: ReactNode }) {
     const screen = useRef<HTMLDivElement>(null);
     const scale = usePhoneScale(screen);
     return (
-        <figure className="phone" aria-label={label}>
-            <div className="phone__body" data-demo-camera>
-                <div ref={screen} className="phone__screen">
-                    <div
-                        className="phone__canvas"
-                        data-demo-canvas
-                        style={{
-                            width: SCREEN_WIDTH,
-                            height: SCREEN_HEIGHT,
-                            transform: `scale(${scale})`,
-                        }}
-                        aria-hidden="true"
-                        inert
-                    >
-                        {children}
-                    </div>
+        <div className="phone__body" data-demo-camera>
+            <div ref={screen} className="phone__screen">
+                <div
+                    className="phone__canvas"
+                    data-demo-canvas
+                    style={{
+                        width: SCREEN_WIDTH,
+                        height: SCREEN_HEIGHT,
+                        transform: `scale(${scale})`,
+                    }}
+                    aria-hidden="true"
+                    inert
+                >
+                    {children}
                 </div>
             </div>
+        </div>
+    );
+}
+
+export function PhoneFrame({ label, captions, controls, children }: Props) {
+    return (
+        <figure className="phone" aria-label={label}>
+            <PhoneBody>{children}</PhoneBody>
             <div className="phone__progress" aria-hidden="true">
                 <span data-demo-progress />
             </div>

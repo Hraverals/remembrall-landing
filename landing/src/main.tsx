@@ -4,6 +4,7 @@ import "@fontsource/gowun-dodum/400.css";
 import "./styles/tokens.css";
 import "./styles/base.css";
 import "./styles/hero.css";
+import "./styles/sections.css";
 
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
