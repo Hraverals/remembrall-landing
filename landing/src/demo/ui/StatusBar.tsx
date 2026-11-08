@@ -28,7 +28,7 @@ export function StatusBar({ tone = "dark", notification = false }: Props) {
                 <span style={styles.time}>2:14</span>
                 {notification && (
                     <span
-                        data-notification-icon
+                        data-demo-target="notification-icon"
                         style={{ ...styles.notification, background: ink }}
                     />
                 )}

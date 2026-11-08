@@ -146,6 +146,7 @@
     border-radius: 12.5cqw;
     background: var(--text-primary);
     box-shadow: 0 24px 48px -28px #2a212666;
+    transform-origin: 50% 50%;
 }
 
 /* 옆 버튼(전원 · 음량). 장식이다. */
@@ -177,13 +178,108 @@
     background: var(--bg-screen);
 }
 
-/* 장면 자막. 한 줄 높이를 미리 잡아 글자가 바뀌어도 레이아웃이 흔들리지 않는다. */
-.phone__caption {
-    min-height: 1.6em;
+/* 진행 막대. 자두색은 APK 버튼에만 남기고 text/secondary 로 칠한다. */
+.phone__progress {
+    height: 2px;
     margin-top: var(--space-lg);
+    overflow: hidden;
+    border-radius: 1px;
+    background: var(--bg-subtle);
+}
+
+.phone__progress > span {
+    display: block;
+    height: 100%;
+    background: var(--text-secondary);
+    transform: scaleX(0);
+    transform-origin: left center;
+}
+
+/* [재생] 자막 [다시 보기] 한 줄. */
+.phone__meta {
+    display: grid;
+    grid-template-columns: 40px minmax(0, 1fr) 40px;
+    grid-template-areas: "play caption replay";
+    align-items: center;
+    gap: var(--space-sm);
+    margin-top: var(--space-sm);
+}
+
+/* 장면 자막. 겹쳐 두고 불투명도로 크로스페이드한다. 한 줄 높이를 미리 잡아 레이아웃이 흔들리지 않는다. */
+.phone__captions {
+    grid-area: caption;
+    display: grid;
+    min-height: 1.6em;
+}
+
+.phone__caption {
+    grid-area: 1 / 1;
     font: 400 0.9375rem / 1.6 var(--font-body);
     color: var(--text-secondary);
     text-align: center;
+}
+
+.demo-control {
+    display: grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    border: 0;
+    border-radius: var(--radius-full);
+    background: transparent;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: background-color 150ms ease-out;
+}
+
+.demo-control:not(:disabled):hover {
+    background: var(--bg-subtle);
+    color: var(--text-primary);
+}
+
+.demo-control:disabled {
+    cursor: default;
+    opacity: 0.4;
+}
+
+.demo-control--play {
+    grid-area: play;
+}
+
+.demo-control--replay {
+    grid-area: replay;
+}
+
+/* 손가락 탭 표시(폰 화면 안, 논리 px). 위치 · 불투명도는 GSAP 이 정한다. 어두운 화면 · 밝은 화면 모두에서 보이게 흰 반투명 + 진한 테두리. */
+.demo-finger {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 50;
+    width: 22px;
+    height: 22px;
+    margin: -11px 0 0 -11px;
+    border: 1.5px solid #2a21264d;
+    border-radius: var(--radius-full);
+    background: #fffcfa99;
+    box-shadow: 0 1px 4px #2a212633;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.demo-ring {
+    position: absolute;
+    inset: -1.5px;
+    border: 2px solid #2a212666;
+    border-radius: var(--radius-full);
+    opacity: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .demo-finger {
+        display: none;
+    }
 }
 
 .phone__canvas {
@@ -240,6 +336,11 @@
         opacity: var(--fade-months);
     }
 
+    /* 08 사진과 같이 풀리는 카드. 타임라인이 --memory-fade 를 바꾼다(없으면 원래 단계). */
+    .memory[data-demo-memory]::after {
+        opacity: var(--memory-fade, var(--fade-weeks));
+    }
+
     .memory:nth-child(1) {
         top: 20%;
         left: calc(50% - var(--phone-width) * 0.86);
@@ -272,8 +373,8 @@
         padding-block: 0 var(--space-xxl);
     }
 
-    /* 첫 화면에 폰 전체와 자막이 들어오도록 높이로 정하고 폭은 384 : 824 로 따른다. */
+    /* 첫 화면에 폰 전체와 진행 막대 · 자막 줄이 들어오도록 높이로 정하고 폭은 384 : 824 로 따른다. */
     .hero__stage {
-        --phone-width: calc(clamp(560px, 100svh - 184px, 760px) * 384 / 824);
+        --phone-width: calc(clamp(560px, 100svh - 206px, 760px) * 384 / 824);
     }
 }

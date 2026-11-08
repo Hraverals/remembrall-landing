@@ -2,6 +2,7 @@
 // 위에서 내려온 패널: 큰 시각 · 날짜, 빠른 설정 타일 넷(아이콘만), 알림 카드 하나.
 // 알림 카드: 작은 아이콘(notification-icon, expo-notifications color #6B4E7A = brand/primary) · 앱 이름 · "지금",
 // 제목은 장소 이름, 본문은 앱 규칙(nearbyNotificationBody)으로 now 기준 계산한다.
+// pull: 끌어내린 정도 0~1(막의 불투명도 · 패널 위치). 손가락과 같은 시각 · easing 이다. 탭 대상: 알림 카드(notification).
 import type { CSSProperties } from "react";
 
 import notificationIcon from "../../assets/icon/notification-icon.png";
@@ -17,13 +18,18 @@ function dateLabel(now: Date): string {
     return `${now.getMonth() + 1}월 ${now.getDate()}일 ${WEEKDAYS[now.getDay()]}요일`;
 }
 
-export function NotificationShade({ now }: { now: Date }) {
+export function NotificationShade({ now, pull }: { now: Date; pull: number }) {
     const saved = saves[0];
     if (saved == null) return null;
     return (
         <>
-            <div style={styles.dim} />
-            <div style={styles.panel}>
+            <div style={{ ...styles.dim, opacity: pull }} />
+            <div
+                style={{
+                    ...styles.panel,
+                    transform: `translateY(${(pull - 1) * 100}%)`,
+                }}
+            >
                 <StatusBar />
                 <div style={styles.clockRow}>
                     <span style={styles.clock}>2:14</span>
@@ -36,7 +42,7 @@ export function NotificationShade({ now }: { now: Date }) {
                         </span>
                     ))}
                 </div>
-                <div style={styles.card}>
+                <div data-demo-target="notification" style={styles.card}>
                     <div style={styles.cardHead}>
                         <span style={styles.smallIcon} />
                         <span>{ANDROID_APP_NAME}</span>
@@ -55,13 +61,16 @@ export function NotificationShade({ now }: { now: Date }) {
 }
 
 const styles = {
+    // 아래 장면의 상태 표시줄(z-index 10)보다 위에 온다.
     dim: {
         position: "absolute",
         inset: 0,
+        zIndex: 20,
         background: "var(--bg-overlay)",
     },
     panel: {
         position: "absolute",
+        zIndex: 20,
         top: 0,
         left: 0,
         right: 0,

@@ -21,7 +21,11 @@ export function BottomNav({ active }: { active: TabKey }) {
             {TABS.map(({ key, label, icon }) => {
                 const selected = key === active;
                 return (
-                    <div key={key} style={styles.tab}>
+                    <div
+                        key={key}
+                        data-demo-target={key === "map" ? "tab-map" : undefined}
+                        style={styles.tab}
+                    >
                         <span
                             style={{
                                 ...styles.indicator,

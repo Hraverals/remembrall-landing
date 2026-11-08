@@ -2,6 +2,7 @@
 // 핀은 저장물 장소(장소마다 하나)이고 바램 · 크기는 now 기준 저장 시점으로 정한다. 선택한 핀이 없어 이름표는 없다.
 // 앱처럼 지금 위치를 먼저 넣어 핀이 그 위에 그려진다. 핀은 오래된 것부터 넣어 선명한 핀이 위에 온다.
 // walk: 0 은 출발(대흥동 목 지금 위치), 1 은 성심당 근처 도착. notified 면 상태 표시줄에 알림 아이콘이 있다.
+// newSave: 방금 공유한 저장물(성심당) 핀을 그릴지. 받음 시트 뒤(T0)에는 아직 장소를 몰라 그리지 않는다. 앱 10 처럼 경로 점선은 없다.
 import type { CSSProperties } from "react";
 
 import { fadeFor } from "../album";
@@ -20,10 +21,12 @@ type Props = {
     now: Date;
     walk: number;
     notified: boolean;
+    newSave: boolean;
 };
 
-export function MapScene({ now, walk, notified }: Props) {
+export function MapScene({ now, walk, notified, newSave }: Props) {
     const pins = saves
+        .filter((_save, index) => newSave || index !== 0)
         .map((save) => ({
             save,
             fade: fadeFor(save.savedAt, now),

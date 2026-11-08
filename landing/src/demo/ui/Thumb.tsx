@@ -3,7 +3,7 @@
 import type { CSSProperties } from "react";
 
 import { photo, type PhotoId } from "../../assets/photos";
-import { FADE_OPACITY } from "../album";
+import { fadeOpacity } from "../album";
 import { Icon } from "./Icon";
 
 export type Fade = "recent" | "weeks" | "months";
@@ -13,7 +13,8 @@ const SM_MAX_WIDTH = 135;
 
 type Props = {
     id: PhotoId;
-    fade: Fade;
+    // 단계 또는 불투명도 숫자(전환 중).
+    fade: Fade | number;
     width: number;
     radius?: number;
     showSource?: boolean;
@@ -42,11 +43,11 @@ export function Thumb({
                 style={styles.fill}
             />
             <div
-                data-fade={fade}
+                data-fade={typeof fade === "number" ? undefined : fade}
                 style={{
                     ...styles.fill,
                     ...styles.fade,
-                    opacity: FADE_OPACITY[fade],
+                    opacity: fadeOpacity(fade),
                 }}
             />
             {showSource && (

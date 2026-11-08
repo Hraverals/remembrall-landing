@@ -2,6 +2,8 @@
 // 저장 중: "저장하고 있어요", 두 버튼은 비활성으로 보인다(높이가 바뀌지 않게 버튼을 남긴다).
 // 저장함: "저장했어요" + 앱 본문 두 줄. Primary "돌아가기", Text "기억 탭 보기".
 // 썸네일은 바램 없는 원래 색이다(방금 저장한 기억이 가장 선명하다).
+// enter: 막 · 시트가 올라온 정도 0~1, text: "저장했어요" 문구가 나타난 정도 0~1. 탭 대상: "기억 탭 보기"(open-archive).
+// 뒤 지도에는 성심당 핀이 없다(아직 분석 전이라 장소를 모른다).
 import type { CSSProperties } from "react";
 
 import { DEMO_NOW, shorts } from "../data";
@@ -18,22 +20,39 @@ const COPY = {
     },
 } as const;
 
-export function ReceivedScene({ status }: { status: "saving" | "saved" }) {
+type Props = {
+    status: "saving" | "saved";
+    enter: number;
+    text: number;
+};
+
+export function ReceivedScene({ status, enter, text }: Props) {
     const copy = COPY[status];
     const saving = status === "saving";
+    const textOpacity = saving ? 1 : text;
     return (
         <div style={styles.screen}>
-            <MapScene now={DEMO_NOW} walk={0} notified={false} />
-            <div style={styles.overlay} />
+            <MapScene
+                now={DEMO_NOW}
+                walk={0}
+                notified={false}
+                newSave={false}
+            />
+            <div style={{ ...styles.overlay, opacity: enter }} />
 
-            <div style={styles.sheet}>
+            <div
+                style={{
+                    ...styles.sheet,
+                    transform: `translateY(${(1 - enter) * 100}%)`,
+                }}
+            >
                 <div style={styles.gripRow}>
                     <span style={styles.grip} />
                 </div>
                 <div style={styles.content}>
                     <div style={styles.body}>
                         <Thumb id={shorts.photo} fade="recent" width={72} />
-                        <div style={styles.text}>
+                        <div style={{ ...styles.text, opacity: textOpacity }}>
                             <p style={styles.heading}>{copy.title}</p>
                             {"body" in copy && (
                                 <p style={styles.caption}>{copy.body}</p>
@@ -46,11 +65,13 @@ export function ReceivedScene({ status }: { status: "saving" | "saved" }) {
                             label="돌아가기"
                             disabled={saving}
                         />
-                        <AppButton
-                            kind="text"
-                            label="기억 탭 보기"
-                            disabled={saving}
-                        />
+                        <div data-demo-target="open-archive">
+                            <AppButton
+                                kind="text"
+                                label="기억 탭 보기"
+                                disabled={saving}
+                            />
+                        </div>
                     </div>
                 </div>
             </div>

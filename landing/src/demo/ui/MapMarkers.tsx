@@ -7,7 +7,7 @@
 import type { CSSProperties } from "react";
 
 import { photo, type PhotoId } from "../../assets/photos";
-import { FADE_OPACITY } from "../album";
+import { fadeOpacity } from "../album";
 import type { Point } from "../geo";
 import type { Fade } from "./Thumb";
 
@@ -18,14 +18,16 @@ const PIN_SIZE: Record<Fade | "detail", { width: number; border: number }> = {
     detail: { width: 40, border: 3 },
 };
 
+// fade 숫자(전환 중 불투명도)는 detail 핀에만 쓴다. 크기는 variant 로 정한다.
 type PinProps = Point & {
     photo: PhotoId;
-    fade: Fade;
+    fade: Fade | number;
     variant?: "detail";
 };
 
 export function PhotoPin({ x, y, photo: id, fade, variant }: PinProps) {
-    const { width, border } = PIN_SIZE[variant ?? fade];
+    const { width, border } =
+        PIN_SIZE[variant ?? (typeof fade === "number" ? "detail" : fade)];
     const height = (width * 16) / 9;
     const raised = variant === "detail" || fade === "recent";
     return (
@@ -42,11 +44,11 @@ export function PhotoPin({ x, y, photo: id, fade, variant }: PinProps) {
         >
             <img src={photo(id, "sm")} alt="" style={styles.fill} />
             <span
-                data-fade={fade}
+                data-fade={typeof fade === "number" ? undefined : fade}
                 style={{
                     ...styles.fill,
                     ...styles.fade,
-                    opacity: FADE_OPACITY[fade],
+                    opacity: fadeOpacity(fade),
                 }}
             />
         </div>

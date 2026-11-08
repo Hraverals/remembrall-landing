@@ -20,6 +20,18 @@ export const FADE_OPACITY: Readonly<Record<Fade, string>> = {
     months: "var(--fade-months)",
 };
 
+// 같은 값의 숫자(바램을 이어서 바꿀 때 쓴다). 토큰 fade/* 와 같아야 한다.
+export const FADE_VALUE: Readonly<Record<Fade, number>> = {
+    recent: 0,
+    weeks: 0.3,
+    months: 0.5,
+};
+
+// 바램 단계 또는 불투명도 숫자 → CSS opacity 값.
+export function fadeOpacity(fade: Fade | number): string {
+    return typeof fade === "number" ? String(fade) : FADE_OPACITY[fade];
+}
+
 export type DemoSave = {
     id: string;
     place: string;

@@ -2,6 +2,7 @@
 // 영상은 성심당 사진이고, 채널 · 제목은 앱 목(placeDetails 성심당 sourceMeta · sourceTitle)이다.
 // YouTube 로고 · 구독 버튼 같은 상표 요소는 그리지 않는다. 오른쪽 아이콘은 일반 lucide 아이콘이다.
 // 공유 시트는 시스템 공유 시트 모양이고, 다른 실제 앱 아이콘 없이 일반 항목과 REMEMBRALL(앱 아이콘)만 둔다.
+// sheet: 공유 시트가 올라온 정도 0~1(막의 불투명도 · 시트 위치). 탭 대상: 공유 아이콘(share) · 앱(share-app).
 import type { CSSProperties } from "react";
 
 import appIcon from "../../assets/icon/app-icon.png";
@@ -29,7 +30,7 @@ const TARGETS: readonly { icon: IconName | "app"; label: string }[] = [
     { icon: "ellipsis", label: "더보기" },
 ];
 
-export function ShortsScene({ shareSheet }: { shareSheet: boolean }) {
+export function ShortsScene({ sheet }: { sheet: number }) {
     return (
         <div style={styles.screen}>
             <img src={photo(shorts.photo)} alt="" style={styles.video} />
@@ -39,7 +40,13 @@ export function ShortsScene({ shareSheet }: { shareSheet: boolean }) {
 
             <div style={styles.rail}>
                 {RAIL.map(({ icon, label }) => (
-                    <div key={icon} style={styles.railItem}>
+                    <div
+                        key={icon}
+                        data-demo-target={
+                            icon === "share" ? "share" : undefined
+                        }
+                        style={styles.railItem}
+                    >
                         <Icon
                             name={icon}
                             size={28}
@@ -62,10 +69,15 @@ export function ShortsScene({ shareSheet }: { shareSheet: boolean }) {
                 <span style={styles.progressFill} />
             </div>
 
-            {shareSheet && (
+            {sheet > 0 && (
                 <>
-                    <div style={styles.overlay} />
-                    <div style={styles.sheet}>
+                    <div style={{ ...styles.overlay, opacity: sheet }} />
+                    <div
+                        style={{
+                            ...styles.sheet,
+                            transform: `translateY(${(1 - sheet) * 100}%)`,
+                        }}
+                    >
                         <div style={styles.gripRow}>
                             <span style={styles.grip} />
                         </div>
@@ -86,7 +98,13 @@ export function ShortsScene({ shareSheet }: { shareSheet: boolean }) {
                         </div>
                         <div style={styles.targets}>
                             {TARGETS.map(({ icon, label }) => (
-                                <div key={label} style={styles.target}>
+                                <div
+                                    key={label}
+                                    data-demo-target={
+                                        icon === "app" ? "share-app" : undefined
+                                    }
+                                    style={styles.target}
+                                >
                                     {icon === "app" ? (
                                         <img
                                             src={appIcon}
@@ -108,7 +126,7 @@ export function ShortsScene({ shareSheet }: { shareSheet: boolean }) {
                 </>
             )}
 
-            <NavigationBar tone={shareSheet ? "dark" : "light"} />
+            <NavigationBar tone={sheet > 0.5 ? "dark" : "light"} />
         </div>
     );
 }

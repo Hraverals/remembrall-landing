@@ -2,10 +2,11 @@
 // 섹션 · 바램 · 이름은 앱 규칙(album.ts)으로 now 기준 계산한다. 3주 뒤(4)도 같은 규칙이라 성심당은 맨 앞 칸에서 바랜다.
 // analyzing: 맨 앞(방금 공유한 성심당) 셀이 "분석 중" 배지 · "제목 없는 영상"이다. 끝나면 장소명으로 바뀐다.
 // 화면 밖으로 넘치는 셀은 잘린다(앱도 스크롤 전에는 첫 화면만 보인다).
+// layout: 섹션 배치 기준(now = T0, later = 3주 뒤). fade: 셀 바램이 T0 값에서 3주 뒤 값으로 간 정도 0~1(두 배치 모두 같은 값을 쓴다).
 import type { CSSProperties } from "react";
 
-import { toAlbumSections } from "../album";
-import { saves } from "../data";
+import { FADE_VALUE, fadeFor, toAlbumSections } from "../album";
+import { DEMO_LATER, DEMO_NOW, saves } from "../data";
 import { Badge } from "../ui/Badge";
 import { BOTTOM_NAV_HEIGHT, BottomNav } from "../ui/BottomNav";
 import { SCREEN_HEADER_BOTTOM, ScreenHeader } from "../ui/ScreenHeader";
@@ -17,17 +18,23 @@ const COLUMNS = 3;
 const CELL_WIDTH = (360 - 40 - 16) / COLUMNS;
 
 type Props = {
-    now: Date;
+    layout: "now" | "later";
     analyzing: boolean;
+    fade: number;
 };
 
-export function ArchiveScene({ now, analyzing }: Props) {
+export function ArchiveScene({ layout, analyzing, fade }: Props) {
     const sections = toAlbumSections(
         saves.map((save, index) =>
             index === 0 ? { ...save, analyzing } : save,
         ),
-        now,
+        layout === "now" ? DEMO_NOW : DEMO_LATER,
     );
+    const opacity = (savedAt: Date) => {
+        const from = FADE_VALUE[fadeFor(savedAt, DEMO_NOW)];
+        const to = FADE_VALUE[fadeFor(savedAt, DEMO_LATER)];
+        return from + (to - from) * fade;
+    };
     return (
         <div style={styles.screen}>
             <StatusBar />
@@ -47,7 +54,9 @@ export function ArchiveScene({ now, analyzing }: Props) {
                                         <div style={styles.thumb}>
                                             <Thumb
                                                 id={item.save.photo}
-                                                fade={item.fade}
+                                                fade={opacity(
+                                                    item.save.savedAt,
+                                                )}
                                                 width={CELL_WIDTH}
                                             />
                                             {item.badge != null && (

@@ -21,7 +21,7 @@ import {
 } from "../ui/StatusBar";
 import { type Fade, Thumb } from "../ui/Thumb";
 
-export function DetailScene({ fade }: { fade: Fade }) {
+export function DetailScene({ fade }: { fade: Fade | number }) {
     const { place, current } = detailMap;
     return (
         <div style={styles.screen}>
