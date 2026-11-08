@@ -20,7 +20,7 @@ export function OgCard() {
                     근처에서 다시 꺼내드려요.
                 </h1>
                 <p className="og__note">
-                    Android · 카카오테크캠퍼스 4기 충남 3팀
+                    Android · 카카오테크캠퍼스 4기 충남대 3팀
                 </p>
             </div>
             <div className="og__stage">
