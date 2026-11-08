@@ -1,0 +1,71 @@
+/*
+ * 디자인 토큰. 앱 레포 frontend/src/shared/ui/theme/ 의 값을 CSS 변수로 옮긴다(이름은 bg/* → --bg-*).
+ * 라이트 모드 고정이다. 앱이 라이트 전용이고, 바램은 사진 위에 bg/fade(= 바탕색)를 덮는 방식이라 바탕색에 기댄다.
+ */
+:root {
+    color-scheme: light;
+
+    /* C · Color */
+    --bg-screen: #f6f1ee;
+    --bg-surface: #fffcfa;
+    --bg-subtle: #ece4e0;
+    --bg-placeholder: #ddd2cd;
+    --bg-overlay: #2a212673;
+    --bg-fade: #f6f1ee;
+    --border-default: #ddd2cd;
+    --text-primary: #2a2126;
+    --text-secondary: #6a5d61;
+    --text-on-subtle: #4d4145;
+    --text-on-primary: #fffcfa;
+    --text-disabled: #a69a9e;
+    --brand-primary: #6b4e7a;
+    --brand-primary-pressed: #5a3f68;
+    --brand-primary-disabled: #e6daeb;
+    --brand-primary-subtle: #f4eef6;
+    --icon-default: #4d4145;
+    --status-info-fg: #515c6b;
+    --status-info-bg: #e8eaee;
+
+    /* C · Dimension space/*. 앱 단계(약 1.6배씩)를 같은 비율로 이어 3xl · 4xl 을 페이지 간격에 쓴다. */
+    --space-xs: 4px;
+    --space-sm: 8px;
+    --space-md: 12px;
+    --space-lg: 20px;
+    --space-xl: 32px;
+    --space-xxl: 48px;
+    --space-3xl: 80px;
+    --space-4xl: 128px;
+
+    /* C · Dimension radius/* */
+    --radius-sm: 6px;
+    --radius-md: 12px;
+    --radius-lg: 16px;
+    --radius-full: 999px;
+
+    /* C · Dimension fade/*. 사진 위 bg/fade 의 불투명도. */
+    --fade-recent: 0;
+    --fade-weeks: 0.3;
+    --fade-months: 0.5;
+
+    /* Elevation/Low */
+    --elevation-low: 0 2px 12px #2a212612;
+
+    /* 서체. Gowun Dodum 은 고정 문구와 숫자에만, 나머지는 Noto Sans KR. */
+    --font-heading: "Gowun Dodum", "Noto Sans KR", sans-serif;
+    --font-body: "Noto Sans KR", system-ui, sans-serif;
+
+    /* 앱 텍스트 스타일(폰 화면 안, 논리 px). letter-spacing 은 --tracking-* 로 따로 둔다. */
+    --type-heading-screen: 400 22px / 30px var(--font-heading);
+    --tracking-heading-screen: -0.2px;
+    --type-title-card: 500 16px / 22px var(--font-body);
+    --tracking-title-card: -0.1px;
+    --type-body: 400 14px / 22px var(--font-body);
+    --type-label-button: 500 14px / 20px var(--font-body);
+    --type-caption: 400 12px / 16px var(--font-body);
+
+    /* 페이지 텍스트 역할. 제목은 열 폭에 맞춰 hero.css 에서 정한다. */
+    --type-page-lead: 400 1.0625rem / 1.8 var(--font-body);
+    --type-page-eyebrow: 500 0.9375rem / 1.5 var(--font-body);
+    --type-page-button: 500 1rem / 1.5 var(--font-body);
+    --type-page-caption: 400 0.8125rem / 1.6 var(--font-body);
+}

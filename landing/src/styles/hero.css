@@ -1,0 +1,260 @@
+/*
+ * 머리글 · 히어로 · 폰 모형.
+ * 1024 이상: 카피 | 폰 2열. 그 아래: 카피 → 폰으로 쌓는다. 바랜 사진 카드는 640 이상에서만 보인다.
+ */
+.page {
+    --gutter: 16px;
+    max-width: calc(1200px + var(--gutter) * 2);
+    margin-inline: auto;
+    padding-inline: var(--gutter);
+    overflow-x: clip;
+}
+
+/* 머리글: 앱 아이콘과 이름만 */
+.site-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding-block: var(--space-lg);
+}
+
+.site-header img {
+    border-radius: 7px;
+}
+
+.site-header__name {
+    font: 400 1rem / 1 var(--font-heading);
+    letter-spacing: 0.14em;
+}
+
+/* 히어로 */
+.hero {
+    display: grid;
+    gap: var(--space-xxl);
+    padding-block: var(--space-xl) var(--space-3xl);
+}
+
+.hero__copy {
+    container-type: inline-size;
+    max-width: 40rem;
+}
+
+.hero__eyebrow {
+    font: var(--type-page-eyebrow);
+    color: var(--text-secondary);
+}
+
+/* 둘째 줄(약 11.6 글자 폭)이 열 폭에 맞도록 열 폭 기준으로 정하고 52px 에서 멈춘다. */
+.hero__title {
+    margin-top: var(--space-lg);
+    font-family: var(--font-heading);
+    font-weight: 400;
+    font-size: min(3.25rem, 8.2cqi);
+    line-height: 1.32;
+    letter-spacing: -0.02em;
+}
+
+.hero__lead {
+    margin-top: var(--space-xl);
+    max-width: 27em;
+    color: var(--text-secondary);
+    text-wrap: pretty;
+}
+
+.hero__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-md);
+    margin-top: var(--space-xxl);
+}
+
+/* 두 버튼이 한 줄에 들어가지 않는 폭에서는 같은 폭으로 쌓는다. */
+@media (max-width: 479px) {
+    .hero__actions {
+        flex-direction: column;
+    }
+}
+
+.button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 52px;
+    padding-inline: 26px;
+    border-radius: var(--radius-md);
+    font: var(--type-page-button);
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.button--primary {
+    background: var(--brand-primary);
+    color: var(--text-on-primary);
+    transition: background-color 150ms ease-out;
+}
+
+.button--primary:hover,
+.button--primary:active {
+    background: var(--brand-primary-pressed);
+}
+
+/* 출시 전이라 링크가 없다. 테두리만 두고 글자는 text/disabled. */
+.button--pending {
+    border: 1px solid var(--border-default);
+    color: var(--text-disabled);
+    cursor: default;
+}
+
+.hero__note {
+    margin-top: var(--space-lg);
+    font: var(--type-page-caption);
+    color: var(--text-secondary);
+}
+
+/* 폰 무대 */
+.hero__stage {
+    --phone-width: min(340px, 100%);
+    position: relative;
+    display: grid;
+    place-items: center;
+}
+
+/*
+ * 폰 모형. 논리 크기 384×824(화면 360×800 + 테두리 12)를 폭에 비례해 그린다.
+ * 안쪽 길이는 cqw(= 폰 폭의 1%)로 정한다. 12 / 384 = 3.125cqw.
+ */
+.phone {
+    position: relative;
+    z-index: 1;
+    width: var(--phone-width);
+    container-type: inline-size;
+}
+
+.phone__body {
+    position: relative;
+    padding: 3.125cqw;
+    border-radius: 12.5cqw;
+    background: var(--text-primary);
+    box-shadow: 0 24px 48px -28px #2a212666;
+}
+
+/* 옆 버튼(전원 · 음량). 장식이다. */
+.phone__body::before,
+.phone__body::after {
+    content: "";
+    position: absolute;
+    right: -0.8cqw;
+    width: 1.2cqw;
+    border-radius: 0 1cqw 1cqw 0;
+    background: var(--text-primary);
+}
+
+.phone__body::before {
+    top: 24%;
+    height: 9%;
+}
+
+.phone__body::after {
+    top: 37%;
+    height: 16%;
+}
+
+.phone__screen {
+    position: relative;
+    aspect-ratio: 360 / 800;
+    overflow: hidden;
+    border-radius: 9.375cqw;
+    background: var(--bg-screen);
+}
+
+.phone__canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    transform-origin: 0 0;
+}
+
+/* 폰 뒤 바랜 사진 카드. 폭은 폰 폭에 비례하고, 세 장 모두 폰 뒤로 일부가 숨는다. */
+.hero__memories {
+    display: none;
+}
+
+@media (min-width: 640px) {
+    .page {
+        --gutter: 32px;
+    }
+
+    .hero__memories {
+        display: block;
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+    }
+
+    .memory {
+        position: absolute;
+        width: calc(var(--phone-width) * 0.42);
+        aspect-ratio: 9 / 16;
+        overflow: hidden;
+        border-radius: var(--radius-lg);
+        background: var(--bg-placeholder);
+    }
+
+    .memory img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .memory::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: var(--bg-fade);
+    }
+
+    .memory--weeks::after {
+        opacity: var(--fade-weeks);
+    }
+
+    .memory--months::after {
+        opacity: var(--fade-months);
+    }
+
+    .memory:nth-child(1) {
+        top: 20%;
+        left: calc(50% - var(--phone-width) * 0.86);
+        rotate: -9deg;
+    }
+
+    .memory:nth-child(2) {
+        top: 7%;
+        left: calc(50% + var(--phone-width) * 0.4);
+        rotate: 10deg;
+    }
+
+    .memory:nth-child(3) {
+        top: 58%;
+        left: calc(50% + var(--phone-width) * 0.3);
+        rotate: 3deg;
+    }
+}
+
+@media (min-width: 1024px) {
+    .page {
+        --gutter: 48px;
+    }
+
+    .hero {
+        grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+        align-items: center;
+        column-gap: var(--space-3xl);
+        min-height: calc(100svh - 68px);
+        padding-block: 0 var(--space-xxl);
+    }
+
+    /* 첫 화면에 폰 전체가 들어오도록 높이로 정하고 폭은 384 : 824 로 따른다. */
+    .hero__stage {
+        --phone-width: calc(clamp(560px, 100svh - 140px, 760px) * 384 / 824);
+    }
+}
