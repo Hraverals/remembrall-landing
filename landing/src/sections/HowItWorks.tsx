@@ -1,6 +1,8 @@
-// 이렇게 써요. 01 · 02 · 03 번호 목록(아이콘 · 카드 없음). 데스크톱은 제목 | 목록 2열, 좁은 화면은 쌓는다.
+// 이렇게 써요. 01 · 02 · 03 번호 목록(StepList). 데스크톱은 제목 | 목록 2열, 좁은 화면은 쌓는다.
 // 문구는 앱이 하는 일만 쓴다: 공유 → 장소 찾기(확실하지 않으면 확인 질문, 앱 02 · 02b) → 위치 · 알림 권한이 있으면 근처에서 알림.
-const STEPS = [
+import { type Step, StepList } from "./StepList";
+
+const STEPS: readonly Step[] = [
     {
         number: "01",
         title: "공유해요",
@@ -16,27 +18,15 @@ const STEPS = [
         title: "근처에서 다시",
         body: "위치와 알림을 허용해 두면, 저장한 곳 근처에 갔을 때 알림으로 다시 꺼내드려요.",
     },
-] as const;
+];
 
 export function HowItWorks() {
     return (
-        <section className="section how" aria-labelledby="how-title">
+        <section className="section section--split" aria-labelledby="how-title">
             <h2 id="how-title" className="section__title">
                 이렇게 써요
             </h2>
-            <ol className="how__list">
-                {STEPS.map((step) => (
-                    <li key={step.number} className="how__step">
-                        <span className="how__number" aria-hidden="true">
-                            {step.number}
-                        </span>
-                        <div>
-                            <h3 className="how__title">{step.title}</h3>
-                            <p className="how__body">{step.body}</p>
-                        </div>
-                    </li>
-                ))}
-            </ol>
+            <StepList steps={STEPS} />
         </section>
     );
 }

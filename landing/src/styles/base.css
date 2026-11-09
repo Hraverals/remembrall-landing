@@ -9,6 +9,18 @@ html {
     text-size-adjust: 100%;
 }
 
+/* 같은 페이지 앵커(#install 등)로 부드럽게 내려간다. 동작 줄이기면 바로 이동한다. */
+@media (prefers-reduced-motion: no-preference) {
+    html {
+        scroll-behavior: smooth;
+    }
+}
+
+/* 앵커로 도착한 섹션 제목이 화면 맨 위에 붙지 않게 한다. */
+[id] {
+    scroll-margin-top: var(--space-xl);
+}
+
 body {
     margin: 0;
     min-height: 100svh;

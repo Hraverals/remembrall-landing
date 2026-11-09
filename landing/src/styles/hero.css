@@ -115,6 +115,11 @@
     cursor: default;
 }
 
+.hero__install {
+    color: var(--text-primary);
+    text-underline-offset: 3px;
+}
+
 .hero__note {
     margin-top: var(--space-lg);
     font: var(--type-page-caption);

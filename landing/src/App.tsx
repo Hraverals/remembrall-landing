@@ -1,8 +1,11 @@
 import appIcon from "./assets/icon/app-icon.png";
 import { Hero } from "./hero/Hero";
 import { FadedMemory } from "./sections/FadedMemory";
+import { Faq } from "./sections/Faq";
 import { HowItWorks } from "./sections/HowItWorks";
+import { InstallGuide } from "./sections/InstallGuide";
 import { SiteFooter } from "./sections/SiteFooter";
+import { TeamSection } from "./sections/TeamSection";
 
 export function App() {
     return (
@@ -15,6 +18,9 @@ export function App() {
                 <Hero />
                 <HowItWorks />
                 <FadedMemory />
+                <InstallGuide />
+                <Faq />
+                <TeamSection />
             </main>
             <SiteFooter />
         </div>
