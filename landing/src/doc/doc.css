@@ -1,0 +1,270 @@
+/*
+ * 문서 페이지(/tech-spec · 다음에 /collaboration) 공통 틀. 랜딩 토큰 · 폰트 · 라이트 고정을 그대로 쓴다.
+ * 머리글(← REMEMBRALL · 제목 · 요약) → 목차 · 본문 → 푸터. 1024 이상: 왼쪽 sticky 목차 | 본문 2열. 그 아래: 목차 → 본문으로 쌓는다.
+ * 본문(.doc-body)은 md 에서 나온 맨 태그(h2 · p · ul · table ...)라 클래스 없이 태그로 꾸민다. 강조색은 링크에만 쓴다.
+ */
+@import "@fontsource/noto-sans-kr/400.css";
+@import "@fontsource/noto-sans-kr/500.css";
+@import "@fontsource/gowun-dodum/400.css";
+@import "../styles/tokens.css";
+@import "../styles/base.css";
+
+.doc {
+    --gutter: 16px;
+    max-width: calc(1200px + var(--gutter) * 2);
+    margin-inline: auto;
+    padding-inline: var(--gutter);
+}
+
+/* 머리글 */
+.doc-header {
+    padding-block: var(--space-lg) var(--space-xxl);
+}
+
+.doc-header__back {
+    display: inline-block;
+    padding-block: var(--space-xs);
+    font: 400 1rem / 1.5 var(--font-heading);
+    letter-spacing: 0.14em;
+    text-decoration: none;
+}
+
+.doc-header__back:hover {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
+.doc-header__title {
+    margin-top: var(--space-xxl);
+    font-family: var(--font-heading);
+    font-weight: 400;
+    font-size: clamp(2rem, 1.5rem + 2vw, 3rem);
+    line-height: 1.3;
+    letter-spacing: -0.02em;
+}
+
+.doc-header__lead {
+    max-width: 40rem;
+    margin-top: var(--space-lg);
+    color: var(--text-secondary);
+    text-wrap: pretty;
+}
+
+/* 목차. 번호는 목록 순서에서 나온다(본문 h2 번호와 같은 순서). */
+.doc-toc {
+    padding-block: var(--space-lg);
+    border-block: 1px solid var(--border-default);
+}
+
+.doc-toc__label {
+    font: var(--type-page-eyebrow);
+    color: var(--text-secondary);
+}
+
+.doc-toc__list {
+    margin: var(--space-md) 0 0;
+    padding: 0;
+    list-style: none;
+    counter-reset: doc-toc;
+    font-size: 0.9375rem;
+    line-height: 1.5;
+}
+
+.doc-toc__list li {
+    counter-increment: doc-toc;
+    display: grid;
+    grid-template-columns: 2rem minmax(0, 1fr);
+    break-inside: avoid;
+}
+
+.doc-toc__list li::before {
+    content: counter(doc-toc, decimal-leading-zero);
+    padding-block: var(--space-xs);
+    font-family: var(--font-heading);
+    color: var(--text-secondary);
+    font-variant-numeric: tabular-nums;
+}
+
+.doc-toc__list a {
+    padding-block: var(--space-xs);
+    text-decoration: none;
+}
+
+.doc-toc__list a:hover {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
+/* 본문 */
+.doc-body {
+    min-width: 0;
+    max-width: 44rem;
+    counter-reset: doc-section;
+}
+
+.doc-body h2 {
+    counter-increment: doc-section;
+    margin-top: var(--space-3xl);
+    font-family: var(--font-heading);
+    font-weight: 400;
+    font-size: clamp(1.5rem, 1.25rem + 1vw, 2rem);
+    line-height: 1.35;
+    letter-spacing: -0.02em;
+}
+
+.doc-body h2::before {
+    content: counter(doc-section, decimal-leading-zero);
+    display: block;
+    margin-bottom: var(--space-sm);
+    font-size: 1rem;
+    letter-spacing: 0;
+    color: var(--text-secondary);
+    font-variant-numeric: tabular-nums;
+}
+
+.doc-body > h2:first-child {
+    margin-top: var(--space-xxl);
+}
+
+.doc-body h3 {
+    margin-top: var(--space-xl);
+    font: 500 1.125rem / 1.5 var(--font-body);
+}
+
+.doc-body p,
+.doc-body ul,
+.doc-body ol,
+.doc-body .doc-table {
+    margin: var(--space-md) 0 0;
+}
+
+.doc-body h2 + p,
+.doc-body h2 + ul,
+.doc-body h2 + ol,
+.doc-body h2 + .doc-table {
+    margin-top: var(--space-lg);
+}
+
+.doc-body ul,
+.doc-body ol {
+    padding-left: 1.25em;
+}
+
+.doc-body li + li {
+    margin-top: var(--space-xs);
+}
+
+.doc-body strong {
+    font-weight: 500;
+}
+
+.doc-body a {
+    color: var(--brand-primary);
+    text-underline-offset: 3px;
+}
+
+.doc-body code {
+    padding: 1px 5px;
+    border-radius: var(--radius-sm);
+    background: var(--bg-subtle);
+    color: var(--text-on-subtle);
+    font-family: ui-monospace, "Cascadia Mono", Consolas, monospace;
+    font-size: 0.875em;
+}
+
+/* 표. 좁은 화면에서는 표만 가로로 스크롤한다. */
+.doc-table {
+    overflow-x: auto;
+}
+
+.doc-body table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9375rem;
+    line-height: 1.6;
+}
+
+.doc-body th,
+.doc-body td {
+    padding: var(--space-sm) var(--space-md) var(--space-sm) 0;
+    border-bottom: 1px solid var(--border-default);
+    text-align: left;
+    vertical-align: top;
+}
+
+.doc-body th {
+    font-weight: 500;
+    color: var(--text-secondary);
+    white-space: nowrap;
+}
+
+/* 푸터 */
+.doc-footer {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: var(--space-sm) var(--space-lg);
+    margin-top: var(--space-3xl);
+    padding-block: var(--space-xxl) var(--space-3xl);
+    border-top: 1px solid var(--border-default);
+    font: var(--type-page-caption);
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+}
+
+.doc-footer__name {
+    font: 400 1rem / 1 var(--font-heading);
+    letter-spacing: 0.14em;
+    color: var(--text-primary);
+}
+
+.doc-footer__link {
+    color: var(--text-primary);
+    text-underline-offset: 3px;
+}
+
+@media (min-width: 640px) {
+    .doc-toc__list {
+        columns: 2;
+        column-gap: var(--space-xl);
+    }
+}
+
+@media (min-width: 1024px) {
+    .doc-header {
+        padding-bottom: var(--space-3xl);
+    }
+
+    .doc-layout {
+        display: grid;
+        grid-template-columns: 14rem minmax(0, 44rem);
+        column-gap: var(--space-3xl);
+        align-items: start;
+    }
+
+    /* 목차는 화면 위에 붙어 따라온다. 화면보다 길면 목차 안에서 스크롤한다. */
+    .doc-toc {
+        position: sticky;
+        top: var(--space-xl);
+        max-height: calc(100svh - var(--space-xl) * 2);
+        overflow-y: auto;
+        padding-block: 0;
+        border-block: 0;
+    }
+
+    .doc-toc__list {
+        columns: auto;
+    }
+
+    .doc-body > h2:first-child {
+        margin-top: 0;
+    }
+
+    .doc-body h2 {
+        margin-top: var(--space-4xl);
+    }
+
+    .doc-footer {
+        margin-top: var(--space-4xl);
+    }
+}

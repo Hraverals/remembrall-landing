@@ -36,9 +36,37 @@ REMEMBRALL 앱 소개 페이지(Vite + React 정적 사이트)를 Cloudflare Pag
 | ------------------------------------------------------------------ | ------------------------------------- |
 | `/assets/*` (해시가 붙은 JS · CSS · 사진 · 폰트)                   | `public, max-age=31536000, immutable` |
 | `/`, `/index.html`                                                 | `public, max-age=0, must-revalidate`  |
+| `/tech-spec`                                                       | `public, max-age=0, must-revalidate`  |
 | `/og.png`, `/favicon.ico`, `/icon-32.png`, `/apple-touch-icon.png` | `public, max-age=3600`                |
 
 모든 응답에 `X-Content-Type-Options: nosniff`, `Referrer-Policy: strict-origin-when-cross-origin` 을 붙인다. 한 요청에 여러 규칙이 걸리면 같은 헤더가 쉼표로 이어 붙으므로 `Cache-Control` 규칙끼리는 경로가 겹치지 않게 둔다.
+
+## 문서 페이지
+
+`/tech-spec`(기술 문서)은 랜딩과 같은 토큰 · 폰트를 쓰는 정적 페이지다. JS 가 없고, 랜딩 번들과 섞이지 않는다.
+
+| 파일                   | 내용                                                                 |
+| ---------------------- | -------------------------------------------------------------------- |
+| `content/tech-spec.md` | 본문. 글은 여기만 고친다.                                            |
+| `tech-spec.html`       | 껍데기. head 메타, 제목 · 한 줄 요약, 목차 · 본문 자리, 푸터.        |
+| `plugins/doc-pages.ts` | 빌드(dev 서버 포함) 때 md 를 HTML 로 바꿔 껍데기에 넣는다(`marked`). |
+| `src/doc/doc.css`      | 문서 페이지 공통 스타일.                                             |
+
+빌드 결과는 `dist/tech-spec.html` 이고 Cloudflare Pages · `vite preview` 모두 `/tech-spec` 으로 리다이렉트 없이 연다.
+
+### md 쓰는 법
+
+- `## 제목 {#id}` 가 목차 항목이 된다. `##` 에는 `{#id}` 가 꼭 있어야 한다(없으면 빌드가 실패한다). 번호는 순서대로 자동으로 붙는다.
+- 팀 레포 파일은 `[이름](<repo:backend/경로/파일.md>)` 로 링크한다. 빌드 때 `https://github.com/kakaotechcampus-4/ktc4-chungnam-3/blob/develop/` 뒤에 인코딩한 경로가 붙는다. 경로에 공백이 있으면 `<>` 로 감싸야 한다.
+- 표는 GFM 표로 쓴다. 좁은 화면에서는 표만 가로로 스크롤한다.
+- `<!-- 메모 -->` 는 빌드 결과에서 빠진다.
+- 말투는 "~다" 체로 쓴다(랜딩 문구의 "~요" 체와 구분).
+
+### 문서 페이지를 더할 때
+
+1. `content/<name>.md` 와 `<name>.html`(`tech-spec.html` 을 복사해 title · description · og · 제목 · 요약만 바꾼다)을 만든다.
+2. `vite.config.ts` 의 `DOC_PAGES` 에 `{ name: "<name>" }` 를 더한다.
+3. `public/_headers` 에 `/<name>` 의 `Cache-Control` 규칙을 더한다.
 
 ## APK Release 만들기
 

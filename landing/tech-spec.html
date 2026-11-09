@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="ko">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta name="color-scheme" content="light" />
+        <meta name="theme-color" content="#f6f1ee" />
+        <title>기술 문서 — REMEMBRALL</title>
+        <meta
+            name="description"
+            content="REMEMBRALL의 기술 문서. 시스템 구조, 저장 · 꺼내기 흐름, 꺼내기 에이전트 평가, 품질 · 배포를 팀 레포 코드 기준으로 정리한다."
+        />
+        <link rel="icon" href="/favicon.ico" sizes="any" />
+        <link rel="icon" type="image/png" sizes="32x32" href="/icon-32.png" />
+        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+
+        <!-- og:url · 절대 주소 og:image 는 VITE_SITE_URL 이 있을 때 vite.config.ts 가 넣는다. -->
+        <meta property="og:type" content="website" />
+        <meta property="og:locale" content="ko_KR" />
+        <meta property="og:site_name" content="REMEMBRALL" />
+        <meta property="og:title" content="기술 문서 — REMEMBRALL" />
+        <meta
+            property="og:description"
+            content="REMEMBRALL의 기술 문서. 시스템 구조, 저장 · 꺼내기 흐름, 꺼내기 에이전트 평가, 품질 · 배포를 팀 레포 코드 기준으로 정리한다."
+        />
+        <meta property="og:image" content="/og.png" />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta
+            property="og:image:alt"
+            content="REMEMBRALL. 저장만 하고 잊은 곳, 근처에서 다시 꺼내드려요. 폰 화면에 성심당 본점 상세가 열려 있어요."
+        />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:image" content="/og.png" />
+
+        <link rel="stylesheet" href="/src/doc/doc.css" />
+    </head>
+    <body>
+        <!-- 문서 페이지 껍데기. 목차 · 본문은 content/tech-spec.md 를 빌드 때 plugins/doc-pages.ts 가 채운다. JS 는 없다. -->
+        <div class="doc">
+            <header class="doc-header">
+                <a class="doc-header__back" href="/">
+                    <span aria-hidden="true">←</span> REMEMBRALL
+                </a>
+                <h1 class="doc-header__title">기술 문서</h1>
+                <p class="doc-header__lead">
+                    REMEMBRALL의 구성, 저장 · 꺼내기 흐름, 꺼내기 에이전트 평가,
+                    품질 · 배포를 정리한다. 내용은
+                    <a
+                        href="https://github.com/kakaotechcampus-4/ktc4-chungnam-3/tree/develop"
+                        >팀 레포 develop 브랜치</a
+                    >의 코드를 기준으로 한다.
+                </p>
+            </header>
+            <div class="doc-layout">
+                <nav class="doc-toc" aria-label="목차">
+                    <p class="doc-toc__label">목차</p>
+                    <!--doc:toc-->
+                </nav>
+                <main class="doc-body">
+                    <!--doc:body-->
+                </main>
+            </div>
+            <footer class="doc-footer">
+                <span class="doc-footer__name">REMEMBRALL</span>
+                <span>카카오테크캠퍼스 4기 충남대 3팀</span>
+                <a
+                    class="doc-footer__link"
+                    href="https://github.com/kakaotechcampus-4/ktc4-chungnam-3"
+                    >GitHub에서 앱 코드 보기</a
+                >
+            </footer>
+        </div>
+    </body>
+</html>
