@@ -14,7 +14,8 @@
         "photos": "node scripts/fetch-photos.mjs",
         "fonts": "node scripts/copy-fonts.mjs",
         "shots": "node scripts/shots.mjs",
-        "check:portable": "node scripts/check-portable.mjs"
+        "check:portable": "node scripts/check-portable.mjs",
+        "check:readme": "node scripts/check-readme.mjs"
     },
     "dependencies": {
         "gsap": "^3.15.1",

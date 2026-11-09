@@ -309,3 +309,19 @@ export const SAVES_BASE = partner.funnel[0]?.count ?? 1;
 export function percentOfSaves(count: number): number {
     return Math.round((count / SAVES_BASE) * 100);
 }
+
+// ── S1 잊힌 저장(문제, Remembrall 이 없을 때) ─────────────────────────────────────
+// 일반 '저장한 영상' 목록과 일반 지도. Remembrall 화면 · YouTube 로고 · 고유 UI 는 그리지 않는다.
+// 목록은 최신순이다. 처음 맨 앞은 성심당 Shorts(사진 1080)이고, 새 영상 6개가 앞에 끼며 아래로 밀려난다.
+export const s1Saved: readonly PhotoId[] = [
+    1080, 312, 1036, 488, 674, 1031, 292, 1015, 225,
+];
+export const s1Arrivals: readonly PhotoId[] = [431, 490, 444, 478, 326, 1060];
+export const S1_BASE_COUNT = 118;
+
+// 지도(360×800 논리 px): 사람 점이 성심당(project(coordinates.sungsimdang) ≈ 216, 359) 바로 앞(약 27px)을 지나쳐 간다.
+export const s1Walk = {
+    from: { x: 110, y: 480 },
+    to: { x: 330, y: 300 },
+    place: { x: 216, y: 359 },
+} as const;

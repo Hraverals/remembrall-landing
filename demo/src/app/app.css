@@ -150,3 +150,21 @@ button {
     color: #6a5d61;
     text-align: center;
 }
+
+/* 녹화 화면: 창 전체에 무대를 contain 한다. 커서 · 스크롤바를 숨긴다. */
+.app-record {
+    position: fixed;
+    inset: 0;
+    overflow: hidden;
+    cursor: none;
+}
+
+/* 무대 bg/screen 과 같은 값(앱 영역은 kit 토큰 범위 밖이라 값을 적는다). */
+.app-record--screen {
+    background: #f6f1ee;
+}
+
+/* 크로마키: 편집에서 이 색을 빼면 무대만 남는다. */
+.app-record--transparent {
+    background: #00ff00;
+}

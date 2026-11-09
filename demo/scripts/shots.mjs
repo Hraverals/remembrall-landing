@@ -2,9 +2,10 @@
 // 1) 정지: ?s=ID&beat=n(비트 n 끝 상태) 을 1920×1080 으로 — beat-n.png, 폰만(&view=phone)도 — phone-n.png
 // 2) step 재생: 갤러리에서 → 로 비트를 하나씩 재생하고 "비트 n 끝"이 뜨면 무대만 — step-n.png, ← 로 돌아간 끝 상태 — back-n.png
 // 3) 맞춤: 갤러리 "좁고 낮게"(420×200) 상자에 무대 · 폰이 들어가는지 재고 찍는다 — fit-stage.png · fit-phone.png
+// 4) 녹화: ?record=S5 를 1920×1080 으로 — record-S5.png · record-S5-transparent.png, 컨트롤 · 커서 · 2배속 자막 순서(반복)
 // 다른 브라우저는 SHOTS_BROWSER_CHANNEL=chrome 처럼 준다. 시나리오를 고르려면 node scripts/shots.mjs S2.
 // page.evaluate · waitForFunction 안 코드는 브라우저에서 돈다.
-/* global document, HTMLElement */
+/* global document, HTMLElement, getComputedStyle */
 import { mkdir } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import { chromium } from "playwright-core";
@@ -145,6 +146,70 @@ try {
                 path: `${OUT}fit-${view === "무대" ? "stage" : "phone"}.png`,
             });
         }
+    }
+
+    // 4) 녹화 모드(대상 중 S5, 없으면 첫 대상): 1920×1080 창에서 무대 크기 · 컨트롤 · 커서, 2배속 자막 순서(반복), 크로마키 바탕.
+    const recordTarget =
+        targets.find((scenario) => scenario.id === "S5") ?? targets[0];
+    if (recordTarget != null) {
+        const id = recordTarget.id;
+        await page.goto(`${base}?record=${id}`, { waitUntil: "networkidle" });
+        await page.waitForSelector("[data-rmd-ready]");
+        await settle(page);
+        await page.waitForTimeout(1200);
+        await page.screenshot({ path: `${OUT}record-${id}.png` });
+        const info = await page.evaluate(() => {
+            const box = document
+                .querySelector(".rmd-fit__box")
+                ?.getBoundingClientRect();
+            const record = document.querySelector("[data-app-record]");
+            return {
+                size: box == null ? "-" : `${box.width}×${box.height}`,
+                buttons: document.querySelectorAll("button, input").length,
+                cursor: record == null ? "-" : getComputedStyle(record).cursor,
+            };
+        });
+        report.push(
+            `녹화 ${id}: 무대 ${info.size}, 컨트롤 ${info.buttons}개, cursor ${info.cursor}`,
+        );
+
+        await page.goto(`${base}?record=${id}&speed=2`, {
+            waitUntil: "networkidle",
+        });
+        await page.waitForSelector("[data-rmd-ready]");
+        const seen = [];
+        const until = Date.now() + (recordTarget.duration / 2) * 1000 * 1.6;
+        while (Date.now() < until) {
+            const caption = await page.evaluate(() => {
+                const items = [
+                    ...document.querySelectorAll(".rmd-stage__caption"),
+                ];
+                items.sort(
+                    (a, b) =>
+                        Number(getComputedStyle(b).opacity) -
+                        Number(getComputedStyle(a).opacity),
+                );
+                return items[0]?.textContent ?? "";
+            });
+            if (caption !== "" && seen[seen.length - 1] !== caption) {
+                seen.push(caption);
+            }
+            await page.waitForTimeout(100);
+        }
+        const index = (text) =>
+            recordTarget.beats.findIndex((beat) => beat.caption === text);
+        report.push(
+            `녹화 ${id} 2배속 자막 순서(비트 번호): ${seen.map(index).join(" → ")}`,
+        );
+
+        await page.goto(`${base}?record=${id}&bg=transparent`, {
+            waitUntil: "networkidle",
+        });
+        await page.waitForSelector("[data-rmd-ready]");
+        await settle(page);
+        await page.waitForTimeout(1200);
+        await page.screenshot({ path: `${OUT}record-${id}-transparent.png` });
+        report.push(`녹화 ${id} 크로마키 바탕 1장`);
     }
 } finally {
     await browser.close();
