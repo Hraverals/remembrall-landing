@@ -1,0 +1,239 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>REMEMBRALL — 충남대 3팀 - 파워레인저</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gowun+Dodum&family=Noto+Sans+KR:wght@400;500;700&display=swap">
+<!--
+  REMEMBRALL 발표자료 (단독 실행 HTML)
+
+  - 브라우저로 이 파일을 열면 바로 발표할 수 있습니다. 서버가 필요 없습니다.
+  - 슬라이드 1장 = 아래 #stage 안의 <section> 1개. 순서대로 나옵니다.
+  - 1920×1080 캔버스(16:9) 고정. 창 크기에 맞춰 통째로 확대·축소됩니다.
+  - 대본(발표자 노트)은 각 <section>의 마지막 <aside>. 발표 중 N 키로 봅니다.
+  - 이미지는 deck/assets/ 에 있습니다.
+  - 조작: → / Space / 클릭(오른쪽) 다음, ← / 클릭(왼쪽) 이전, Home/End 처음/끝,
+          N 노트, F 전체화면, 주소 끝 #5 로 5번 슬라이드 바로가기.
+  - 인쇄(Ctrl/Cmd+P) → PDF 저장 시 한 장에 한 슬라이드로 나옵니다.
+
+  슬라이드 작성 규칙은 claude.ai Slides 아티팩트와 같습니다(README 참고).
+  추가로 쓸 수 있는 전용 태그:
+    <x-icon name="Search">          아이콘 (이름 목록은 맨 아래 스크립트 ICONS)
+    <x-connector x1 y1 x2 y2 ...>   화살표 (route: straight | elbow | hv | vh, head: end | both | none)
+    <x-embed><template>…</template> 작은 독립 페이지 (로고 모션)
+    data-build-in="rise 1"          슬라이드가 열릴 때 순서대로 떠오르는 요소 (rise | fade | pop)
+    data-transition="fade"          이 슬라이드에서 다음으로 넘어갈 때 페이드
+-->
+<style>
+/* ───────── 뷰어 ───────── */
+html,body{margin:0;height:100%;background:#0E0D0E;overflow:hidden;-webkit-font-smoothing:antialiased}
+#stage{position:absolute;left:0;top:0;width:1920px;height:1080px;transform-origin:0 0}
+#notes{position:fixed;left:0;right:0;bottom:0;height:34vh;box-sizing:border-box;padding:20px 28px;background:#1B181A;color:#EDE6E9;font:16px/1.65 'Noto Sans KR',sans-serif;white-space:pre-wrap;overflow:auto;border-top:1px solid #3A3337;display:none}
+#notes b{display:block;color:#C9B6D3;font-weight:700;margin-bottom:8px}
+body.show-notes #notes{display:block}
+#counter{position:fixed;right:16px;bottom:12px;font:13px 'Noto Sans KR',sans-serif;color:#A69A9E;background:rgba(14,13,14,.6);padding:4px 10px;border-radius:999px;opacity:0;transition:opacity .3s;pointer-events:none}
+body.ui #counter{opacity:1}
+body.show-notes #counter{bottom:calc(34vh + 12px)}
+
+/* ───────── 슬라이드 기본값 (Slides 아티팩트 규칙과 같게) ───────── */
+#stage section{position:absolute;left:0;top:0;width:1920px;height:1080px;box-sizing:border-box;overflow:hidden;visibility:hidden}
+#stage section.active{visibility:visible;z-index:2}
+#stage section.leaving{visibility:visible;z-index:1}
+#stage section.fade-in{animation:slide-fade .6s ease both}
+@keyframes slide-fade{from{opacity:0}to{opacity:1}}
+#stage section *{margin:0;box-sizing:border-box}
+#stage div{display:flex;flex-direction:column}
+#stage h1{font-size:96px;font-weight:600;line-height:1.1}
+#stage h2{font-size:64px;font-weight:600;line-height:1.15}
+#stage h3{font-size:44px;font-weight:600;line-height:1.2}
+#stage p{font-size:32px;line-height:1.4}
+#stage img{display:block}
+#stage aside{display:none}
+#stage table{border-collapse:collapse;width:100%}
+#stage th,#stage td{padding:.35em .6em;border-bottom:1px solid rgba(42,33,38,.14);vertical-align:middle}
+#stage th{font-weight:600}
+#stage x-icon{display:block;flex:none}
+#stage x-icon svg{display:block;width:100%;height:100%}
+#stage x-connector{display:block;flex:none;pointer-events:none}
+#stage x-connector svg{display:block;overflow:visible}
+#stage x-embed{display:block}
+#stage x-embed iframe{display:block;width:100%;height:100%;border:0;background:transparent;color-scheme:light}
+
+/* 빌드인 */
+#stage [data-build-in]{opacity:0}
+@keyframes bi-rise{from{opacity:0;translate:0 48px}to{opacity:1;translate:0 0}}
+@keyframes bi-fade{from{opacity:0}to{opacity:1}}
+@keyframes bi-pop{0%{opacity:0;scale:.8}70%{opacity:1;scale:1.04}100%{opacity:1;scale:1}}
+
+/* ───────── 인쇄 → PDF ───────── */
+@media print{
+  @page{size:1920px 1080px;margin:0}
+  html,body{height:auto;overflow:visible;background:none;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  #stage{position:static;transform:none!important;width:1920px;height:auto}
+  #stage section{position:relative;visibility:visible;break-after:page;page-break-after:always}
+  #stage section.fade-in{animation:none}
+  #stage [data-build-in]{opacity:1!important;animation:none!important}
+  #notes,#counter{display:none!important}
+}
+</style>
+</head>
+<body>
+<div id="stage">
+
+<!--SLIDES-->
+
+</div>
+<div id="notes"></div>
+<div id="counter"></div>
+
+<script>
+(() => {
+  /* 아이콘 (Lucide, ISC 라이선스) — 이름은 Slides 아티팩트의 x-icon 이름과 같습니다 */
+  const ICONS = {
+    PaperPlane: '<path d="M14.536 21.686a.5.5 0 0 0 .937-.024l6.5-19a.496.496 0 0 0-.635-.635l-19 6.5a.5.5 0 0 0-.024.937l7.93 3.18a2 2 0 0 1 1.112 1.11z"/><path d="m21.854 2.147-10.94 10.939"/>',
+    Search: '<circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>',
+    Verified: '<path d="M3.85 8.62a4 4 0 0 1 4.78-4.77 4 4 0 0 1 6.74 0 4 4 0 0 1 4.78 4.78 4 4 0 0 1 0 6.74 4 4 0 0 1-4.77 4.78 4 4 0 0 1-6.75 0 4 4 0 0 1-4.78-4.77 4 4 0 0 1 0-6.76Z"/><path d="m9 12 2 2 4-4"/>',
+    Clock: '<circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>',
+    Lightning: '<path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z"/>',
+    Check: '<path d="M20 6 9 17l-5-5"/>',
+    CheckCircle: '<circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/>',
+    Globe: '<circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/>',
+    Home: '<path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"/><path d="M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>',
+    Wrench: '<path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>',
+    Warning: '<path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/>',
+    Activity: '<path d="M22 12h-2.48a2 2 0 0 0-1.93 1.46l-2.35 8.36a.25.25 0 0 1-.48 0L9.24 2.18a.25.25 0 0 0-.48 0l-2.35 8.36A2 2 0 0 1 4.49 12H2"/>',
+    Lock: '<rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>',
+    Cloud: '<path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/>',
+    Play: '<path d="M6 3.5v17a1 1 0 0 0 1.5.86l14-8.5a1 1 0 0 0 0-1.72l-14-8.5A1 1 0 0 0 6 3.5z"/>',
+    Users: '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>',
+    Star: '<path d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z"/>',
+    Lightbulb: '<path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"/><path d="M9 18h6"/><path d="M10 22h4"/>',
+    Database: '<ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5V19A9 3 0 0 0 21 19V5"/><path d="M3 12A9 3 0 0 0 21 12"/>',
+    Settings: '<path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/>'
+  };
+
+  const stage = document.getElementById('stage');
+  const slides = [...stage.querySelectorAll(':scope > section')];
+  const notesEl = document.getElementById('notes');
+  const counter = document.getElementById('counter');
+
+  /* x-icon */
+  stage.querySelectorAll('x-icon').forEach(el => {
+    const body = ICONS[el.getAttribute('name')] || '';
+    el.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${body}</svg>`;
+  });
+
+  /* x-connector */
+  let mid = 0;
+  stage.querySelectorAll('x-connector').forEach(el => {
+    const s = el.style;
+    const color = s.color || '#2A2126';
+    const w = parseFloat(s.borderWidth) || 2;
+    const dash = s.borderStyle === 'dashed' ? `stroke-dasharray="${w * 3} ${w * 2}"` : s.borderStyle === 'dotted' ? `stroke-dasharray="${w} ${w * 1.5}"` : '';
+    const head = el.getAttribute('head') || 'end';
+    s.border = 'none';
+    const hl = Math.max(14, w * 5);
+    const id = 'xc' + (mid++);
+    const marker = `<marker id="${id}" viewBox="0 0 10 10" refX="9" refY="5" markerUnits="userSpaceOnUse" markerWidth="${hl}" markerHeight="${hl}" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="${color}"/></marker>`;
+    const ends = (head === 'both' ? `marker-start="url(#${id})" ` : '') + (head !== 'none' ? `marker-end="url(#${id})"` : '');
+    let d, W, H;
+    if (el.hasAttribute('x1')) {
+      const [x1, y1, x2, y2] = ['x1', 'y1', 'x2', 'y2'].map(a => parseFloat(el.getAttribute(a)));
+      const route = el.getAttribute('route') || 'straight';
+      if (route === 'elbow') { const mx = (x1 + x2) / 2; d = `M${x1} ${y1}H${mx}V${y2}H${x2}`; }
+      else if (route === 'hv') d = `M${x1} ${y1}H${x2}V${y2}`;
+      else if (route === 'vh') d = `M${x1} ${y1}V${y2}H${x2}`;
+      else d = `M${x1} ${y1}L${x2} ${y2}`;
+      Object.assign(s, { position: 'absolute', left: '0', top: '0', width: '1920px', height: '1080px' });
+      W = 1920; H = 1080;
+    } else {
+      W = parseFloat(s.width) || 64; H = parseFloat(s.height) || 0;
+      d = H <= 8 ? `M0 ${H / 2}H${W}` : `M0 0L${W} ${H}`;
+    }
+    el.innerHTML = `<svg width="${W}" height="${Math.max(H, 1)}" viewBox="0 0 ${W} ${Math.max(H, 1)}" aria-hidden="true"><defs>${marker}</defs><path d="${d}" fill="none" stroke="${color}" stroke-width="${w}" stroke-linejoin="round" ${dash} ${ends}/></svg>`;
+  });
+
+  /* x-embed → iframe */
+  stage.querySelectorAll('x-embed').forEach(el => {
+    const t = el.querySelector('template');
+    const f = document.createElement('iframe');
+    f.setAttribute('aria-hidden', 'true');
+    f.srcdoc = '<!doctype html><html><head><meta charset="utf-8"></head><body>' + (t ? t.innerHTML : '') + '</body></html>';
+    el.replaceChildren(f);
+  });
+
+  /* 배치: 16:9 고정, 창에 맞춰 확대·축소 */
+  function layout() {
+    const notesH = document.body.classList.contains('show-notes') ? notesEl.offsetHeight : 0;
+    const W = innerWidth, H = innerHeight - notesH;
+    const k = Math.min(W / 1920, H / 1080);
+    stage.style.transform = `translate(${(W - 1920 * k) / 2}px, ${(H - 1080 * k) / 2}px) scale(${k})`;
+  }
+
+  /* 빌드인 */
+  function playBuilds(sec) {
+    sec.querySelectorAll('[data-build-in]').forEach(el => {
+      const [type = 'fade', order = '1'] = el.dataset.buildIn.split(/\s+/);
+      el.style.animation = 'none'; void el.offsetWidth;
+      el.style.animation = `bi-${type} .8s cubic-bezier(.22,.7,.2,1) ${300 + (parseInt(order, 10) - 1) * 350}ms both`;
+    });
+  }
+  function resetBuilds(sec) { sec.querySelectorAll('[data-build-in]').forEach(el => { el.style.animation = 'none'; }); }
+
+  /* 이동 */
+  let cur = -1;
+  function go(n, push = true) {
+    n = Math.max(0, Math.min(slides.length - 1, n));
+    if (n === cur) return;
+    const prev = slides[cur];
+    const next = slides[n];
+    const fade = prev && prev.dataset.transition === 'fade';
+    slides.forEach(s => s.classList.remove('leaving', 'fade-in'));
+    if (prev) { prev.classList.remove('active'); resetBuilds(prev); if (fade) { prev.classList.add('leaving'); setTimeout(() => prev.classList.remove('leaving'), 650); } }
+    next.classList.add('active');
+    if (fade) next.classList.add('fade-in');
+    playBuilds(next);
+    cur = n;
+    const aside = next.querySelector(':scope > aside');
+    notesEl.innerHTML = `<b>${n + 1} / ${slides.length} · ${next.id}</b>` + (aside ? aside.innerHTML : '(노트 없음)');
+    notesEl.scrollTop = 0;
+    counter.textContent = `${n + 1} / ${slides.length}`;
+    if (push) history.replaceState(null, '', '#' + (n + 1));
+  }
+
+  let uiTimer;
+  function pokeUI() { document.body.classList.add('ui'); clearTimeout(uiTimer); uiTimer = setTimeout(() => document.body.classList.remove('ui'), 1800); }
+
+  addEventListener('keydown', e => {
+    if (e.metaKey || e.ctrlKey || e.altKey) return;
+    const k = e.key;
+    if (['ArrowRight', 'ArrowDown', 'PageDown', ' ', 'Enter'].includes(k)) { e.preventDefault(); go(cur + 1); }
+    else if (['ArrowLeft', 'ArrowUp', 'PageUp', 'Backspace'].includes(k)) { e.preventDefault(); go(cur - 1); }
+    else if (k === 'Home') go(0);
+    else if (k === 'End') go(slides.length - 1);
+    else if (k === 'n' || k === 'N') { document.body.classList.toggle('show-notes'); layout(); }
+    else if (k === 'f' || k === 'F') { document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen(); }
+    else return;
+    pokeUI();
+  });
+  addEventListener('click', e => {
+    if (notesEl.contains(e.target)) return;
+    go(e.clientX > innerWidth / 2 ? cur + 1 : cur - 1); pokeUI();
+  });
+  let tx = null;
+  addEventListener('touchstart', e => { tx = e.touches[0].clientX; }, { passive: true });
+  addEventListener('touchend', e => { if (tx === null) return; const dx = e.changedTouches[0].clientX - tx; if (Math.abs(dx) > 40) go(dx < 0 ? cur + 1 : cur - 1); tx = null; });
+  addEventListener('mousemove', pokeUI);
+  addEventListener('resize', layout);
+  addEventListener('hashchange', () => go((parseInt(location.hash.slice(1), 10) || 1) - 1, false));
+
+  layout();
+  go((parseInt(location.hash.slice(1), 10) || 1) - 1, false);
+  document.fonts && document.fonts.ready.then(layout);
+})();
+</script>
+</body>
+</html>
