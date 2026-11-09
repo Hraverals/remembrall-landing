@@ -1,0 +1,48 @@
+<section id="scr-save" style="background:#F6F1EE;color:#2A2126;font-family:'Noto Sans KR', Arial, sans-serif;padding:160px 128px 128px;display:flex;flex-direction:column;gap:40px">
+<div style="position:absolute;left:0;top:0;width:1920px;height:6px;background:#E4DAD5"></div>
+<div style="position:absolute;left:0;top:0;width:812px;height:6px;background:#6B4E7A"></div>
+<div style="position:absolute;left:128px;top:36px;width:1664px;display:flex;flex-direction:row;justify-content:space-between">
+<p style="font-size:24px;color:#8E8185">배경</p>
+<p style="font-size:24px;color:#8E8185">문제</p>
+<p style="font-size:24px;color:#6B4E7A;font-weight:700">솔루션</p>
+<p style="font-size:24px;color:#8E8185">기술</p>
+<p style="font-size:24px;color:#8E8185">차별화</p>
+<p style="font-size:24px;color:#8E8185">로드맵</p>
+<p style="font-size:24px;color:#8E8185">팀</p>
+<p style="font-size:24px;color:#8E8185">시연</p>
+</div>
+<h2 style="font-family:'Gowun Dodum', 'Noto Sans KR', sans-serif;font-size:64px;font-weight:400;line-height:1.25">저장</h2>
+<div style="flex:1;display:flex;flex-direction:row;justify-content:center;align-items:start;gap:120px">
+<div style="display:flex;flex-direction:column;gap:16px;align-items:center">
+<img src="/_blob/ef81ad8387c857099ccf3fc8a98908e0" alt="공유 받음 화면: 영상 썸네일과 '저장했어요' 시트" style="width:270px;height:600px;object-fit:cover;border-radius:30px;border:6px solid #2A2126;box-shadow:0 20px 40px rgba(42,33,38,0.16)">
+<p style="font-size:28px">공유</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:16px;align-items:center">
+<img src="/_blob/601801cc35c664f9d98beda8107c9c7e" alt="분석 중 화면: 영상 속 장소를 찾고 있어요" style="width:270px;height:600px;object-fit:cover;border-radius:30px;border:6px solid #2A2126;box-shadow:0 20px 40px rgba(42,33,38,0.16)">
+<p style="font-size:28px">분석 중</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:16px;align-items:center">
+<img src="/_blob/f49975e23243ffa05e854ee3eeecf145" alt="확인 필요 화면: 이 영상, 어디였을까요? 후보 두 곳 중 선택" style="width:270px;height:600px;object-fit:cover;border-radius:30px;border:6px solid #6B4E7A;box-shadow:0 20px 40px rgba(107,78,122,0.24)">
+<p style="font-size:28px;color:#6B4E7A;font-weight:700">되묻기</p>
+</div>
+</div>
+<aside>[시간] 약 35초
+
+[대본]
+실제 화면입니다.
+유튜브에서 공유 버튼을 누르면, 앱으로 넘어가는 게 아니라 보던 영상 위에 "저장했어요" 시트가 뜹니다. '돌아가기'를 누르면 바로 유튜브로 돌아갑니다.
+그 사이 서버에서는 AI가 영상 속 장소를 찾습니다. 보통 1분 정도 걸리고, 화면을 닫아도 계속 찾습니다.
+영상에 "성심당"이라고만 나와서 본점인지 DCC점인지 애매하면, 혼자 추측하지 않고 "이 영상, 어디였을까요?" 하고 짧게 물어봅니다. 엉뚱한 곳으로 알림이 가는 것보다 한 번 묻는 게 낫다고 판단했습니다.
+그리고 지하철처럼 연결이 끊긴 곳에서 공유해도, 앱에 남겨 뒀다가 다시 연결되면 자동으로 보냅니다. "공유만 하면 무조건 저장된다"는 경험입니다.
+
+[UX 강조점 — Notion]
+- 되묻기: 장소가 애매하면 추측·폐기하지 않고 짧은 질문으로 확인. 기술(장소 확정)과 UX가 직접 연결되는 지점.
+- 오프라인에도 안전한 저장 큐: 로그인 전/네트워크 끊김 상태에서 공유해도 로컬 큐에 저장 후 자동 재시도.
+
+[세부 사실 — 질문 대비]
+- 공유 수신: expo-share-intent. 현재 화면 위에 시트(별도 화면 이동 없음). 상태: 저장 중 / 저장했어요(201) / 이미 저장함(200) / 대기열 / Shorts 아님.
+- 저장 큐: 최대 20개, 같은 영상 중복 제거. 앱 복귀·로그인 직후·다음 공유 성공 후 재전송.
+- 되묻기: 후보 2~3곳일 때만, 콘텐츠당 최대 1회. 목록에 없으면 "여기 없어요, 직접 찾을게요"로 검색.
+- 분석 결과(확인 필요·장소 없음·실패)는 푸시가 아니라 '기억' 탭에서 확인 — 알림은 '꺼내는 순간'에만.
+- 분석 시간: 실측 평균 59초(24~189초).</aside>
+</section>

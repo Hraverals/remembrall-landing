@@ -1,0 +1,55 @@
+<section id="roadmap" style="background:#F6F1EE;color:#2A2126;font-family:'Noto Sans KR', Arial, sans-serif;padding:160px 128px 128px;display:flex;flex-direction:column;gap:48px">
+<div style="position:absolute;left:0;top:0;width:1920px;height:6px;background:#E4DAD5"></div>
+<div style="position:absolute;left:0;top:0;width:1625px;height:6px;background:#6B4E7A"></div>
+<div style="position:absolute;left:128px;top:36px;width:1664px;display:flex;flex-direction:row;justify-content:space-between">
+<p style="font-size:24px;color:#8E8185">배경</p>
+<p style="font-size:24px;color:#8E8185">문제</p>
+<p style="font-size:24px;color:#8E8185">솔루션</p>
+<p style="font-size:24px;color:#8E8185">기술</p>
+<p style="font-size:24px;color:#8E8185">차별화</p>
+<p style="font-size:24px;color:#6B4E7A;font-weight:700">로드맵</p>
+<p style="font-size:24px;color:#8E8185">팀</p>
+<p style="font-size:24px;color:#8E8185">시연</p>
+</div>
+<h2 style="font-family:'Gowun Dodum', 'Noto Sans KR', sans-serif;font-size:64px;font-weight:400;line-height:1.25">로드맵</h2>
+<div style="flex:1;display:flex;flex-direction:row;gap:32px;align-items:stretch">
+<div style="flex:1;display:flex;flex-direction:column;gap:24px;background:#6B4E7A;border-radius:16px;padding:48px 44px">
+<p style="font-size:24px;font-weight:700;color:#E6DAEB">NOW · MVP</p>
+<h3 style="font-family:'Gowun Dodum', 'Noto Sans KR', sans-serif;font-size:52px;font-weight:400;color:#FFFCFA">장소</h3>
+<p style="font-size:30px;color:#F4EEF6">YouTube Shorts</p>
+<p style="font-size:30px;color:#F4EEF6">위치 트리거</p>
+<p style="font-size:30px;color:#F4EEF6">AI 판단 알림</p>
+<p style="font-size:30px;color:#F4EEF6">Android</p>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:24px;background:#FFFCFA;border:1px solid #DDD2CD;border-radius:16px;padding:48px 44px">
+<p style="font-size:24px;font-weight:700;color:#6B4E7A">NEXT</p>
+<h3 style="font-family:'Gowun Dodum', 'Noto Sans KR', sans-serif;font-size:52px;font-weight:400">시간</h3>
+<p style="font-size:30px;color:#6A5D61">일정 트리거 · 캘린더</p>
+<p style="font-size:30px;color:#6A5D61">Instagram 릴스</p>
+<p style="font-size:30px;color:#6A5D61">카카오 로그인</p>
+<p style="font-size:30px;color:#6A5D61">iOS</p>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:24px;background:#FFFCFA;border:1px solid #DDD2CD;border-radius:16px;padding:48px 44px">
+<p style="font-size:24px;font-weight:700;color:#6B4E7A">LATER</p>
+<h3 style="font-family:'Gowun Dodum', 'Noto Sans KR', sans-serif;font-size:52px;font-weight:400">함께</h3>
+<p style="font-size:30px;color:#6A5D61">공용 풀 추천</p>
+<p style="font-size:30px;color:#6A5D61">길 안내</p>
+<p style="font-size:30px;color:#6A5D61">파트너 BM</p>
+</div>
+</div>
+<aside>[시간] 약 35초
+
+[대본]
+지금 MVP는 '장소를 기억하는' 단계입니다. 유튜브 쇼츠를 저장하고, 장소를 확정하고, 근처에 가면 꺼내 줍니다.
+다음은 '시간도 기억하는' 단계입니다. 축제나 팝업스토어처럼 기간이 정해진 콘텐츠는 지도 대신 캘린더로 보내서, 날짜가 다가오면 알려 주려고 합니다. 영상에서 기간 정보는 이미 추출하고 있어서 트리거로 연결하는 일만 남았습니다. 인스타그램 릴스, 카카오 로그인, iOS도 이 단계입니다.
+그다음은 '함께 기억하는' 단계입니다. 사용자가 동의한 저장물을 다른 사용자의 추천 후보로 쓰고, 그 위에서 수익 모델을 만들 수 있습니다.
+
+[세부 사실 — 질문 대비]
+- MVP 범위(docs/카테켐프로젝트 개요.md): YouTube Shorts, 장소 추출·검증, 위치 트리거. 일정 트리거와 Instagram은 명시적으로 제외.
+- 기간 정보: 분석 결과에 기간 정보(TemporalInfoDto)가 이미 포함, 트리거 미연결. 장소 카테고리에서 '축제'를 제외한 이유 = 시간 트리거 대상.
+- 카카오 로그인: 디자인·서버 구조 준비 완료(비활성). MVP는 설치 ID 기반 게스트 세션.
+- iOS: 지오펜스 설계는 iOS 한도(20개) 기준, 현재 빌드는 Android 전용.
+- 공용 풀: 에이전트의 searchCandidates가 이미 개인/공용 범위를 구분해 검색하도록 설계. 공용 후보의 저장 관계 비노출이 평가 필수 조건.
+- 길 안내: 상세 화면 버튼은 디자인만, 경로 API 연결 전.
+- 기술 로드맵(질문 시): 장소 단위 쿨다운, 필요 시 LangGraph4j 재검토, 트래픽 증가 시 벡터 검색 분리(ADR001에 조건 명시).</aside>
+</section>

@@ -1,0 +1,64 @@
+<section id="tech-fail" style="background:#F6F1EE;color:#2A2126;font-family:'Noto Sans KR', Arial, sans-serif;padding:160px 128px 128px;display:flex;flex-direction:column;gap:48px">
+<div style="position:absolute;left:0;top:0;width:1920px;height:6px;background:#E4DAD5"></div>
+<div style="position:absolute;left:0;top:0;width:1477px;height:6px;background:#6B4E7A"></div>
+<div style="position:absolute;left:128px;top:36px;width:1664px;display:flex;flex-direction:row;justify-content:space-between">
+<p style="font-size:24px;color:#8E8185">배경</p>
+<p style="font-size:24px;color:#8E8185">문제</p>
+<p style="font-size:24px;color:#8E8185">솔루션</p>
+<p style="font-size:24px;color:#6B4E7A;font-weight:700">기술</p>
+<p style="font-size:24px;color:#8E8185">차별화</p>
+<p style="font-size:24px;color:#8E8185">로드맵</p>
+<p style="font-size:24px;color:#8E8185">팀</p>
+<p style="font-size:24px;color:#8E8185">시연</p>
+</div>
+<h2 style="font-family:'Gowun Dodum', 'Noto Sans KR', sans-serif;font-size:64px;font-weight:400;line-height:1.25">실패 · 재시도 설계</h2>
+<div style="flex:1;display:flex;flex-direction:row;gap:96px;align-items:start">
+<div style="flex:1;display:flex;flex-direction:column;gap:48px">
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+<div style="display:flex;flex-direction:row;align-items:center;gap:20px;background:#FFFCFA;border:1px solid #DDD2CD;border-radius:16px;padding:28px 32px"><x-icon name="Warning" style="color:#6B4E7A;width:48px;height:48px"></x-icon><h3 style="font-family:'Gowun Dodum', 'Noto Sans KR', sans-serif;font-size:34px;font-weight:400">실패 코드 분류</h3></div>
+<div style="display:flex;flex-direction:row;align-items:center;gap:20px;background:#FFFCFA;border:1px solid #DDD2CD;border-radius:16px;padding:28px 32px"><x-icon name="Activity" style="color:#6B4E7A;width:48px;height:48px"></x-icon><h3 style="font-family:'Gowun Dodum', 'Noto Sans KR', sans-serif;font-size:34px;font-weight:400">후보별 독립 처리</h3></div>
+<div style="display:flex;flex-direction:row;align-items:center;gap:20px;background:#FFFCFA;border:1px solid #DDD2CD;border-radius:16px;padding:28px 32px"><x-icon name="Lock" style="color:#6B4E7A;width:48px;height:48px"></x-icon><h3 style="font-family:'Gowun Dodum', 'Noto Sans KR', sans-serif;font-size:34px;font-weight:400">중복 요청 무시</h3></div>
+<div style="display:flex;flex-direction:row;align-items:center;gap:20px;background:#FFFCFA;border:1px solid #DDD2CD;border-radius:16px;padding:28px 32px"><x-icon name="Cloud" style="color:#6B4E7A;width:48px;height:48px"></x-icon><h3 style="font-family:'Gowun Dodum', 'Noto Sans KR', sans-serif;font-size:34px;font-weight:400">저장 큐 재시도</h3></div>
+</div>
+<div style="display:flex;flex-direction:column;gap:24px">
+<p style="font-size:28px;font-weight:700">영상 분석 성공률</p>
+<div style="display:flex;flex-direction:row;align-items:center;gap:32px">
+<p style="width:200px;font-size:26px;color:#6A5D61">1차 시도</p>
+<div style="flex:1;height:56px;background:#ECE4E0;border-radius:4px;display:flex;flex-direction:row"><div style="width:80%;background:#A69A9E;border-radius:4px"></div></div>
+<p style="width:120px;font-size:40px;font-weight:700;text-align:right">80%</p>
+</div>
+<div style="display:flex;flex-direction:row;align-items:center;gap:32px">
+<p style="width:200px;font-size:26px;color:#6B4E7A;font-weight:700">재시도 포함</p>
+<div style="flex:1;height:56px;background:#ECE4E0;border-radius:4px;display:flex;flex-direction:row"><div style="width:100%;background:#6B4E7A;border-radius:4px"></div></div>
+<p style="width:120px;font-size:40px;font-weight:700;text-align:right;color:#6B4E7A">100%</p>
+</div>
+</div>
+</div>
+<div style="display:flex;flex-direction:column;gap:16px;align-items:center">
+<img src="/_blob/4b44823694d228f2e33b625426f8dbb9" alt="분석 실패 화면: 영상을 불러오지 못했어요, 다시 시도 버튼" style="width:252px;height:560px;object-fit:cover;border-radius:28px;border:6px solid #2A2126;box-shadow:0 20px 40px rgba(42,33,38,0.16)">
+<p style="font-size:24px;color:#6A5D61">재시도 가능한 실패</p>
+</div>
+</div>
+<aside>[시간] 약 30초
+
+[대본]
+외부 API와 AI를 여러 개 엮는 서비스라 실패는 반드시 일어납니다. 그래서 "실패해도 멈추지 않게"라는 한 가지 원칙을 모든 모듈에 적용했습니다.
+분석이 실패하면 다시 시도하면 되는 실패인지, 영상이 삭제돼서 안 되는 실패인지를 코드로 나누고, 화면 문구와 '다시 시도' 버튼까지 다르게 보여줍니다.
+장소 후보 하나가 실패해도 나머지는 계속 진행하고, 같은 영상이 동시에 들어와도 분석은 한 번만 합니다. 보내지 못한 공유는 큐에 남겨 뒀다가 자동으로 다시 보냅니다.
+실제로 영상 분석 1차 성공률은 80%였는데, 재시도 설계로 100%가 됐습니다.
+
+[이 원칙이 생긴 실제 사례]
+- 평가 중 Gemini 호출이 확률적으로 20~50% 실패하는 현상 발견. 같은 영상이 1번째 실패, 3번째 성공처럼 번갈아 나옴. 처음엔 '영상 접근 불가'로 잘못 단정한 2건이 있었는데 실제로는 호출 실패 → '재시도 가능(EXTRACTION_API_ERROR)'으로 분류 정정 + 재시도 추가. 무제한이던 타임아웃도 60초로 설정.
+
+[세부 사실 — 질문 대비]
+- 분석 상태: PENDING → ANALYZING → SUCCESS / PARTIAL / FAILED.
+- 실패 코드와 화면 문구:
+  · EXTRACTION_API_ERROR(재시도 가능): "영상을 불러오지 못했어요" + 다시 시도
+  · VIDEO_UNAVAILABLE: "볼 수 없는 영상이에요"(비공개·삭제), 다시 시도 없음
+  · 분석 불가: "장소를 알아내지 못했어요 — 링크는 보관", 다시 시도 없음
+  · 요약은 얻었는데 장소 검색 API만 장애 → PARTIAL
+- 중복 방지: 콘텐츠는 INSERT … ON CONFLICT DO NOTHING, 상태 PENDING → ANALYZING 조건부 UPDATE에 성공한 요청 하나만 Gemini 호출.
+- 분석 중 5분 넘게 멈춘 건은 1분마다 도는 스케줄러가 회수.
+- 저장·분석·삭제 경쟁 시 write skew 방지: 회원 → 콘텐츠 순서로 공통 부모 행 잠금(데드락 회피).
+- 외부 API 호출은 트랜잭션 밖에서, 앞뒤로 짧은 트랜잭션 두 개.</aside>
+</section>

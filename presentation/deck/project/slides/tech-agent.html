@@ -1,0 +1,74 @@
+<section id="tech-agent" style="background:#F6F1EE;color:#2A2126;font-family:'Noto Sans KR', Arial, sans-serif;padding:160px 128px 128px;display:flex;flex-direction:column;gap:48px">
+<div style="position:absolute;left:0;top:0;width:1920px;height:6px;background:#E4DAD5"></div>
+<div style="position:absolute;left:0;top:0;width:1329px;height:6px;background:#6B4E7A"></div>
+<div style="position:absolute;left:128px;top:36px;width:1664px;display:flex;flex-direction:row;justify-content:space-between">
+<p style="font-size:24px;color:#8E8185">배경</p>
+<p style="font-size:24px;color:#8E8185">문제</p>
+<p style="font-size:24px;color:#8E8185">솔루션</p>
+<p style="font-size:24px;color:#6B4E7A;font-weight:700">기술</p>
+<p style="font-size:24px;color:#8E8185">차별화</p>
+<p style="font-size:24px;color:#8E8185">로드맵</p>
+<p style="font-size:24px;color:#8E8185">팀</p>
+<p style="font-size:24px;color:#8E8185">시연</p>
+</div>
+<h2 style="font-family:'Gowun Dodum', 'Noto Sans KR', sans-serif;font-size:64px;font-weight:400;line-height:1.25">꺼내기 에이전트</h2>
+<div style="flex:1;display:flex;flex-direction:row;gap:24px;align-items:center">
+<div style="width:240px;display:flex;flex-direction:column;align-items:center;gap:20px">
+<div style="width:160px;height:160px;border-radius:50%;background:#FFFCFA;border:2px solid #DDD2CD;display:flex;align-items:center;justify-content:center"><x-icon name="Globe" style="color:#6B4E7A;width:72px;height:72px"></x-icon></div>
+<h3 style="font-family:'Gowun Dodum', 'Noto Sans KR', sans-serif;font-size:40px;font-weight:400">근처 도착</h3>
+</div>
+<x-connector head="end" style="width:56px;height:4px;color:#6B4E7A;border-width:3px"></x-connector>
+<div style="flex:1;display:flex;flex-direction:column;gap:24px;background:#F4EEF6;border:2px solid #6B4E7A;border-radius:16px;padding:36px">
+<h3 style="font-family:'Gowun Dodum', 'Noto Sans KR', sans-serif;font-size:40px;font-weight:400;color:#5A3F68">Gemini · 도구 호출</h3>
+<div style="display:flex;flex-direction:column;gap:14px;background:#FFFCFA;border-radius:12px;padding:24px 28px">
+<p style="font-size:28px;font-weight:700;font-family:'Courier New', monospace">searchCandidates</p>
+<div style="display:flex;flex-direction:row;flex-wrap:wrap;gap:10px">
+<p style="font-size:24px;background:#E6DAEB;border-radius:999px;padding:6px 18px">pgvector 유사도</p>
+<p style="font-size:24px;background:#E6DAEB;border-radius:999px;padding:6px 18px">위치 반경</p>
+<p style="font-size:24px;background:#E6DAEB;border-radius:999px;padding:6px 18px">공개 / 개인</p>
+</div>
+</div>
+<div style="display:flex;flex-direction:column;gap:14px;background:#FFFCFA;border-radius:12px;padding:24px 28px">
+<p style="font-size:28px;font-weight:700;font-family:'Courier New', monospace">checkVisitConditions</p>
+<div style="display:flex;flex-direction:row;flex-wrap:wrap;gap:10px">
+<p style="font-size:24px;background:#E6DAEB;border-radius:999px;padding:6px 18px">영업 · 휴무</p>
+<p style="font-size:24px;background:#E6DAEB;border-radius:999px;padding:6px 18px">알림 무시 이력</p>
+<p style="font-size:24px;background:#E6DAEB;border-radius:999px;padding:6px 18px">실시간 날씨</p>
+</div>
+</div>
+</div>
+<x-connector head="end" style="width:56px;height:4px;color:#6B4E7A;border-width:3px"></x-connector>
+<div style="width:340px;display:flex;flex-direction:column;gap:16px">
+<div style="display:flex;flex-direction:column;gap:8px;background:#6B4E7A;border-radius:16px;padding:28px 32px">
+<p style="font-size:24px;color:#E6DAEB;font-weight:700">제안</p>
+<p style="font-size:28px;color:#FFFCFA">장소 · 코스 · 영상</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:8px;background:#FFFCFA;border:1px solid #DDD2CD;border-radius:16px;padding:28px 32px">
+<p style="font-size:24px;color:#6A5D61;font-weight:700">침묵</p>
+<p style="font-size:28px">근거 약하면 안 보냄</p>
+</div>
+<p style="font-size:24px;color:#6B4E7A;font-weight:700;padding:8px 0 0 4px">예) 비 → 루프탑 대신 실내 카페</p>
+</div>
+</div>
+<aside>[시간] 약 45초
+
+[대본]
+세 번째, 꺼내기 에이전트입니다. 근처에 왔다고 무조건 알림을 보내면 금방 스팸처럼 느껴지고, 결국 알림을 끄게 됩니다.
+그래서 거리 기준이 아니라 AI가 직접 판단하게 했습니다. 도착 이벤트가 오면 Gemini 에이전트가 두 도구를 직접 골라 호출합니다.
+하나는 후보 검색 도구로, 의미가 비슷한 콘텐츠를 pgvector로 찾으면서 위치 반경과 공개·개인 범위까지 한 쿼리로 묶어 찾습니다.
+다른 하나는 방문 조건 확인 도구로, 지금 영업 중인지, 최근 비슷한 알림을 무시했는지, 실시간 날씨를 확인합니다.
+그래서 비가 오면 루프탑 카페 대신 근처 실내 카페를 제안하고, 근거가 약하면 아예 보내지 않습니다. "근처면 알림"이 아니라 "근처 + AI 판단"입니다.
+
+[UX 연결 — Notion]
+- 날씨·알림 이력을 고려한 알림 타이밍 = "저장만 하고 잊은 걸 적절한 순간에 꺼내준다"는 핵심 가치를 실제로 구현한 부분.
+
+[세부 사실 — 질문 대비]
+- 목표: "반드시 추천"이 아니라 "지금 다시 보여줄 가치가 있는가". 근거가 약하면 침묵(NO_ACTION).
+- 흐름: 잠정 제안 → 방문 조건 확인 → 안 맞으면 대안 검색 → 최종 제안 또는 침묵.
+- 제안 형태: PLACE(장소) / COURSE(도보 30분 이내 2곳 이상) / CONTENT(영상) / NO_ACTION.
+- 예산: 도구 호출 최대 6회, 모델 30초, 실행 90초. 후보 반경 1km, 개인 10 · 공용 10 · 의미 검색 5개.
+- checkVisitConditions: 운영 기간·휴무, 최근 보낸 알림 열람 여부, 기상청 단기예보. 최대 3곳.
+- 필수 조건 7가지: 받은 후보만 사용 / 콘텐츠-장소 연결 정확 / 미확인 사실 단정 금지 / 사용자 상황 지어내기 금지 / 형태 제약 준수 / 종료·휴무와 모순 금지 / 공용 후보의 저장 관계 비노출.
+- 과잉 알림 방지: 회원 단위 2시간 쿨다운(침묵도 1회로 셈), 30분 지난 이벤트 무시.
+- 구현: Spring AI ChatClient + 도구 2개(ADR005), gemini-3.6-flash.</aside>
+</section>

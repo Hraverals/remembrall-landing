@@ -1,0 +1,50 @@
+<section id="end" style="background:#F6F1EE;color:#2A2126;font-family:'Noto Sans KR', Arial, sans-serif;padding:128px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:40px">
+<div style="width:280px;height:280px"></div>
+<h1 style="font-family:'Gowun Dodum', 'Noto Sans KR', sans-serif;font-size:120px;font-weight:400;line-height:1.1;text-align:center">감사합니다</h1>
+<p style="font-size:32px;font-weight:700;color:#FFFCFA;background:#6B4E7A;border-radius:999px;padding:12px 40px">Q &amp; A</p>
+<p style="position:absolute;left:128px;bottom:64px;width:1664px;font-size:24px;color:#8E8185;text-align:center">REMEMBRALL · 충남대 3팀 - 파워레인저</p>
+<x-embed style="position:absolute;left:820px;top:176px;width:280px;height:280px"><!doctype html><html><head><meta charset="utf-8"><style>
+html,body{margin:0;height:100%;background:transparent;overflow:hidden}
+.icon{position:absolute;left:20px;top:20px;width:240px;height:240px;border-radius:53px;background:#6B4E7A;box-shadow:0 16px 32px rgba(107,78,122,.28)}
+.c{position:absolute;background:#FFFCFA;animation-duration:4.8s;animation-iteration-count:infinite;animation-timing-function:ease-in-out}
+.b1{left:28.8px;top:124.8px;width:72px;height:72px;border-radius:15.8px;opacity:.22;animation-name:b1}
+.b2{left:64.8px;top:81.6px;width:81.6px;height:81.6px;border-radius:18px;opacity:.48;animation-name:b2}
+.f{left:110.4px;top:33.6px;width:96px;height:96px;border-radius:21px;animation-name:f}
+.dot{position:absolute;left:55.2px;top:16.8px;width:24px;height:24px;border-radius:50%;background:#6B4E7A}
+.ring{position:absolute;left:107.4px;top:30.6px;width:96px;height:96px;border-radius:21px;border:3px solid #FFFCFA;opacity:0;animation:ring 4.8s infinite cubic-bezier(.22,.7,.2,1)}
+@keyframes b1{0%,12%,25%,37%,100%{opacity:.22;transform:translateY(0) scale(1)}5.5%,30.5%{opacity:1;transform:translateY(-7.2px) scale(1.08)}}
+@keyframes b2{0%,3.33%,15.33%,28.33%,40.33%,100%{opacity:.48;transform:translateY(0) scale(1)}8.83%,33.83%{opacity:1;transform:translateY(-7.2px) scale(1.08)}}
+@keyframes f{0%,6.67%,18.67%,31.67%,43.67%,50%,59.75%,100%{transform:translateY(0) scale(1)}12.17%,37.17%{transform:translateY(-7.2px) scale(1.06)}53%{transform:scale(1.24)}55.25%{transform:scale(.92)}57.5%{transform:scale(1.05)}}
+@keyframes ring{0%,49.9%{opacity:0;transform:scale(.9)}50%{opacity:.7;transform:scale(.9)}58.25%,100%{opacity:0;transform:scale(1.9)}}
+@media (prefers-reduced-motion:reduce){.c,.ring{animation:none}}
+</style></head><body><div class="icon"><div class="c b1"></div><div class="c b2"></div><div class="ring"></div><div class="c f"><div class="dot"></div></div></div></body></html></x-embed>
+<aside>[시간] 약 10초 + 질의응답
+
+[대본]
+저장만 해두고 잊은 곳, 이제 근처에 가면 REMEMBRALL이 다시 꺼내드리겠습니다. 감사합니다. 질문 받겠습니다.
+
+[예상 질문과 답변]
+Q. 근처에 갈 때마다 알림이 오면 귀찮지 않나요?
+A. 거리만으로 보내지 않습니다. 에이전트가 영업 여부·날씨·최근 알림 무시 여부를 보고 근거가 약하면 보내지 않습니다. 서버에서도 회원 단위 2시간 쿨다운을 둡니다.
+
+Q. 배터리 소모는요?
+A. 위치를 계속 추적하지 않고 OS 지오펜스를 씁니다. 등록한 원에 들어갈 때만 OS가 앱을 깨우고, 그때 장소와 시각만 보냅니다. 주기적 폴링은 검토 후 기각했습니다.
+
+Q. 위치 개인정보는요?
+A. 위치기반서비스 약관 동의를 따로 받고, 이동 경로나 실시간 위치는 보내지 않고 도착한 장소와 시각만 보냅니다. 동의를 거두면 지오펜스를 해제합니다. 영상·음성·자막 원본은 저장하지 않습니다.
+
+Q. AI가 장소를 틀리면요?
+A. 확신이 없으면 추측하지 않고 되묻습니다(후보 2~3곳). 실측 평가에서 59곳 모두 정확했고, 틀렸을 때는 상세 화면의 "이 장소가 아니에요"로 바로 바꿀 수 있습니다.
+
+Q. 인스타그램은요? 축제·팝업 같은 일정은요?
+A. MVP는 YouTube Shorts와 위치에 집중했습니다. 기간 정보는 이미 추출하고 있어 일정 트리거와 릴스 지원이 다음 단계입니다.
+
+Q. 왜 처음 쓰던 API를 바꿨나요?
+A. Elice API(OpenAI 호환)는 영상 입력을 400으로 거부했습니다. Vertex AI Gemini는 YouTube URL을 직접 받아, 다운로드·음성 인식 없이 정책 위반 위험도 피할 수 있었습니다.
+
+Q. iOS는요?
+A. 지오펜스 설계는 iOS 한도(20개)까지 맞춰 뒀고, 현재 빌드는 Android 전용입니다.
+
+Q. 비용은?
+A. PoC 기준 쇼츠 1편 분석 약 3,900토큰, 호출당 1원 미만. 에이전트 판단은 v4 기준 약 6,500토큰.</aside>
+</section>

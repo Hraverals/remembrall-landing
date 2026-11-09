@@ -1,0 +1,1689 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>REMEMBRALL — 충남대 3팀 - 파워레인저</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gowun+Dodum&family=Noto+Sans+KR:wght@400;500;700&display=swap">
+<!--
+  REMEMBRALL 발표자료 (단독 실행 HTML)
+
+  - 브라우저로 이 파일을 열면 바로 발표할 수 있습니다. 서버가 필요 없습니다.
+  - 슬라이드 1장 = 아래 #stage 안의 <section> 1개. 순서대로 나옵니다.
+  - 1920×1080 캔버스(16:9) 고정. 창 크기에 맞춰 통째로 확대·축소됩니다.
+  - 대본(발표자 노트)은 각 <section>의 마지막 <aside>. 발표 중 N 키로 봅니다.
+  - 이미지는 deck/assets/ 에 있습니다.
+  - 조작: → / Space / 클릭(오른쪽) 다음, ← / 클릭(왼쪽) 이전, Home/End 처음/끝,
+          N 노트, F 전체화면, 주소 끝 #5 로 5번 슬라이드 바로가기.
+  - 인쇄(Ctrl/Cmd+P) → PDF 저장 시 한 장에 한 슬라이드로 나옵니다.
+
+  슬라이드 작성 규칙은 claude.ai Slides 아티팩트와 같습니다(README 참고).
+  추가로 쓸 수 있는 전용 태그:
+    <x-icon name="Search">          아이콘 (이름 목록은 맨 아래 스크립트 ICONS)
+    <x-connector x1 y1 x2 y2 ...>   화살표 (route: straight | elbow | hv | vh, head: end | both | none)
+    <x-embed><template>…</template> 작은 독립 페이지 (로고 모션)
+    data-build-in="rise 1"          슬라이드가 열릴 때 순서대로 떠오르는 요소 (rise | fade | pop)
+    data-transition="fade"          이 슬라이드에서 다음으로 넘어갈 때 페이드
+-->
+<style>
+/* ───────── 뷰어 ───────── */
+html,body{margin:0;height:100%;background:#0E0D0E;overflow:hidden;-webkit-font-smoothing:antialiased}
+#stage{position:absolute;left:0;top:0;width:1920px;height:1080px;transform-origin:0 0}
+#notes{position:fixed;left:0;right:0;bottom:0;height:34vh;box-sizing:border-box;padding:20px 28px;background:#1B181A;color:#EDE6E9;font:16px/1.65 'Noto Sans KR',sans-serif;white-space:pre-wrap;overflow:auto;border-top:1px solid #3A3337;display:none}
+#notes b{display:block;color:#C9B6D3;font-weight:700;margin-bottom:8px}
+body.show-notes #notes{display:block}
+#counter{position:fixed;right:16px;bottom:12px;font:13px 'Noto Sans KR',sans-serif;color:#A69A9E;background:rgba(14,13,14,.6);padding:4px 10px;border-radius:999px;opacity:0;transition:opacity .3s;pointer-events:none}
+body.ui #counter{opacity:1}
+body.show-notes #counter{bottom:calc(34vh + 12px)}
+
+/* ───────── 슬라이드 기본값 (Slides 아티팩트 규칙과 같게) ───────── */
+#stage section{position:absolute;left:0;top:0;width:1920px;height:1080px;box-sizing:border-box;overflow:hidden;visibility:hidden}
+#stage section.active{visibility:visible;z-index:2}
+#stage section.leaving{visibility:visible;z-index:1}
+#stage section.fade-in{animation:slide-fade .6s ease both}
+@keyframes slide-fade{from{opacity:0}to{opacity:1}}
+#stage section *{margin:0;box-sizing:border-box}
+#stage div{display:flex;flex-direction:column}
+#stage h1{font-size:96px;font-weight:600;line-height:1.1}
+#stage h2{font-size:64px;font-weight:600;line-height:1.15}
+#stage h3{font-size:44px;font-weight:600;line-height:1.2}
+#stage p{font-size:32px;line-height:1.4}
+#stage img{display:block}
+#stage aside{display:none}
+#stage table{border-collapse:collapse;width:100%}
+#stage th,#stage td{padding:.35em .6em;border-bottom:1px solid rgba(42,33,38,.14);vertical-align:middle}
+#stage th{font-weight:600}
+#stage x-icon{display:block;flex:none}
+#stage x-icon svg{display:block;width:100%;height:100%}
+#stage x-connector{display:block;flex:none;pointer-events:none}
+#stage x-connector svg{display:block;overflow:visible}
+#stage x-embed{display:block}
+#stage x-embed iframe{display:block;width:100%;height:100%;border:0;background:transparent;color-scheme:light}
+
+/* 빌드인 */
+#stage [data-build-in]{opacity:0}
+@keyframes bi-rise{from{opacity:0;translate:0 48px}to{opacity:1;translate:0 0}}
+@keyframes bi-fade{from{opacity:0}to{opacity:1}}
+@keyframes bi-pop{0%{opacity:0;scale:.8}70%{opacity:1;scale:1.04}100%{opacity:1;scale:1}}
+
+/* ───────── 인쇄 → PDF ───────── */
+@media print{
+  @page{size:1920px 1080px;margin:0}
+  html,body{height:auto;overflow:visible;background:none;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  #stage{position:static;transform:none!important;width:1920px;height:auto}
+  #stage section{position:relative;visibility:visible;break-after:page;page-break-after:always}
+  #stage section.fade-in{animation:none}
+  #stage [data-build-in]{opacity:1!important;animation:none!important}
+  #notes,#counter{display:none!important}
+}
+</style>
+</head>
+<body>
+<div id="stage">
+
+<!-- ===== 01 · cover ===== -->
+<section id="cover" style="background:#F6F1EE;color:#2A2126;font-family:'Noto Sans KR', Arial, sans-serif;padding:128px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:40px">
+<img src="deck/assets/logo.png" alt="REMEMBRALL 앱 아이콘" style="width:240px;height:240px;object-fit:cover;border-radius:53px;box-shadow:0 16px 32px rgba(107,78,122,0.28)">
+<h1 style="font-family:'Gowun Dodum', 'Noto Sans KR', sans-serif;font-size:140px;font-weight:400;line-height:1.1;text-align:center">REMEMBRALL</h1>
+<p style="font-size:36px;color:#6A5D61;text-align:center">잊은 장소를, 근처에서 다시</p>
+<p style="position:absolute;right:128px;bottom:100px;width:900px;font-size:28px;font-weight:700;text-align:right;color:#6B4E7A">충남대 3팀 - 파워레인저</p>
+<p style="position:absolute;right:128px;bottom:60px;width:900px;font-size:24px;color:#6A5D61;text-align:right">남준혁 · 김동희 · 서민규 · 김종훈 · 김에스더 · 박정현</p>
+<aside>[시간] 약 15초
+
+[대본]
+안녕하세요, 카카오테크캠퍼스 충남대 3팀 파워레인저입니다.
+저희가 만든 서비스는 REMEMBRALL입니다. 저장만 해두고 잊어버린 곳을, 그 근처에 갔을 때 먼저 꺼내주는 앱입니다.
+
+[연출 메모]
+- 표지는 브랜드 색, 다음 '배경' 장표부터 흑백으로 바뀌고, 9번(REMEMBRALL 등장)에서 색과 로고 모션이 돌아옵니다.
+- 아이콘 의미: 작고 흐린 장(잊힌 기억) → 크고 또렷한 장(다시 꺼낸 기억). 「떠오르는 계단」.
+
+[선택 멘트: 이름 유래]
+해리포터의 "리멤브럴"은 주인이 뭔가 잊으면 연기가 붉게 변하는 유리구슬입니다. 팀이 의도한 유래가 맞다면 한 줄 덧붙여도 좋습니다(레포 문서에 근거는 없음).</aside>
+</section>
+
+<!-- ===== 02 · contents ===== -->
+<section id="contents" style="background:#F6F1EE;color:#2A2126;font-family:'Noto Sans KR', Arial, sans-serif;padding:128px 200px;display:grid;grid-template-columns:1fr 1fr;align-items:center;gap:64px">
+<h2 style="font-family:'Gowun Dodum', 'Noto Sans KR', sans-serif;font-size:96px;font-weight:400;line-height:1.1">CONTENTS</h2>
+<div style="display:flex;flex-direction:column;gap:20px">
+<p style="font-size:36px;font-weight:500"><span style="color:#A69A9E">01</span>  배경</p>
+<p style="font-size:36px;font-weight:500"><span style="color:#A69A9E">02</span>  문제</p>
+<p style="font-size:36px;font-weight:500"><span style="color:#A69A9E">03</span>  솔루션</p>
+<p style="font-size:36px;font-weight:500"><span style="color:#A69A9E">04</span>  기술</p>
+<p style="font-size:36px;font-weight:500"><span style="color:#A69A9E">05</span>  차별화</p>
+<p style="font-size:36px;font-weight:500"><span style="color:#A69A9E">06</span>  로드맵 · BM</p>
+<p style="font-size:36px;font-weight:500"><span style="color:#A69A9E">07</span>  팀 소개</p>
+<p style="font-size:36px;font-weight:500"><span style="color:#A69A9E">08</span>  시연</p>
+</div>
+<aside>[시간] 약 5~10초
+
+[대본]
+배경과 문제, 솔루션, 기술, 차별화, 로드맵 순서로 말씀드리고, 마지막에 시연 영상을 보여드리겠습니다.
+
+[메모]
+- 읽지 않고 넘겨도 되는 장입니다.</aside>
+</section>
+
+<!-- ===== 03 · bg-search ===== -->
+<section id="bg-search" style="background:#F5F5F3;color:#161616;font-family:'Noto Sans KR', Arial, sans-serif;padding:160px 128px 160px;display:flex;flex-direction:column;gap:48px">
+<div style="position:absolute;left:0;top:0;width:1920px;height:6px;background:#E2E2E0"></div>
+<div style="position:absolute;left:0;top:0;width:222px;height:6px;background:#161616"></div>
+<div style="position:absolute;left:128px;top:36px;width:1664px;display:flex;flex-direction:row;justify-content:space-between">
+<p style="font-size:24px;color:#161616;font-weight:700">배경</p>
+<p style="font-size:24px;color:#9A9A9A">문제</p>
+<p style="font-size:24px;color:#9A9A9A">솔루션</p>
+<p style="font-size:24px;color:#9A9A9A">기술</p>
+<p style="font-size:24px;color:#9A9A9A">차별화</p>
+<p style="font-size:24px;color:#9A9A9A">로드맵</p>
+<p style="font-size:24px;color:#9A9A9A">팀</p>
+<p style="font-size:24px;color:#9A9A9A">시연</p>
+</div>
+<h2 style="font-size:64px;font-weight:700;line-height:1.2;letter-spacing:-1px">숏폼, 새로운 검색창</h2>
+<div style="flex:1;display:flex;flex-direction:row;justify-content:center;align-items:center;gap:240px">
+<div style="display:flex;flex-direction:column;align-items:center;gap:32px">
+<div style="position:relative;width:360px;height:360px">
+<svg aria-label="도넛 차트: 40%" width="360" height="360" viewBox="0 0 360 360"><circle cx="180" cy="180" r="150" fill="none" stroke="#E2E2E0" stroke-width="40"/><circle cx="180" cy="180" r="150" fill="none" stroke="#161616" stroke-width="40" stroke-dasharray="376.99 942.48" transform="rotate(-90 180 180)"/></svg>
+<p style="position:absolute;left:0;top:127px;width:360px;font-size:96px;font-weight:700;line-height:1.1;text-align:center;letter-spacing:-3px">40%</p>
+</div>
+<p style="font-size:32px;font-weight:700">숏폼으로 맛집 검색</p>
+<p style="font-size:24px;color:#6E6E6E">Z세대 · 구글·지도 대신</p>
+</div>
+<div style="display:flex;flex-direction:column;align-items:center;gap:32px">
+<div style="position:relative;width:360px;height:360px">
+<svg aria-label="도넛 차트: 47%" width="360" height="360" viewBox="0 0 360 360"><circle cx="180" cy="180" r="150" fill="none" stroke="#E2E2E0" stroke-width="40"/><circle cx="180" cy="180" r="150" fill="none" stroke="#161616" stroke-width="40" stroke-dasharray="442.97 942.48" transform="rotate(-90 180 180)"/></svg>
+<p style="position:absolute;left:0;top:127px;width:360px;font-size:96px;font-weight:700;line-height:1.1;text-align:center;letter-spacing:-3px">47%</p>
+</div>
+<p style="font-size:32px;font-weight:700">정보성 숏폼 선호 1위</p>
+<p style="font-size:24px;color:#6E6E6E">핵심만 빠르게</p>
+</div>
+</div>
+<p style="position:absolute;left:128px;bottom:64px;width:1664px;font-size:24px;color:#8A8A8A">Google 내부 조사 (2022) · CJ메조미디어 디지털 라이프스타일 리포트 (2026)</p>
+<aside>[시간] 약 25초
+
+[대본]
+요즘 맛집이나 가볼 만한 곳, 어디서 찾으시나요?
+Z세대의 40%는 맛집 같은 일상 정보를 찾을 때 구글이나 지도 앱보다 틱톡·인스타그램을 먼저 엽니다. 그리고 사람들이 가장 주목하는 숏폼 1위는 핵심만 빠르게 전달하는 '정보성 콘텐츠'로, 47%였습니다.
+숏폼은 몇 초 만에 "여기 가볼 만하다"를 판단하게 해주기 때문입니다.
+
+[참고 근거]
+- 40%: Google 수석부사장 Prabhakar Raghavan, Fortune Brainstorm Tech 컨퍼런스(2022). Z세대(18~24세) 약 40%가 맛집 등 탐색 시 구글 검색·지도 대신 틱톡·인스타를 먼저 사용. 보도: tech.co/news/google-gen-z-tiktok-instagram-search
+- 47%: CJ메조미디어 「2026 디지털 라이프스타일 리포트: 숏폼 광고 소비자 인식 조사」(2026.06). 가장 주목하는 숏폼 1위 = 특징을 핵심만 전달하는 정보성 콘텐츠.
+- 매일 숏폼을 보는 유저 80.6%, 식음료 관심도 63% 이상(픽플리 2026.04).
+- 보강 멘트(선택, 원 출처 검증이 약해 생략 권장): 시각 정보 처리 속도 6만 배(3M·MIT 인용), 1분 영상 = 180만 단어(Forrester), 기억 유지율 영상 95% vs 텍스트 10%(Insivia).
+
+[그래프]
+- 두 도넛은 서로 다른 조사의 단일 비율입니다(합계 아님).</aside>
+</section>
+
+<!-- ===== 04 · bg-habit ===== -->
+<section id="bg-habit" style="background:#F5F5F3;color:#161616;font-family:'Noto Sans KR', Arial, sans-serif;padding:160px 128px 160px;display:flex;flex-direction:column;gap:48px">
+<div style="position:absolute;left:0;top:0;width:1920px;height:6px;background:#E2E2E0"></div>
+<div style="position:absolute;left:0;top:0;width:295px;height:6px;background:#161616"></div>
+<div style="position:absolute;left:128px;top:36px;width:1664px;display:flex;flex-direction:row;justify-content:space-between">
+<p style="font-size:24px;color:#161616;font-weight:700">배경</p>
+<p style="font-size:24px;color:#9A9A9A">문제</p>
+<p style="font-size:24px;color:#9A9A9A">솔루션</p>
+<p style="font-size:24px;color:#9A9A9A">기술</p>
+<p style="font-size:24px;color:#9A9A9A">차별화</p>
+<p style="font-size:24px;color:#9A9A9A">로드맵</p>
+<p style="font-size:24px;color:#9A9A9A">팀</p>
+<p style="font-size:24px;color:#9A9A9A">시연</p>
+</div>
+<h2 style="font-size:64px;font-weight:700;line-height:1.2;letter-spacing:-1px">저장 · 공유 · 재검색</h2>
+<div style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:56px">
+<p style="font-size:24px;color:#6E6E6E">20대 숏폼 이용 경험</p>
+<div style="display:flex;flex-direction:row;align-items:center;gap:40px">
+<p style="width:220px;font-size:36px;font-weight:700">저장</p>
+<div style="flex:1;height:72px;background:#E2E2E0;border-radius:4px;display:flex;flex-direction:row"><div style="width:73.4%;background:#161616;border-radius:4px"></div></div>
+<p style="width:220px;font-size:64px;font-weight:700;text-align:right;letter-spacing:-2px">73.4%</p>
+</div>
+<div style="display:flex;flex-direction:row;align-items:center;gap:40px">
+<p style="width:220px;font-size:36px;font-weight:700">공유</p>
+<div style="flex:1;height:72px;background:#E2E2E0;border-radius:4px;display:flex;flex-direction:row"><div style="width:79.5%;background:#161616;border-radius:4px"></div></div>
+<p style="width:220px;font-size:64px;font-weight:700;text-align:right;letter-spacing:-2px">79.5%</p>
+</div>
+<div style="display:flex;flex-direction:row;align-items:center;gap:40px">
+<p style="width:220px;font-size:36px;font-weight:700">재검색</p>
+<div style="flex:1;height:72px;background:#E2E2E0;border-radius:4px;display:flex;flex-direction:row"><div style="width:62.6%;background:#5E5E5E;border-radius:4px"></div></div>
+<p style="width:220px;font-size:64px;font-weight:700;text-align:right;letter-spacing:-2px">62.6%</p>
+</div>
+</div>
+<p style="position:absolute;left:128px;bottom:64px;width:1664px;font-size:24px;color:#8A8A8A">KT 나스미디어, 2026 인터넷 이용자 조사(NPR) — 숏폼 편</p>
+<aside>[시간] 약 30초
+
+[대본]
+숏폼으로 찾은 정보를 사람들은 어떻게 할까요?
+20대의 73.4%는 나중에 다시 보려고 저장해 봤고, 79.5%는 공유해 봤습니다. 저장 버튼과 공유 버튼은 이미 손에 익은 동작입니다.
+그런데 62.6%는 영상을 본 뒤 위치나 상세 정보를 따로 다시 검색했습니다. 영상만으로는 정리가 안 되니, 보고 나서 한 번 더 일을 하는 셈입니다.
+
+[연결 포인트]
+- 공유 79.5% = 저희 앱의 진입점(공유하기 버튼)이 이미 익숙한 행동이라는 근거. 솔루션에서 "새 습관을 만들지 않고, 이미 하는 공유 한 번으로 시작"으로 연결.
+- 재검색 62.6% = 이중 노동 → AI가 장소를 대신 찾아 확정(장소 확정 장표)으로 연결.
+
+[참고 근거]
+- KT 나스미디어 「2026 인터넷 이용자 조사(NPR) — 숏폼 편」(2026.04): 숏폼 저장 경험 20대 73.4% / 10대 69.9%, 공유 경험 20대 79.5% / 10대 78.5%, 시청 후 추가 검색 62.6%.
+- blog.nasmedia.co.kr/entry/2026NPRusersurveyinsight-1shortform
+
+[그래프]
+- 막대는 0~100% 기준. 재검색 막대만 회색 톤을 달리해 '불편(이중 노동)'을 구분했습니다.</aside>
+</section>
+
+<!-- ===== 05 · prob-defer ===== -->
+<section id="prob-defer" style="background:#F5F5F3;color:#161616;font-family:'Noto Sans KR', Arial, sans-serif;padding:160px 128px 160px;display:flex;flex-direction:column;gap:48px">
+<div style="position:absolute;left:0;top:0;width:1920px;height:6px;background:#E2E2E0"></div>
+<div style="position:absolute;left:0;top:0;width:369px;height:6px;background:#161616"></div>
+<div style="position:absolute;left:128px;top:36px;width:1664px;display:flex;flex-direction:row;justify-content:space-between">
+<p style="font-size:24px;color:#9A9A9A">배경</p>
+<p style="font-size:24px;color:#161616;font-weight:700">문제</p>
+<p style="font-size:24px;color:#9A9A9A">솔루션</p>
+<p style="font-size:24px;color:#9A9A9A">기술</p>
+<p style="font-size:24px;color:#9A9A9A">차별화</p>
+<p style="font-size:24px;color:#9A9A9A">로드맵</p>
+<p style="font-size:24px;color:#9A9A9A">팀</p>
+<p style="font-size:24px;color:#9A9A9A">시연</p>
+</div>
+<h2 style="font-size:64px;font-weight:700;line-height:1.2;letter-spacing:-1px">즉시 행동 vs 나중에</h2>
+<div style="flex:1;display:flex;flex-direction:row;justify-content:center;align-items:end;gap:200px;border-bottom:3px solid #161616">
+<div style="display:flex;flex-direction:column;align-items:center;gap:16px">
+<p style="font-size:64px;font-weight:700;color:#9A9A9A;letter-spacing:-2px">8.4%</p>
+<div style="width:240px;height:40px;background:#9A9A9A;border-radius:4px 4px 0 0"></div>
+</div>
+<div style="display:flex;flex-direction:column;align-items:center;gap:16px">
+<p style="font-size:64px;font-weight:700;letter-spacing:-2px">97%</p>
+<div style="width:240px;height:440px;background:#161616;border-radius:4px 4px 0 0"></div>
+</div>
+</div>
+<div style="display:flex;flex-direction:row;justify-content:center;gap:200px">
+<p style="width:240px;font-size:32px;font-weight:700;text-align:center;color:#6E6E6E">즉시 행동</p>
+<p style="width:240px;font-size:32px;font-weight:700;text-align:center">나중에 확인</p>
+</div>
+<p style="position:absolute;left:128px;bottom:64px;width:1664px;font-size:24px;color:#8A8A8A">픽플리, 숏폼 콘텐츠 마케팅 소비자 경험 리포트 (2026.04)</p>
+<aside>[시간] 약 20초
+
+[대본]
+그런데 숏폼에서 좋은 정보를 얻어도, 바로 행동으로 옮기는 사람은 8.4%에 불과합니다.
+97%는 "나중에 다시 확인해야지" 하고 미뤄 둡니다.
+결국 숏폼 속 장소가 실제 방문으로 이어지려면, 그 '나중'이 제대로 와야 합니다.
+
+[참고 근거]
+- 픽플리(Pickply) 「숏폼 콘텐츠 마케팅 소비자 경험 리포트」(2026.04): 즉시 행동 8.4%, 추후 재확인 97%, 일일 숏폼 시청률 80.6%, 새로운 정보 발견 30.3%.
+- pickply.com/blog/short-form-content-marketing-consumer-experience
+
+[주의]
+- 8.4%와 97%는 별개 문항이라 합이 100%가 아닙니다. "둘 중 하나"처럼 말하지 말고 "바로 행동하는 사람은 8.4%뿐이고, 97%는 재확인 과정을 거친다"로 말하면 안전합니다.
+
+[연결]
+다음 장: 그럼 나중에 다시 볼까요? → 대부분 안 본다.</aside>
+</section>
+
+<!-- ===== 06 · prob-forget ===== -->
+<section id="prob-forget" style="background:#F5F5F3;color:#161616;font-family:'Noto Sans KR', Arial, sans-serif;padding:160px 128px 160px;display:flex;flex-direction:column;gap:48px">
+<div style="position:absolute;left:0;top:0;width:1920px;height:6px;background:#E2E2E0"></div>
+<div style="position:absolute;left:0;top:0;width:443px;height:6px;background:#161616"></div>
+<div style="position:absolute;left:128px;top:36px;width:1664px;display:flex;flex-direction:row;justify-content:space-between">
+<p style="font-size:24px;color:#9A9A9A">배경</p>
+<p style="font-size:24px;color:#161616;font-weight:700">문제</p>
+<p style="font-size:24px;color:#9A9A9A">솔루션</p>
+<p style="font-size:24px;color:#9A9A9A">기술</p>
+<p style="font-size:24px;color:#9A9A9A">차별화</p>
+<p style="font-size:24px;color:#9A9A9A">로드맵</p>
+<p style="font-size:24px;color:#9A9A9A">팀</p>
+<p style="font-size:24px;color:#9A9A9A">시연</p>
+</div>
+<h2 style="font-size:64px;font-weight:700;line-height:1.2;letter-spacing:-1px">저장 후 방치</h2>
+<div style="flex:1;display:flex;flex-direction:row;justify-content:center;align-items:center;gap:160px">
+<div style="display:flex;flex-direction:column;gap:24px">
+<p style="font-size:200px;font-weight:700;line-height:1;letter-spacing:-6px">85%</p>
+<p style="font-size:36px;font-weight:700">다시 열지 않음</p>
+<div style="display:flex;flex-direction:row;align-items:center;gap:16px;padding:24px 0 0 0">
+<div style="width:28px;height:28px;background:#161616;border-radius:4px"></div>
+<p style="font-size:24px;color:#4A4A4A">다시 봄</p>
+<div style="width:28px;height:28px;background:#D6D6D4;border-radius:4px"></div>
+<p style="font-size:24px;color:#4A4A4A">방치</p>
+</div>
+</div>
+<div style="display:grid;grid-template-columns:repeat(10, 44px);gap:8px">
+<div style="height:44px;background:#161616;border-radius:6px"></div>
+<div style="height:44px;background:#161616;border-radius:6px"></div>
+<div style="height:44px;background:#161616;border-radius:6px"></div>
+<div style="height:44px;background:#161616;border-radius:6px"></div>
+<div style="height:44px;background:#161616;border-radius:6px"></div>
+<div style="height:44px;background:#161616;border-radius:6px"></div>
+<div style="height:44px;background:#161616;border-radius:6px"></div>
+<div style="height:44px;background:#161616;border-radius:6px"></div>
+<div style="height:44px;background:#161616;border-radius:6px"></div>
+<div style="height:44px;background:#161616;border-radius:6px"></div>
+<div style="height:44px;background:#161616;border-radius:6px"></div>
+<div style="height:44px;background:#161616;border-radius:6px"></div>
+<div style="height:44px;background:#161616;border-radius:6px"></div>
+<div style="height:44px;background:#161616;border-radius:6px"></div>
+<div style="height:44px;background:#161616;border-radius:6px"></div>
+<div style="height:44px;background:#D6D6D4;border-radius:6px"></div>
+<div style="height:44px;background:#D6D6D4;border-radius:6px"></div>
+<div style="height:44px;background:#D6D6D4;border-radius:6px"></div>
+<div style="height:44px;background:#D6D6D4;border-radius:6px"></div>
+<div style="height:44px;background:#D6D6D4;border-radius:6px"></div>
+<div style="height:44px;background:#D6D6D4;border-radius:6px"></div>
+<div style="height:44px;background:#D6D6D4;border-radius:6px"></div>
+<div style="height:44px;background:#D6D6D4;border-radius:6px"></div>
+<div style="height:44px;background:#D6D6D4;border-radius:6px"></div>
+<div style="height:44px;background:#D6D6D4;border-radius:6px"></div>
+<div style="height:44px;background:#D6D6D4;border-radius:6px"></div>
+<div style="height:44px;background:#D6D6D4;border-radius:6px"></div>
+<div style="height:44px;background:#D6D6D4;border-radius:6px"></div>
+<div style="height:44px;background:#D6D6D4;border-radius:6px"></div>
+<div style="height:44px;background:#D6D6D4;border-radius:6px"></div>
+<div style="height:44px;background:#D6D6D4;border-radius:6px"></div>
+<div style="height:44px;background:#D6D6D4;border-radius:6px"></div>
+<div style="height:44px;background:#D6D6D4;border-radius:6px"></div>
+<div style="height:44px;background:#D6D6D4;border-radius:6px"></div>
+<div style="height:44px;background:#D6D6D4;border-radius:6px"></div>
+<div style="height:44px;background:#D6D6D4;border-radius:6px"></div>
+<div style="height:44px;background:#D6D6D4;border-radius:6px"></div>
+<div style="height:44px;background:#D6D6D4;border-radius:6px"></div>
+<div style="height:44px;background:#D6D6D4;border-radius:6px"></div>
+<div style="height:44px;background:#D6D6D4;border-radius:6px"></div>
+<div style="height:44px;background:#D6D6D4;border-radius:6px"></div>
+<div style="height:44px;background:#D6D6D4;border-radius:6px"></div>
+<div style="height:44px;background:#D6D6D4;border-radius:6px"></div>
+<div style="height:44px;background:#D6D6D4;border-radius:6px"></div>
+<div style="height:44px;background:#D6D6D4;border-radius:6px"></div>
+<div style="height:44px;background:#D6D6D4;border-radius:6px"></div>
+<div style="height:44px;background:#D6D6D4;border-radius:6px"></div>
+<div style="height:44px;background:#D6D6D4;border-radius:6px"></div>
+<div style="height:44px;background:#D6D6D4;border-radius:6px"></div>
+<div style="height:44px;background:#D6D6D4;border-radius:6px"></div>
+<div style="height:44px;background:#D6D6D4;border-radius:6px"></div>
+<div style="height:44px;background:#D6D6D4;border-radius:6px"></div>
+<div style="height:44px;background:#D6D6D4;border-radius:6px"></div>
+<div style="height:44px;background:#D6D6D4;border-radius:6px"></div>
+<div style="height:44px;background:#D6D6D4;border-radius:6px"></div>
+<div style="height:44px;background:#D6D6D4;border-radius:6px"></div>
+<div style="height:44px;background:#D6D6D4;border-radius:6px"></div>
+<div style="height:44px;background:#D6D6D4;border-radius:6px"></div>
+<div style="height:44px;background:#D6D6D4;border-radius:6px"></div>
+<div style="height:44px;background:#D6D6D4;border-radius:6px"></div>
+<div style="height:44px;background:#D6D6D4;border-radius:6px"></div>
+<div style="height:44px;background:#D6D6D4;border-radius:6px"></div>
+<div style="height:44px;background:#D6D6D4;border-radius:6px"></div>
+<div style="height:44px;background:#D6D6D4;border-radius:6px"></div>
+<div style="height:44px;background:#D6D6D4;border-radius:6px"></div>
+<div style="height:44px;background:#D6D6D4;border-radius:6px"></div>
+<div style="height:44px;background:#D6D6D4;border-radius:6px"></div>
+<div style="height:44px;background:#D6D6D4;border-radius:6px"></div>
+<div style="height:44px;background:#D6D6D4;border-radius:6px"></div>
+<div style="height:44px;background:#D6D6D4;border-radius:6px"></div>
+<div style="height:44px;background:#D6D6D4;border-radius:6px"></div>
+<div style="height:44px;background:#D6D6D4;border-radius:6px"></div>
+<div style="height:44px;background:#D6D6D4;border-radius:6px"></div>
+<div style="height:44px;background:#D6D6D4;border-radius:6px"></div>
+<div style="height:44px;background:#D6D6D4;border-radius:6px"></div>
+<div style="height:44px;background:#D6D6D4;border-radius:6px"></div>
+<div style="height:44px;background:#D6D6D4;border-radius:6px"></div>
+<div style="height:44px;background:#D6D6D4;border-radius:6px"></div>
+<div style="height:44px;background:#D6D6D4;border-radius:6px"></div>
+<div style="height:44px;background:#D6D6D4;border-radius:6px"></div>
+<div style="height:44px;background:#D6D6D4;border-radius:6px"></div>
+<div style="height:44px;background:#D6D6D4;border-radius:6px"></div>
+<div style="height:44px;background:#D6D6D4;border-radius:6px"></div>
+<div style="height:44px;background:#D6D6D4;border-radius:6px"></div>
+<div style="height:44px;background:#D6D6D4;border-radius:6px"></div>
+<div style="height:44px;background:#D6D6D4;border-radius:6px"></div>
+<div style="height:44px;background:#D6D6D4;border-radius:6px"></div>
+<div style="height:44px;background:#D6D6D4;border-radius:6px"></div>
+<div style="height:44px;background:#D6D6D4;border-radius:6px"></div>
+<div style="height:44px;background:#D6D6D4;border-radius:6px"></div>
+<div style="height:44px;background:#D6D6D4;border-radius:6px"></div>
+<div style="height:44px;background:#D6D6D4;border-radius:6px"></div>
+<div style="height:44px;background:#D6D6D4;border-radius:6px"></div>
+<div style="height:44px;background:#D6D6D4;border-radius:6px"></div>
+<div style="height:44px;background:#D6D6D4;border-radius:6px"></div>
+<div style="height:44px;background:#D6D6D4;border-radius:6px"></div>
+<div style="height:44px;background:#D6D6D4;border-radius:6px"></div>
+<div style="height:44px;background:#D6D6D4;border-radius:6px"></div>
+</div>
+</div>
+<p style="position:absolute;left:128px;bottom:64px;width:1664px;font-size:24px;color:#8A8A8A">Rana, Product Research (2026) · Media Tsundoku (Mozilla Pocket 데이터 인용)</p>
+<aside>[시간] 약 25초
+
+[대본]
+그럼 저장해 둔 건 나중에 다시 볼까요?
+인스타그램, 틱톡, 유튜브에서 저장한 콘텐츠를 실제로 다시 열어보는 비율은 15%도 안 됩니다. 100개를 저장하면 85개는 다시 열리지 않는다는 뜻입니다. '나중에 보기' 앱 데이터에서도 83%는 끝내 열리지 않았습니다.
+
+[그래프]
+- 100칸 = 저장한 콘텐츠 100개. 진한 15칸 = 다시 열어본 것, 연한 85칸 = 방치.
+
+[참고 근거]
+- 저장 후 열람 전환율(Saved-to-viewed) 15% 미만 → 85% 이상 방치 추산: Rana, 「Why users save content but never revisit it — and how platforms can fix it」(Medium, 2026.04). '귀환 시스템(Return System)' 부재 지적.
+- Read-it-later·북마크 앱: 저장 콘텐츠의 83% 미소비, 헤비 유저 재열람률 12%까지 하락, 북마크 65~88% 미열람: Media Tsundoku(Mozilla Pocket 등 인용), mediatsundoku.com
+- 둘 다 추산·인용 데이터라 "약 85%", "10개 중 8개 이상"처럼 말하는 걸 권장합니다.</aside>
+</section>
+
+<!-- ===== 07 · prob-why ===== -->
+<section id="prob-why" style="background:#F5F5F3;color:#161616;font-family:'Noto Sans KR', Arial, sans-serif;padding:160px 128px 160px;display:flex;flex-direction:column;gap:48px">
+<div style="position:absolute;left:0;top:0;width:1920px;height:6px;background:#E2E2E0"></div>
+<div style="position:absolute;left:0;top:0;width:517px;height:6px;background:#161616"></div>
+<div style="position:absolute;left:128px;top:36px;width:1664px;display:flex;flex-direction:row;justify-content:space-between">
+<p style="font-size:24px;color:#9A9A9A">배경</p>
+<p style="font-size:24px;color:#161616;font-weight:700">문제</p>
+<p style="font-size:24px;color:#9A9A9A">솔루션</p>
+<p style="font-size:24px;color:#9A9A9A">기술</p>
+<p style="font-size:24px;color:#9A9A9A">차별화</p>
+<p style="font-size:24px;color:#9A9A9A">로드맵</p>
+<p style="font-size:24px;color:#9A9A9A">팀</p>
+<p style="font-size:24px;color:#9A9A9A">시연</p>
+</div>
+<h2 style="font-size:64px;font-weight:700;line-height:1.2;letter-spacing:-1px">다시 보지 않는 이유</h2>
+<div style="flex:1;display:flex;flex-direction:row;justify-content:center;align-items:center;gap:160px">
+<div style="width:520px;display:flex;flex-direction:column;align-items:center;gap:28px">
+<div style="width:200px;height:200px;border-radius:50%;background:#E9E9E7;display:flex;align-items:center;justify-content:center"><x-icon name="Search" style="color:#161616;width:96px;height:96px"></x-icon></div>
+<h3 style="font-size:48px;font-weight:700">분류 부재</h3>
+<p style="font-size:28px;color:#6E6E6E;text-align:center">시간순으로 뒤섞인 저장함</p>
+<p style="font-size:24px;font-weight:500;background:#E2E2E0;padding:8px 20px;border-radius:999px">디지털 잡동사니 서랍</p>
+</div>
+<div style="width:520px;display:flex;flex-direction:column;align-items:center;gap:28px">
+<div style="width:200px;height:200px;border-radius:50%;background:#E9E9E7;display:flex;align-items:center;justify-content:center"><x-icon name="CheckCircle" style="color:#161616;width:96px;height:96px"></x-icon></div>
+<h3 style="font-size:48px;font-weight:700">리마인드 부재</h3>
+<p style="font-size:28px;color:#6E6E6E;text-align:center">저장 = 끝냈다는 착각</p>
+<p style="font-size:24px;font-weight:500;background:#E2E2E0;padding:8px 20px;border-radius:999px">체크박스 효과</p>
+</div>
+</div>
+<p style="position:absolute;left:128px;bottom:64px;width:1664px;font-size:24px;color:#8A8A8A">Design Bootcamp, Rethinking Instagram Saved (2025) · UC Berkeley School of Information, ScrollWise</p>
+<aside>[시간] 약 30초
+
+[대본]
+왜 다시 보지 않을까요? 이유는 두 가지입니다.
+첫째, 찾을 수가 없습니다. 맛집이든 요리든 운동이든 모든 영상이 시간순 썸네일로 뒤섞여 있어서 다시 찾으려면 한참 스크롤해야 합니다. '디지털 잡동사니 서랍'이라고 부르는 현상입니다.
+둘째, 저장했다는 사실 자체를 잊습니다. 저장 버튼을 누르는 순간 뇌는 할 일을 끝냈다고 착각하는데, 이를 '체크박스 효과'라고 합니다. 그래서 그 가게 앞을 지나가도 떠오르지 않습니다.
+
+[핵심 메시지]
+문제는 '저장'이 아니라 '다시 꺼내는 순간'이 없다는 것. → 솔루션: ① AI가 장소를 정리(분류 부재 해결) ② 근처에 가면 먼저 알림(리마인드 부재 해결).
+
+[참고 근거]
+- Design Bootcamp(Medium, 2025.09) 「Rethinking Instagram Saved: Driving more revisits to saved content」: '디지털 잡동사니 서랍' 현상, 다시 보지 않는 이유 1위 스크롤/분류 부재, 2위 망각(설문).
+- UC Berkeley School of Information 「ScrollWise」: 저장 시 '체크박스 효과(Checkbox Effect)'와 디지털 호딩 분석.</aside>
+</section>
+
+<!-- ===== 08 · turn ===== -->
+<section id="turn" data-transition="fade" style="background:#141414;color:#EDEDEB;font-family:'Noto Sans KR', Arial, sans-serif;padding:128px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:40px">
+<p style="font-size:72px;font-weight:700;line-height:1.4;text-align:center;letter-spacing:-1px">그 맛집,<br>지나갈 때 기억나셨나요?</p>
+<aside>[시간] 약 10초 (말하고 2초 멈춘 뒤 넘김)
+
+[대본]
+여러분, 저장해 둔 그 맛집… 바로 앞을 지나갈 때 기억나셨나요?
+(잠깐 멈춤)
+저희는 그 순간을 놓치지 않게 하고 싶었습니다. 그래서 만들었습니다.
+
+[연출 메모]
+- 흑백 구간의 마지막 장. 다음 장으로 페이드 전환되면서 아이보리·자두색이 돌아오고 로고 모션이 재생됩니다.</aside>
+</section>
+
+<!-- ===== 09 · reveal ===== -->
+<section id="reveal" data-transition="fade" style="background:#F6F1EE;color:#2A2126;font-family:'Noto Sans KR', Arial, sans-serif;padding:128px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:40px">
+<h1 data-build-in="rise 1 auto" style="position:absolute;left:128px;top:540px;width:1664px;font-family:'Gowun Dodum', 'Noto Sans KR', sans-serif;font-size:140px;font-weight:400;line-height:1.1;text-align:center">REMEMBRALL</h1>
+<p data-build-in="fade 2 auto" style="position:absolute;left:128px;top:740px;width:1664px;font-size:40px;color:#6B4E7A;font-weight:700;text-align:center">잊은 장소를, 근처에서 다시</p>
+<x-embed style="position:absolute;left:820px;top:200px;width:280px;height:280px"><template><!doctype html><html><head><meta charset="utf-8"><style>
+html,body{margin:0;height:100%;background:transparent;overflow:hidden}
+.icon{position:absolute;left:20px;top:20px;width:240px;height:240px;border-radius:53px;background:#6B4E7A;box-shadow:0 16px 32px rgba(107,78,122,.28)}
+.c{position:absolute;background:#FFFCFA;animation-duration:4.8s;animation-iteration-count:infinite;animation-timing-function:ease-in-out}
+.b1{left:28.8px;top:124.8px;width:72px;height:72px;border-radius:15.8px;opacity:.22;animation-name:b1}
+.b2{left:64.8px;top:81.6px;width:81.6px;height:81.6px;border-radius:18px;opacity:.48;animation-name:b2}
+.f{left:110.4px;top:33.6px;width:96px;height:96px;border-radius:21px;animation-name:f}
+.dot{position:absolute;left:55.2px;top:16.8px;width:24px;height:24px;border-radius:50%;background:#6B4E7A}
+.ring{position:absolute;left:107.4px;top:30.6px;width:96px;height:96px;border-radius:21px;border:3px solid #FFFCFA;opacity:0;animation:ring 4.8s infinite cubic-bezier(.22,.7,.2,1)}
+@keyframes b1{0%,12%,25%,37%,100%{opacity:.22;transform:translateY(0) scale(1)}5.5%,30.5%{opacity:1;transform:translateY(-7.2px) scale(1.08)}}
+@keyframes b2{0%,3.33%,15.33%,28.33%,40.33%,100%{opacity:.48;transform:translateY(0) scale(1)}8.83%,33.83%{opacity:1;transform:translateY(-7.2px) scale(1.08)}}
+@keyframes f{0%,6.67%,18.67%,31.67%,43.67%,50%,59.75%,100%{transform:translateY(0) scale(1)}12.17%,37.17%{transform:translateY(-7.2px) scale(1.06)}53%{transform:scale(1.24)}55.25%{transform:scale(.92)}57.5%{transform:scale(1.05)}}
+@keyframes ring{0%,49.9%{opacity:0;transform:scale(.9)}50%{opacity:.7;transform:scale(.9)}58.25%,100%{opacity:0;transform:scale(1.9)}}
+@media (prefers-reduced-motion:reduce){.c,.ring{animation:none}}
+</style></head><body><div class="icon"><div class="c b1"></div><div class="c b2"></div><div class="ring"></div><div class="c f"><div class="dot"></div></div></div></body></html></template></x-embed>
+<aside>[시간] 약 25초
+
+[대본]
+그래서 저희는 REMEMBRALL을 만들었습니다.
+저장만 해두고 잊어버린 곳을, 그 근처에 갔을 때 AI가 먼저 꺼내주는 앱입니다.
+사용자가 할 일은 평소처럼 숏폼을 보다가 '공유' 버튼을 한 번 누르는 것뿐입니다. 정리도, 기억도 REMEMBRALL이 대신합니다.
+
+[연출 메모 — 왜 여기서 색이 돌아오는가]
+- 앞 장표들은 흑백 = 잊혀서 바랜 기억. 이 장부터 앱의 실제 색(아이보리 #F6F1EE, 자두색 #6B4E7A)이 돌아옵니다.
+- 앱 디자인 콘셉트가 "바랜 기억"입니다. 저장한 지 오래된 영상일수록 썸네일이 바래고(오늘 0% → 3주 30% → 5개월 50%), 근처에 오면 원래 색으로 되살아납니다.
+- 로고 모션 「떠오르는 계단」: 흐린 뒷장들이 차례로 들렸다가(기억을 뒤적이는 중) 맨 앞장이 "뾱" 하고 골라지는 동작. 앱 실행 화면과 같은 타이밍입니다.
+- 제목과 문구는 발표 모드에서 순서대로 떠오릅니다.
+
+[한 줄 정의(필요 시)]
+"저장만 해두고 잊어버리는 숏폼 북마크 문제를, AI 장소 추출과 위치 기반 알림으로 해결하는 능동형 아카이빙 비서."</aside>
+</section>
+
+<!-- ===== 10 · flow ===== -->
+<section id="flow" style="background:#F6F1EE;color:#2A2126;font-family:'Noto Sans KR', Arial, sans-serif;padding:160px 128px 128px;display:flex;flex-direction:column;gap:48px">
+<div style="position:absolute;left:0;top:0;width:1920px;height:6px;background:#E4DAD5"></div>
+<div style="position:absolute;left:0;top:0;width:738px;height:6px;background:#6B4E7A"></div>
+<div style="position:absolute;left:128px;top:36px;width:1664px;display:flex;flex-direction:row;justify-content:space-between">
+<p style="font-size:24px;color:#8E8185">배경</p>
+<p style="font-size:24px;color:#8E8185">문제</p>
+<p style="font-size:24px;color:#6B4E7A;font-weight:700">솔루션</p>
+<p style="font-size:24px;color:#8E8185">기술</p>
+<p style="font-size:24px;color:#8E8185">차별화</p>
+<p style="font-size:24px;color:#8E8185">로드맵</p>
+<p style="font-size:24px;color:#8E8185">팀</p>
+<p style="font-size:24px;color:#8E8185">시연</p>
+</div>
+<h2 style="font-family:'Gowun Dodum', 'Noto Sans KR', sans-serif;font-size:64px;font-weight:400;line-height:1.25">동작 방식</h2>
+<div style="flex:1;display:flex;flex-direction:row;justify-content:center;align-items:center;gap:20px">
+<div style="width:250px;display:flex;flex-direction:column;align-items:center;gap:24px">
+<div style="width:160px;height:160px;border-radius:50%;background:#FFFCFA;border:2px solid #DDD2CD;display:flex;align-items:center;justify-content:center"><x-icon name="PaperPlane" style="color:#6B4E7A;width:72px;height:72px"></x-icon></div>
+<h3 style="font-family:'Gowun Dodum', 'Noto Sans KR', sans-serif;font-size:44px;font-weight:400">공유</h3>
+<p style="font-size:24px;color:#6A5D61;text-align:center">공유 버튼 한 번</p>
+</div>
+<div style="padding:0 0 135px 0"><x-connector head="end" style="width:56px;height:4px;color:#A69A9E;border-width:3px"></x-connector></div>
+<div style="width:250px;display:flex;flex-direction:column;align-items:center;gap:24px">
+<div style="width:160px;height:160px;border-radius:50%;background:#FFFCFA;border:2px solid #DDD2CD;display:flex;align-items:center;justify-content:center"><x-icon name="Search" style="color:#6B4E7A;width:72px;height:72px"></x-icon></div>
+<h3 style="font-family:'Gowun Dodum', 'Noto Sans KR', sans-serif;font-size:44px;font-weight:400">분석</h3>
+<p style="font-size:24px;color:#6A5D61;text-align:center">AI 영상 분석</p>
+</div>
+<div style="padding:0 0 135px 0"><x-connector head="end" style="width:56px;height:4px;color:#A69A9E;border-width:3px"></x-connector></div>
+<div style="width:250px;display:flex;flex-direction:column;align-items:center;gap:24px">
+<div style="width:160px;height:160px;border-radius:50%;background:#FFFCFA;border:2px solid #DDD2CD;display:flex;align-items:center;justify-content:center"><x-icon name="Verified" style="color:#6B4E7A;width:72px;height:72px"></x-icon></div>
+<h3 style="font-family:'Gowun Dodum', 'Noto Sans KR', sans-serif;font-size:44px;font-weight:400">확정</h3>
+<p style="font-size:24px;color:#6A5D61;text-align:center">실제 장소 검증</p>
+</div>
+<div style="padding:0 0 135px 0"><x-connector head="end" style="width:56px;height:4px;color:#A69A9E;border-width:3px"></x-connector></div>
+<div style="width:250px;display:flex;flex-direction:column;align-items:center;gap:24px">
+<div style="width:160px;height:160px;border-radius:50%;background:#FFFCFA;border:2px solid #DDD2CD;display:flex;align-items:center;justify-content:center"><x-icon name="Clock" style="color:#6B4E7A;width:72px;height:72px"></x-icon></div>
+<h3 style="font-family:'Gowun Dodum', 'Noto Sans KR', sans-serif;font-size:44px;font-weight:400">대기</h3>
+<p style="font-size:24px;color:#6A5D61;text-align:center">지오펜스 등록</p>
+</div>
+<div style="padding:0 0 135px 0"><x-connector head="end" style="width:56px;height:4px;color:#A69A9E;border-width:3px"></x-connector></div>
+<div style="width:250px;display:flex;flex-direction:column;align-items:center;gap:24px">
+<div style="width:160px;height:160px;border-radius:50%;background:#6B4E7A;display:flex;align-items:center;justify-content:center"><x-icon name="Lightning" style="color:#FFFCFA;width:72px;height:72px"></x-icon></div>
+<h3 style="font-family:'Gowun Dodum', 'Noto Sans KR', sans-serif;font-size:44px;font-weight:400;color:#6B4E7A">꺼내기</h3>
+<p style="font-size:24px;color:#6A5D61;text-align:center">근처 도착 알림</p>
+</div>
+</div>
+<aside>[시간] 약 40초
+
+[대본]
+REMEMBRALL은 다섯 단계로 동작합니다.
+① 공유: 유튜브 쇼츠를 보다가 공유 버튼만 누르면, 보던 영상 위에서 바로 저장됩니다.
+② 분석: AI(Gemini)가 영상을 직접 보고 요약과 영상 속 장소 후보를 뽑습니다.
+③ 확정: 뽑은 장소가 실제로 있는지, 정확히 어느 지점인지 검증합니다. 확신이 없으면 추측하지 않고 사용자에게 짧게 되묻습니다.
+④ 대기: 확정된 장소 중 지금 위치에서 가까운 곳만 휴대폰 지오펜스로 등록하고 기다립니다.
+⑤ 꺼내기: 근처에 도착하면 꺼내기 에이전트가 날씨, 영업 여부, 최근 알림 이력까지 보고 지금 알려줄 가치가 있을 때만 알림을 보냅니다.
+
+[디자인 메모]
+- '꺼내기'만 자두색으로 칠했습니다. 앱 디자인 규칙 "자두색 면은 다시 꺼낸 순간에만, 화면당 한 곳"을 장표에도 적용.
+
+[참고]
+- MVP 범위: YouTube Shorts + 위치 트리거. 일정(축제·팝업) 트리거와 Instagram은 로드맵.
+- 분석 소요: 실제 Shorts 10편 평균 59초(24~189초). 앱 문구 "보통 1분쯤 걸려요"의 근거.
+- 영상·음성·전체 자막은 저장하지 않고 요약·검증된 장소·트리거만 저장(YouTube 정책 준수).</aside>
+</section>
+
+<!-- ===== 11 · scr-save ===== -->
+<section id="scr-save" style="background:#F6F1EE;color:#2A2126;font-family:'Noto Sans KR', Arial, sans-serif;padding:160px 128px 128px;display:flex;flex-direction:column;gap:40px">
+<div style="position:absolute;left:0;top:0;width:1920px;height:6px;background:#E4DAD5"></div>
+<div style="position:absolute;left:0;top:0;width:812px;height:6px;background:#6B4E7A"></div>
+<div style="position:absolute;left:128px;top:36px;width:1664px;display:flex;flex-direction:row;justify-content:space-between">
+<p style="font-size:24px;color:#8E8185">배경</p>
+<p style="font-size:24px;color:#8E8185">문제</p>
+<p style="font-size:24px;color:#6B4E7A;font-weight:700">솔루션</p>
+<p style="font-size:24px;color:#8E8185">기술</p>
+<p style="font-size:24px;color:#8E8185">차별화</p>
+<p style="font-size:24px;color:#8E8185">로드맵</p>
+<p style="font-size:24px;color:#8E8185">팀</p>
+<p style="font-size:24px;color:#8E8185">시연</p>
+</div>
+<h2 style="font-family:'Gowun Dodum', 'Noto Sans KR', sans-serif;font-size:64px;font-weight:400;line-height:1.25">저장</h2>
+<div style="flex:1;display:flex;flex-direction:row;justify-content:center;align-items:start;gap:120px">
+<div style="display:flex;flex-direction:column;gap:16px;align-items:center">
+<img src="deck/assets/s13.png" alt="공유 받음 화면: 영상 썸네일과 '저장했어요' 시트" style="width:270px;height:600px;object-fit:cover;border-radius:30px;border:6px solid #2A2126;box-shadow:0 20px 40px rgba(42,33,38,0.16)">
+<p style="font-size:28px">공유</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:16px;align-items:center">
+<img src="deck/assets/s03.png" alt="분석 중 화면: 영상 속 장소를 찾고 있어요" style="width:270px;height:600px;object-fit:cover;border-radius:30px;border:6px solid #2A2126;box-shadow:0 20px 40px rgba(42,33,38,0.16)">
+<p style="font-size:28px">분석 중</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:16px;align-items:center">
+<img src="deck/assets/s02.png" alt="확인 필요 화면: 이 영상, 어디였을까요? 후보 두 곳 중 선택" style="width:270px;height:600px;object-fit:cover;border-radius:30px;border:6px solid #6B4E7A;box-shadow:0 20px 40px rgba(107,78,122,0.24)">
+<p style="font-size:28px;color:#6B4E7A;font-weight:700">되묻기</p>
+</div>
+</div>
+<aside>[시간] 약 35초
+
+[대본]
+실제 화면입니다.
+유튜브에서 공유 버튼을 누르면, 앱으로 넘어가는 게 아니라 보던 영상 위에 "저장했어요" 시트가 뜹니다. '돌아가기'를 누르면 바로 유튜브로 돌아갑니다.
+그 사이 서버에서는 AI가 영상 속 장소를 찾습니다. 보통 1분 정도 걸리고, 화면을 닫아도 계속 찾습니다.
+영상에 "성심당"이라고만 나와서 본점인지 DCC점인지 애매하면, 혼자 추측하지 않고 "이 영상, 어디였을까요?" 하고 짧게 물어봅니다. 엉뚱한 곳으로 알림이 가는 것보다 한 번 묻는 게 낫다고 판단했습니다.
+그리고 지하철처럼 연결이 끊긴 곳에서 공유해도, 앱에 남겨 뒀다가 다시 연결되면 자동으로 보냅니다. "공유만 하면 무조건 저장된다"는 경험입니다.
+
+[UX 강조점 — Notion]
+- 되묻기: 장소가 애매하면 추측·폐기하지 않고 짧은 질문으로 확인. 기술(장소 확정)과 UX가 직접 연결되는 지점.
+- 오프라인에도 안전한 저장 큐: 로그인 전/네트워크 끊김 상태에서 공유해도 로컬 큐에 저장 후 자동 재시도.
+
+[세부 사실 — 질문 대비]
+- 공유 수신: expo-share-intent. 현재 화면 위에 시트(별도 화면 이동 없음). 상태: 저장 중 / 저장했어요(201) / 이미 저장함(200) / 대기열 / Shorts 아님.
+- 저장 큐: 최대 20개, 같은 영상 중복 제거. 앱 복귀·로그인 직후·다음 공유 성공 후 재전송.
+- 되묻기: 후보 2~3곳일 때만, 콘텐츠당 최대 1회. 목록에 없으면 "여기 없어요, 직접 찾을게요"로 검색.
+- 분석 결과(확인 필요·장소 없음·실패)는 푸시가 아니라 '기억' 탭에서 확인 — 알림은 '꺼내는 순간'에만.
+- 분석 시간: 실측 평균 59초(24~189초).</aside>
+</section>
+
+<!-- ===== 12 · scr-recall ===== -->
+<section id="scr-recall" style="background:#F6F1EE;color:#2A2126;font-family:'Noto Sans KR', Arial, sans-serif;padding:160px 128px 128px;display:flex;flex-direction:column;gap:40px">
+<div style="position:absolute;left:0;top:0;width:1920px;height:6px;background:#E4DAD5"></div>
+<div style="position:absolute;left:0;top:0;width:886px;height:6px;background:#6B4E7A"></div>
+<div style="position:absolute;left:128px;top:36px;width:1664px;display:flex;flex-direction:row;justify-content:space-between">
+<p style="font-size:24px;color:#8E8185">배경</p>
+<p style="font-size:24px;color:#8E8185">문제</p>
+<p style="font-size:24px;color:#6B4E7A;font-weight:700">솔루션</p>
+<p style="font-size:24px;color:#8E8185">기술</p>
+<p style="font-size:24px;color:#8E8185">차별화</p>
+<p style="font-size:24px;color:#8E8185">로드맵</p>
+<p style="font-size:24px;color:#8E8185">팀</p>
+<p style="font-size:24px;color:#8E8185">시연</p>
+</div>
+<h2 style="font-family:'Gowun Dodum', 'Noto Sans KR', sans-serif;font-size:64px;font-weight:400;line-height:1.25">꺼내기</h2>
+<div style="flex:1;display:flex;flex-direction:row;justify-content:center;align-items:start;gap:120px">
+<div style="display:flex;flex-direction:column;gap:16px;align-items:center">
+<img src="deck/assets/s01.png" alt="근처 탭: 잊고 있던 곳 5개를 찾았어요, 3주 전 성심당 본점 카드" style="width:270px;height:600px;object-fit:cover;border-radius:30px;border:6px solid #2A2126;box-shadow:0 20px 40px rgba(42,33,38,0.16)">
+<p style="font-size:28px">근처</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:16px;align-items:center">
+<img src="deck/assets/s10b.png" alt="지도 탭: 저장한 장소가 썸네일 핀으로 표시" style="width:270px;height:600px;object-fit:cover;border-radius:30px;border:6px solid #2A2126;box-shadow:0 20px 40px rgba(42,33,38,0.16)">
+<p style="font-size:28px">지도</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:16px;align-items:center">
+<img src="deck/assets/s08.png" alt="장소 상세: 영상에서 저장해둔 메모, 태그, 원본 영상 다시 보기" style="width:270px;height:600px;object-fit:cover;border-radius:30px;border:6px solid #2A2126;box-shadow:0 20px 40px rgba(42,33,38,0.16)">
+<p style="font-size:28px">장소 상세</p>
+</div>
+</div>
+<aside>[시간] 약 30초
+
+[대본]
+저장한 장소는 세 가지 방식으로 다시 만납니다.
+'근처' 탭은 지금 내 위치에서 가까운 저장 장소를 보여줍니다. 장소 이름보다 "3주 전"처럼 언제 저장했는지가 더 크게 보이는데, 잊고 있던 기억을 다시 떠올리게 하는 게 이 앱의 목적이기 때문입니다.
+'지도' 탭에서는 저장한 곳이 영상 썸네일 핀으로 찍혀 있고, 핀을 누르면 상세로 이어집니다.
+상세 화면에는 영상에서 저장해 둔 메모와 태그, 원본 영상으로 돌아가는 링크가 있습니다.
+
+[세부 사실 — 질문 대비]
+- 하단 탭: 근처 · 지도 · 기억 (설정은 헤더 톱니).
+- 지도: Google Maps SDK(react-native-maps) + Figma 색 토큰 커스텀 스타일. 핀과 겹치는 가게·교통·도로 라벨 숨김. 썸네일 핀, 오래된 기억일수록 핀이 작아짐(40 → 26 → 22).
+- 상세: 바텀시트(기본/펼침). 메모·태그·위치 권한이 없으면 해당 줄 숨김.
+- "이 장소가 아니에요" → 직접 찾기로 장소 변경 가능.
+- "길 안내 시작" 버튼은 디자인만 있고 경로 API 연결 전(로드맵).
+- 헤딩 서체 Gowun Dodum(앨범에 손으로 적은 캡션 같은 온기), 본문 Noto Sans KR.</aside>
+</section>
+
+<!-- ===== 13 · scr-notify ===== -->
+<section id="scr-notify" style="background:#F6F1EE;color:#2A2126;font-family:'Noto Sans KR', Arial, sans-serif;padding:160px 128px 128px;display:flex;flex-direction:column;gap:40px">
+<div style="position:absolute;left:0;top:0;width:1920px;height:6px;background:#E4DAD5"></div>
+<div style="position:absolute;left:0;top:0;width:960px;height:6px;background:#6B4E7A"></div>
+<div style="position:absolute;left:128px;top:36px;width:1664px;display:flex;flex-direction:row;justify-content:space-between">
+<p style="font-size:24px;color:#8E8185">배경</p>
+<p style="font-size:24px;color:#8E8185">문제</p>
+<p style="font-size:24px;color:#6B4E7A;font-weight:700">솔루션</p>
+<p style="font-size:24px;color:#8E8185">기술</p>
+<p style="font-size:24px;color:#8E8185">차별화</p>
+<p style="font-size:24px;color:#8E8185">로드맵</p>
+<p style="font-size:24px;color:#8E8185">팀</p>
+<p style="font-size:24px;color:#8E8185">시연</p>
+</div>
+<h2 style="font-family:'Gowun Dodum', 'Noto Sans KR', sans-serif;font-size:64px;font-weight:400;line-height:1.25">알림 · 바랜 기억</h2>
+<div style="flex:1;display:flex;flex-direction:row;justify-content:center;align-items:start;gap:120px">
+<div style="display:flex;flex-direction:column;gap:16px;align-items:center">
+<img src="deck/assets/s09.png" alt="잠금화면 알림: 3주 전에 저장한 빵집이 도보 4분 거리에 있어요" style="width:270px;height:600px;object-fit:cover;border-radius:30px;border:6px solid #6B4E7A;box-shadow:0 20px 40px rgba(107,78,122,0.24)">
+<p style="font-size:28px;color:#6B4E7A;font-weight:700">근처 도착 알림</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:16px;align-items:center">
+<img src="deck/assets/s07.png" alt="기억 탭: 저장한 영상이 시간순 앨범으로, 오래된 것일수록 썸네일이 바래 있음" style="width:270px;height:600px;object-fit:cover;border-radius:30px;border:6px solid #2A2126;box-shadow:0 20px 40px rgba(42,33,38,0.16)">
+<p style="font-size:28px">기억</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:28px;align-self:center">
+<div style="display:flex;flex-direction:row;gap:20px;align-items:end">
+<div style="display:flex;flex-direction:column;gap:12px;align-items:center"><div style="width:96px;height:171px;border-radius:12px;background:linear-gradient(160deg, #D9A066 0%, #A8643A 100%)"></div><p style="font-size:24px">오늘</p></div>
+<div style="display:flex;flex-direction:column;gap:12px;align-items:center"><div style="width:96px;height:171px;border-radius:12px;background:linear-gradient(160deg, #D9A066 0%, #A8643A 100%);opacity:0.7"></div><p style="font-size:24px;color:#6A5D61">3주</p></div>
+<div style="display:flex;flex-direction:column;gap:12px;align-items:center"><div style="width:96px;height:171px;border-radius:12px;background:linear-gradient(160deg, #D9A066 0%, #A8643A 100%);opacity:0.5"></div><p style="font-size:24px;color:#6A5D61">5개월</p></div>
+<x-connector head="end" style="width:56px;height:4px;color:#6B4E7A;border-width:3px;align-self:center"></x-connector>
+<div style="display:flex;flex-direction:column;gap:12px;align-items:center"><div style="width:96px;height:171px;border-radius:12px;background:linear-gradient(160deg, #D9A066 0%, #A8643A 100%);box-shadow:0 0 0 4px #6B4E7A"></div><p style="font-size:24px;color:#6B4E7A;font-weight:700">근처</p></div>
+</div>
+<p style="font-size:24px;color:#6A5D61">썸네일 투명도 0% · 30% · 50% → 복원</p>
+</div>
+</div>
+<aside>[시간] 약 30초
+
+[대본]
+그리고 이 앱의 핵심 순간입니다. 저장한 장소 근처에 도착하면, 앱을 열지 않아도 잠금화면에 먼저 알림이 옵니다.
+"3주 전에 저장한 빵집이 도보 4분 거리에 있어요." 단순히 가게가 근처에 있다는 게 아니라, 내가 언제 저장했는지를 함께 꺼내 줍니다.
+'기억' 탭은 저장한 영상을 시간순 앨범으로 보여주는데, 오래 잊은 것일수록 썸네일이 점점 바래 있습니다. 그리고 그 장소 근처에 가면 원래 색으로 돌아옵니다. 저희 발표 앞부분이 흑백이었던 이유도 여기에 있습니다.
+
+[그래프/도식]
+- 오른쪽 썸네일 네 장: 오늘(0%) → 3주(30%) → 5개월(50%) 바램 → 근처에 오면 복원.
+
+[세부 사실 — 질문 대비]
+- 바램 단계(디자인 토큰): 썸네일 위에 배경색 레이어를 투명도로 덮는 방식이라 필터·셰이더 없이 가벼움. 텍스트·버튼은 바래지 않음('비활성'과 구분하기 위해).
+- 앱 구현 기준 구간: 저장 후 7일 / 30일 / 그 이후. 계절 섹션(이번 주·지난 몇 주·올해 봄…)으로 묶음.
+- 알림 빈도 주의: 잠금화면 시안 문구는 "같은 장소는 하루에 한 번만 알려요"지만, 현재 서버 구현은 "회원 단위 2시간 쿨다운"(침묵 판단도 1회로 셈). 질문 시 "현재는 2시간 쿨다운, 장소 단위 쿨다운은 개선 예정"이 정확합니다.
+- 알림은 FCM, 탭하면 해당 장소 상세로 바로 열림.</aside>
+</section>
+
+<!-- ===== 14 · scr-onboard ===== -->
+<section id="scr-onboard" style="background:#F6F1EE;color:#2A2126;font-family:'Noto Sans KR', Arial, sans-serif;padding:160px 128px 128px;display:flex;flex-direction:column;gap:48px">
+<div style="position:absolute;left:0;top:0;width:1920px;height:6px;background:#E4DAD5"></div>
+<div style="position:absolute;left:0;top:0;width:1034px;height:6px;background:#6B4E7A"></div>
+<div style="position:absolute;left:128px;top:36px;width:1664px;display:flex;flex-direction:row;justify-content:space-between">
+<p style="font-size:24px;color:#8E8185">배경</p>
+<p style="font-size:24px;color:#8E8185">문제</p>
+<p style="font-size:24px;color:#6B4E7A;font-weight:700">솔루션</p>
+<p style="font-size:24px;color:#8E8185">기술</p>
+<p style="font-size:24px;color:#8E8185">차별화</p>
+<p style="font-size:24px;color:#8E8185">로드맵</p>
+<p style="font-size:24px;color:#8E8185">팀</p>
+<p style="font-size:24px;color:#8E8185">시연</p>
+</div>
+<h2 style="font-family:'Gowun Dodum', 'Noto Sans KR', sans-serif;font-size:64px;font-weight:400;line-height:1.25">온보딩 · 권한</h2>
+<div style="flex:1;display:flex;flex-direction:row;justify-content:space-between;align-items:start">
+<div style="display:flex;flex-direction:column;gap:16px;align-items:center">
+<img src="deck/assets/s00a.png" alt="시작 화면" style="width:238px;height:529px;object-fit:cover;border-radius:26px;border:6px solid #2A2126;box-shadow:0 16px 32px rgba(42,33,38,0.14)">
+<p style="font-size:24px">시작</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:16px;align-items:center">
+<img src="deck/assets/s00c.png" alt="알림 권한 화면" style="width:238px;height:529px;object-fit:cover;border-radius:26px;border:6px solid #2A2126;box-shadow:0 16px 32px rgba(42,33,38,0.14)">
+<p style="font-size:24px">알림</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:16px;align-items:center">
+<img src="deck/assets/s00d.png" alt="위치 1단계: 앱 사용 중 허용" style="width:238px;height:529px;object-fit:cover;border-radius:26px;border:6px solid #2A2126;box-shadow:0 16px 32px rgba(42,33,38,0.14)">
+<p style="font-size:24px">위치 ①</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:16px;align-items:center">
+<img src="deck/assets/s00dc.png" alt="위치 정보 이용 동의 시트" style="width:238px;height:529px;object-fit:cover;border-radius:26px;border:6px solid #6B4E7A;box-shadow:0 16px 32px rgba(107,78,122,0.24)">
+<p style="font-size:24px;color:#6B4E7A;font-weight:700">위치 정보 동의</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:16px;align-items:center">
+<img src="deck/assets/s00e.png" alt="위치 2단계: 항상 허용" style="width:238px;height:529px;object-fit:cover;border-radius:26px;border:6px solid #2A2126;box-shadow:0 16px 32px rgba(42,33,38,0.14)">
+<p style="font-size:24px">위치 ②</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:16px;align-items:center">
+<img src="deck/assets/s00f.png" alt="첫 저장 안내" style="width:238px;height:529px;object-fit:cover;border-radius:26px;border:6px solid #2A2126;box-shadow:0 16px 32px rgba(42,33,38,0.14)">
+<p style="font-size:24px">첫 저장 안내</p>
+</div>
+</div>
+<aside>[시간] 약 30초
+
+[대본]
+처음 앱을 켜면 이런 순서로 시작합니다.
+이 앱은 위치를 '항상 허용'으로 받아야 앱을 닫아도 근처 도착을 알 수 있습니다. 그런데 처음부터 "항상 허용해 주세요"라고 하면 대부분 거절하죠.
+그래서 권한마다 왜 필요한지 먼저 보여주고, 위치는 '앱 사용 중 허용' → '설정에서 항상 허용' 두 단계로 나눠 받습니다. 그 사이에 위치정보 이용 동의 시트로 "도착한 장소와 시각만 보내고, 이동 경로나 실시간 위치는 보내지 않는다"고 분명히 알려줍니다.
+"나중에 할게요"를 눌러도 앱은 그대로 쓸 수 있고, 설정에서 언제든 다시 켤 수 있습니다.
+
+[세부 사실 — 질문 대비]
+- 흐름: 00a 시작 → 00c 알림 → 00d 위치 1단계(앱 사용 중) → 위치 동의 시트 → 00e 위치 2단계(항상 허용) → 00f 첫 저장 안내 → 근처 탭.
+- 백그라운드 위치는 Google Play 정책상 사용 전 고지가 필요 → 00d·00e가 그 역할.
+- 위치정보 이용 동의(위치기반서비스 약관): 시트 하나를 온보딩·근처 탭(위치 꺼짐)·설정 세 곳에서 재사용. 동의 → PUT /api/me/consents/LOCATION_BASED_SERVICE → 성공 시 OS 권한 요청. 약관 버전이 바뀌면 재동의. 동의를 거두면 지오펜스 해제.
+- 위치가 '앱 사용 중'까지만이면 근처 알림만 동작하지 않고 나머지는 정상.
+- 로그인: MVP는 게스트 세션(설치 ID로 조용히 발급)이라 로그인 화면 생략. 카카오 로그인은 디자인·구조 준비 완료, MVP 이후 활성화(로드맵).</aside>
+</section>
+
+<!-- ===== 15 · tech-arch ===== -->
+<section id="tech-arch" style="background:#F6F1EE;color:#2A2126;font-family:'Noto Sans KR', Arial, sans-serif;padding:160px 128px 128px;display:flex;flex-direction:column;gap:48px">
+<div style="position:absolute;left:0;top:0;width:1920px;height:6px;background:#E4DAD5"></div>
+<div style="position:absolute;left:0;top:0;width:1108px;height:6px;background:#6B4E7A"></div>
+<div style="position:absolute;left:128px;top:36px;width:1664px;display:flex;flex-direction:row;justify-content:space-between">
+<p style="font-size:24px;color:#8E8185">배경</p>
+<p style="font-size:24px;color:#8E8185">문제</p>
+<p style="font-size:24px;color:#8E8185">솔루션</p>
+<p style="font-size:24px;color:#6B4E7A;font-weight:700">기술</p>
+<p style="font-size:24px;color:#8E8185">차별화</p>
+<p style="font-size:24px;color:#8E8185">로드맵</p>
+<p style="font-size:24px;color:#8E8185">팀</p>
+<p style="font-size:24px;color:#8E8185">시연</p>
+</div>
+<h2 style="font-family:'Gowun Dodum', 'Noto Sans KR', sans-serif;font-size:64px;font-weight:400;line-height:1.25">아키텍처</h2>
+<div style="position:absolute;left:128px;top:380px;width:280px;height:320px;background:#FFFCFA;border:1px solid #DDD2CD;border-radius:16px;padding:32px;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:16px">
+<x-icon name="Home" style="color:#6B4E7A;width:56px;height:56px"></x-icon>
+<h3 style="font-family:'Gowun Dodum', 'Noto Sans KR', sans-serif;font-size:36px;font-weight:400">Android 앱</h3>
+<p style="font-size:24px;color:#6A5D61">Expo · RN</p>
+</div>
+<div style="position:absolute;left:560px;top:250px;width:600px;height:240px;background:#FFFCFA;border:1px solid #DDD2CD;border-radius:16px;padding:32px;display:flex;flex-direction:column;justify-content:center;gap:12px">
+<h3 style="font-family:'Gowun Dodum', 'Noto Sans KR', sans-serif;font-size:40px;font-weight:400">저장 파이프라인</h3>
+<p style="font-size:24px;color:#6A5D61">Spring Boot · 고정 절차</p>
+</div>
+<div style="position:absolute;left:560px;top:530px;width:600px;height:120px;background:#2A2126;border-radius:16px;padding:20px 32px;display:flex;flex-direction:column;justify-content:center">
+<p style="font-size:28px;font-weight:700;color:#FFFCFA">PostgreSQL · PostGIS · pgvector</p>
+</div>
+<div style="position:absolute;left:560px;top:680px;width:600px;height:240px;background:#F4EEF6;border:2px solid #6B4E7A;border-radius:16px;padding:32px;display:flex;flex-direction:column;justify-content:center;gap:12px">
+<h3 style="font-family:'Gowun Dodum', 'Noto Sans KR', sans-serif;font-size:40px;font-weight:400;color:#5A3F68">꺼내기 에이전트</h3>
+<p style="font-size:24px;color:#6A5D61">Spring AI · Gemini 도구 호출</p>
+</div>
+<div style="position:absolute;left:1312px;top:250px;width:480px;height:240px;background:#FFFCFA;border:1px dashed #A69A9E;border-radius:16px;padding:32px;display:flex;flex-direction:column;justify-content:center;gap:10px">
+<p style="font-size:26px">Vertex AI Gemini</p>
+<p style="font-size:26px">YouTube Data API</p>
+<p style="font-size:26px">카카오 로컬 · LocationIQ</p>
+<p style="font-size:26px">공공 상가 · TourAPI</p>
+</div>
+<div style="position:absolute;left:1312px;top:680px;width:480px;height:240px;background:#FFFCFA;border:1px dashed #A69A9E;border-radius:16px;padding:32px;display:flex;flex-direction:column;justify-content:center;gap:10px">
+<p style="font-size:26px">Gemini</p>
+<p style="font-size:26px">기상청 단기예보</p>
+<p style="font-size:26px">FCM</p>
+</div>
+<x-connector x1="408" y1="440" x2="560" y2="370" route="elbow" head="end" style="color:#6B4E7A;border-width:3px"></x-connector>
+<x-connector x1="408" y1="620" x2="560" y2="760" route="elbow" head="end" style="color:#6B4E7A;border-width:3px"></x-connector>
+<x-connector x1="560" y1="860" x2="268" y2="700" route="hv" head="end" style="color:#6B4E7A;border-width:3px;border-style:dashed"></x-connector>
+<x-connector x1="860" y1="490" x2="860" y2="530" head="end" style="color:#6A5D61;border-width:3px"></x-connector>
+<x-connector x1="860" y1="680" x2="860" y2="650" head="both" style="color:#6A5D61;border-width:3px"></x-connector>
+<x-connector x1="1160" y1="370" x2="1312" y2="370" head="both" style="color:#A69A9E;border-width:3px"></x-connector>
+<x-connector x1="1160" y1="800" x2="1312" y2="800" head="both" style="color:#A69A9E;border-width:3px"></x-connector>
+<p style="position:absolute;left:412px;top:450px;width:70px;font-size:24px;font-weight:700;color:#6B4E7A">공유</p>
+<p style="position:absolute;left:412px;top:578px;width:70px;font-size:24px;font-weight:700;color:#6B4E7A">도착</p>
+<p style="position:absolute;left:380px;top:868px;width:80px;font-size:24px;font-weight:700;color:#6B4E7A">알림</p>
+<aside>[시간] 약 40초
+
+[대본]
+기술 구성입니다. 핵심은 "저장은 파이프라인, 꺼내기는 에이전트"로 나눈 것입니다.
+저장은 URL 검증, 영상 분석, 장소 확정, 트리거 저장까지 순서가 정해져 있어서 AI가 스스로 도구를 고를 이유가 없습니다. 그래서 안정적인 고정 파이프라인으로 만들었습니다.
+반대로 꺼내기는 "지금 이 사람에게 보여주는 게 맞나?"를 상황마다 판단해야 해서, 이쪽에만 도구를 쓰는 AI 에이전트를 붙였습니다.
+데이터는 PostgreSQL 하나에 PostGIS(좌표)와 pgvector(의미 검색)를 함께 써서, 위치와 의미를 한 쿼리로 찾습니다.
+
+[화살표]
+- 공유: 앱 → 저장 파이프라인 (POST /api/personal-saves)
+- 도착: 지오펜스 도착 이벤트 → 에이전트 (POST /api/location-events, 항상 202 즉시 응답)
+- 알림(점선): 에이전트 판단 → FCM → 앱
+
+[주요 설계 결정 — 질문 대비 (ADR)]
+1. 영상 분석을 Vertex AI Gemini로: 처음 쓰던 Elice API(OpenAI 호환)가 video 입력을 400으로 거부. Vertex는 YouTube URL을 영상 입력으로 직접 받아 다운로드·STT 없이 처리 → 정책 위반 위험도 제거.
+2. 단일 DB(ADR001): 별도 벡터DB(Qdrant/ES)나 MongoDB는 두 저장소 동기화 비용 때문에 기각.
+3. 에이전트·파이프라인은 DB를 직접 수정하지 않음. 결과만 돌려주고 저장은 Spring 서비스 계층.
+4. 결과 전달 FCM + 202: 에이전트 실행 시간이 일정하지 않고 iOS 백그라운드 제한(약 10초)이 있어서. 로컬 알림·WebSocket·폴링 기각.
+5. Spring AI(ADR005): LangChain4j·LangGraph4j와 비교 후 기존 모델·관측 체계 재사용. 그래프형 흐름이 필요해지면 LangGraph4j 재검토 조건 문서화.
+6. 인증: JWT 대신 DB 불투명 세션(ADR002). MVP는 게스트 세션.
+
+[스택]
+FE: Expo SDK 57 · React Native 0.86 · TypeScript · Reanimated · react-native-maps · expo-location/task-manager/notifications/share-intent · EAS Build
+BE: Java 21 · Spring Boot 4.1 · Spring AI 2.0 · JPA · Flyway · firebase-admin
+AI: Gemini(분석·에이전트) · gemini-embedding-001(768차원) → pgvector
+QA: GitHub Actions 빌드 + JUnit(Testcontainers) + Bruno API 회귀. @Test 453개, Bruno 요청 384개.
+레포: 커밋 323개, PR 머지 53회 (2026-08-20 ~ 2026-11-07).</aside>
+</section>
+
+<!-- ===== 16 · tech-place ===== -->
+<section id="tech-place" style="background:#F6F1EE;color:#2A2126;font-family:'Noto Sans KR', Arial, sans-serif;padding:160px 128px 128px;display:flex;flex-direction:column;gap:48px">
+<div style="position:absolute;left:0;top:0;width:1920px;height:6px;background:#E4DAD5"></div>
+<div style="position:absolute;left:0;top:0;width:1182px;height:6px;background:#6B4E7A"></div>
+<div style="position:absolute;left:128px;top:36px;width:1664px;display:flex;flex-direction:row;justify-content:space-between">
+<p style="font-size:24px;color:#8E8185">배경</p>
+<p style="font-size:24px;color:#8E8185">문제</p>
+<p style="font-size:24px;color:#8E8185">솔루션</p>
+<p style="font-size:24px;color:#6B4E7A;font-weight:700">기술</p>
+<p style="font-size:24px;color:#8E8185">차별화</p>
+<p style="font-size:24px;color:#8E8185">로드맵</p>
+<p style="font-size:24px;color:#8E8185">팀</p>
+<p style="font-size:24px;color:#8E8185">시연</p>
+</div>
+<h2 style="font-family:'Gowun Dodum', 'Noto Sans KR', sans-serif;font-size:64px;font-weight:400;line-height:1.25">장소 확정</h2>
+<div style="flex:1;display:flex;flex-direction:row;gap:120px;align-items:center">
+<div style="flex:1;display:flex;flex-direction:column;gap:24px">
+<div style="display:flex;flex-direction:row;align-items:center;gap:24px;background:#FFFCFA;border:1px solid #DDD2CD;border-radius:16px;padding:24px 32px">
+<p style="width:300px;font-size:28px;font-weight:700">지점명 미표기</p>
+<x-icon name="Wrench" style="color:#A69A9E;width:32px;height:32px"></x-icon>
+<p style="font-size:28px;color:#6A5D61">기준점 + 반경 매칭</p>
+</div>
+<div style="display:flex;flex-direction:row;align-items:center;gap:24px;background:#FFFCFA;border:1px solid #DDD2CD;border-radius:16px;padding:24px 32px">
+<p style="width:300px;font-size:28px;font-weight:700">동명 매장</p>
+<x-icon name="Wrench" style="color:#A69A9E;width:32px;height:32px"></x-icon>
+<p style="font-size:28px;color:#6A5D61">공공 상가 데이터 대조</p>
+</div>
+<div style="display:flex;flex-direction:row;align-items:center;gap:24px;background:#FFFCFA;border:1px solid #DDD2CD;border-radius:16px;padding:24px 32px">
+<p style="width:300px;font-size:28px;font-weight:700">역 = 버스정류장</p>
+<x-icon name="Wrench" style="color:#A69A9E;width:32px;height:32px"></x-icon>
+<p style="font-size:28px;color:#6A5D61">분류 오류 예외 처리</p>
+</div>
+<div style="display:flex;flex-direction:row;align-items:center;gap:24px;background:#FFFCFA;border:1px solid #DDD2CD;border-radius:16px;padding:24px 32px">
+<p style="width:300px;font-size:28px;font-weight:700">출입구 중복</p>
+<x-icon name="Wrench" style="color:#A69A9E;width:32px;height:32px"></x-icon>
+<p style="font-size:28px;color:#6A5D61">좌표 병합</p>
+</div>
+</div>
+<div style="display:flex;flex-direction:column;gap:24px">
+<p style="font-size:96px;font-weight:700;line-height:1;color:#6B4E7A;letter-spacing:-2px">59 / 59</p>
+<div style="display:grid;grid-template-columns:repeat(10, 36px);gap:8px">
+<div style="height:36px;background:#6B4E7A;border-radius:6px"></div><div style="height:36px;background:#6B4E7A;border-radius:6px"></div><div style="height:36px;background:#6B4E7A;border-radius:6px"></div><div style="height:36px;background:#6B4E7A;border-radius:6px"></div><div style="height:36px;background:#6B4E7A;border-radius:6px"></div><div style="height:36px;background:#6B4E7A;border-radius:6px"></div><div style="height:36px;background:#6B4E7A;border-radius:6px"></div><div style="height:36px;background:#6B4E7A;border-radius:6px"></div><div style="height:36px;background:#6B4E7A;border-radius:6px"></div><div style="height:36px;background:#6B4E7A;border-radius:6px"></div>
+<div style="height:36px;background:#6B4E7A;border-radius:6px"></div><div style="height:36px;background:#6B4E7A;border-radius:6px"></div><div style="height:36px;background:#6B4E7A;border-radius:6px"></div><div style="height:36px;background:#6B4E7A;border-radius:6px"></div><div style="height:36px;background:#6B4E7A;border-radius:6px"></div><div style="height:36px;background:#6B4E7A;border-radius:6px"></div><div style="height:36px;background:#6B4E7A;border-radius:6px"></div><div style="height:36px;background:#6B4E7A;border-radius:6px"></div><div style="height:36px;background:#6B4E7A;border-radius:6px"></div><div style="height:36px;background:#6B4E7A;border-radius:6px"></div>
+<div style="height:36px;background:#6B4E7A;border-radius:6px"></div><div style="height:36px;background:#6B4E7A;border-radius:6px"></div><div style="height:36px;background:#6B4E7A;border-radius:6px"></div><div style="height:36px;background:#6B4E7A;border-radius:6px"></div><div style="height:36px;background:#6B4E7A;border-radius:6px"></div><div style="height:36px;background:#6B4E7A;border-radius:6px"></div><div style="height:36px;background:#6B4E7A;border-radius:6px"></div><div style="height:36px;background:#6B4E7A;border-radius:6px"></div><div style="height:36px;background:#6B4E7A;border-radius:6px"></div><div style="height:36px;background:#6B4E7A;border-radius:6px"></div>
+<div style="height:36px;background:#6B4E7A;border-radius:6px"></div><div style="height:36px;background:#6B4E7A;border-radius:6px"></div><div style="height:36px;background:#6B4E7A;border-radius:6px"></div><div style="height:36px;background:#6B4E7A;border-radius:6px"></div><div style="height:36px;background:#6B4E7A;border-radius:6px"></div><div style="height:36px;background:#6B4E7A;border-radius:6px"></div><div style="height:36px;background:#6B4E7A;border-radius:6px"></div><div style="height:36px;background:#6B4E7A;border-radius:6px"></div><div style="height:36px;background:#6B4E7A;border-radius:6px"></div><div style="height:36px;background:#6B4E7A;border-radius:6px"></div>
+<div style="height:36px;background:#6B4E7A;border-radius:6px"></div><div style="height:36px;background:#6B4E7A;border-radius:6px"></div><div style="height:36px;background:#6B4E7A;border-radius:6px"></div><div style="height:36px;background:#6B4E7A;border-radius:6px"></div><div style="height:36px;background:#6B4E7A;border-radius:6px"></div><div style="height:36px;background:#6B4E7A;border-radius:6px"></div><div style="height:36px;background:#6B4E7A;border-radius:6px"></div><div style="height:36px;background:#6B4E7A;border-radius:6px"></div><div style="height:36px;background:#6B4E7A;border-radius:6px"></div><div style="height:36px;background:#6B4E7A;border-radius:6px"></div>
+<div style="height:36px;background:#6B4E7A;border-radius:6px"></div><div style="height:36px;background:#6B4E7A;border-radius:6px"></div><div style="height:36px;background:#6B4E7A;border-radius:6px"></div><div style="height:36px;background:#6B4E7A;border-radius:6px"></div><div style="height:36px;background:#6B4E7A;border-radius:6px"></div><div style="height:36px;background:#6B4E7A;border-radius:6px"></div><div style="height:36px;background:#6B4E7A;border-radius:6px"></div><div style="height:36px;background:#6B4E7A;border-radius:6px"></div><div style="height:36px;background:#6B4E7A;border-radius:6px"></div>
+</div>
+<p style="font-size:28px;font-weight:700">상호명 · 지점까지 정확</p>
+<p style="font-size:24px;color:#6A5D61">실제 Shorts 10편 · 놓친 장소 0</p>
+</div>
+</div>
+<aside>[시간] 약 45초
+
+[대본]
+기술적으로 가장 공을 들인 부분은 '장소 확정'입니다. AI가 영상에서 "스타벅스 강남역점"을 뽑아도, 실제 지도 좌표로 정확히 바꾸는 건 생각보다 어렵습니다.
+"강남역점" 같은 지점명은 주소에 안 나옵니다. 그래서 강남역이라는 기준점을 먼저 찾고, 그 주변 상가 데이터에서 지점명을 맞춥니다.
+"을지로 골뱅이"처럼 같은 이름의 가게가 여러 곳이면, 실제 등록된 공공 상가 데이터와 대조해서 구분합니다.
+지도 API가 지하철역을 버스정류장으로 분류하는 버그도 있었고, 한 역의 출입구들이 따로 등록돼 "후보가 너무 많다"고 잘못 판단하는 문제도 있었습니다. 하나씩 예외 처리하고 병합했습니다.
+한 번에 완성한 게 아니라 실제 실패 사례를 하나씩 잡아가며 고도화했습니다. 그 결과 실제 쇼츠 10편에서 뽑은 장소 59곳이 전부 상호명과 지점까지 정확했습니다.
+
+[그래프]
+- 오른쪽 59칸 = 추출한 장소 59곳, 전부 A등급(상호명+지점 정확).
+
+[세부 사실 — 질문 대비]
+- 후보 검색: LocationIQ, 공공 상가정보(소상공인시장진흥공단), 한국관광공사 TourAPI. 기준점 보정: VWorld, 지방행정인허가 DB(EPSG:5174 → WGS84 변환, 매일 04시 동기화).
+- 존재 검증: 카카오 로컬 API. 정책상 카카오 장소 ID만 저장(이름·좌표 저장 안 함).
+- 프랜차이즈 기준점 반경: 300m → 실측 후 1000m로 조정.
+- 결과 3종: 장소 확정 / 확인 필요(후보 2~3곳 → 되묻기) / 장소 없음. 원칙 "정보가 없으면 만들지 않는다" — 좌표를 추측하지 않음.
+- 59/59 평가(AI/평가셋.md): A(상호명+지점)/B(지역만)/C(틀림) 기준으로 영상을 직접 보고 전수 확인. 1차 8편 성공(44곳 전부 A), 실패 2편은 재시도로 성공(+15곳).
+- 주의: Gemini 2.5 Flash 시점 측정(현재 코드 모델은 3.8 Flash).
+- 비용: 쇼츠 1편 약 3,927토큰, 호출당 1원 미만(PoC).</aside>
+</section>
+
+<!-- ===== 17 · tech-geofence ===== -->
+<section id="tech-geofence" style="background:#F6F1EE;color:#2A2126;font-family:'Noto Sans KR', Arial, sans-serif;padding:160px 128px 128px;display:flex;flex-direction:column;gap:48px">
+<div style="position:absolute;left:0;top:0;width:1920px;height:6px;background:#E4DAD5"></div>
+<div style="position:absolute;left:0;top:0;width:1255px;height:6px;background:#6B4E7A"></div>
+<div style="position:absolute;left:128px;top:36px;width:1664px;display:flex;flex-direction:row;justify-content:space-between">
+<p style="font-size:24px;color:#8E8185">배경</p>
+<p style="font-size:24px;color:#8E8185">문제</p>
+<p style="font-size:24px;color:#8E8185">솔루션</p>
+<p style="font-size:24px;color:#6B4E7A;font-weight:700">기술</p>
+<p style="font-size:24px;color:#8E8185">차별화</p>
+<p style="font-size:24px;color:#8E8185">로드맵</p>
+<p style="font-size:24px;color:#8E8185">팀</p>
+<p style="font-size:24px;color:#8E8185">시연</p>
+</div>
+<h2 style="font-family:'Gowun Dodum', 'Noto Sans KR', sans-serif;font-size:64px;font-weight:400;line-height:1.25">지오펜스 재조회 (resync)</h2>
+<div style="position:absolute;left:208px;top:280px;width:600px;height:600px;border-radius:50%;background:#F4EEF6;border:4px dashed #6B4E7A"></div>
+<div style="position:absolute;left:372px;top:422px;width:56px;height:56px;border-radius:50%;background:#E6DAEB;border:3px solid #6B4E7A"></div>
+<div style="position:absolute;left:562px;top:392px;width:56px;height:56px;border-radius:50%;background:#E6DAEB;border:3px solid #6B4E7A"></div>
+<div style="position:absolute;left:652px;top:552px;width:56px;height:56px;border-radius:50%;background:#E6DAEB;border:3px solid #6B4E7A"></div>
+<div style="position:absolute;left:422px;top:662px;width:56px;height:56px;border-radius:50%;background:#E6DAEB;border:3px solid #6B4E7A"></div>
+<div style="position:absolute;left:582px;top:702px;width:56px;height:56px;border-radius:50%;background:#E6DAEB;border:3px solid #6B4E7A"></div>
+<div style="position:absolute;left:292px;top:572px;width:56px;height:56px;border-radius:50%;background:#E6DAEB;border:3px solid #6B4E7A"></div>
+<div style="position:absolute;left:502px;top:492px;width:56px;height:56px;border-radius:50%;background:#E6DAEB;border:3px solid #6B4E7A"></div>
+<div style="position:absolute;left:452px;top:578px;width:32px;height:32px;border-radius:50%;background:#6B4E7A;border:4px solid #FFFCFA;box-shadow:0 0 0 8px rgba(107,78,122,0.2)"></div>
+<p style="position:absolute;left:498px;top:614px;width:60px;font-size:24px;font-weight:700;color:#6B4E7A">나</p>
+<p style="position:absolute;left:428px;top:258px;width:160px;font-size:24px;font-weight:700;color:#6B4E7A;background:#F6F1EE;padding:4px 12px;text-align:center">재조회 원</p>
+<p style="position:absolute;left:208px;top:896px;width:600px;font-size:24px;color:#6A5D61;text-align:center">● 저장 장소 반경 150m</p>
+<div style="position:absolute;left:960px;top:300px;width:832px;display:flex;flex-direction:column;gap:56px">
+<div style="display:flex;flex-direction:column;gap:20px">
+<p style="font-size:24px;color:#6A5D61">OS 지오펜스 한도</p>
+<div style="display:flex;flex-direction:row;align-items:center;gap:24px"><p style="width:160px;font-size:28px;font-weight:700">iOS</p><div style="width:100px;height:40px;background:#6B4E7A;border-radius:4px"></div><p style="font-size:32px;font-weight:700">20</p></div>
+<div style="display:flex;flex-direction:row;align-items:center;gap:24px"><p style="width:160px;font-size:28px;font-weight:700">Android</p><div style="width:500px;height:40px;background:#A69A9E;border-radius:4px"></div><p style="font-size:32px;font-weight:700">100</p></div>
+</div>
+<div style="display:flex;flex-direction:column;gap:12px;border-left:4px solid #6B4E7A;padding:4px 0 4px 28px">
+<p style="font-size:36px;font-weight:700">가까운 N−1곳 + 재조회 원 1개</p>
+<p style="font-size:26px;color:#6A5D61">원 밖으로 나가면 목록 교체 · 두 플랫폼 같은 로직</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:16px">
+<p style="font-size:24px;color:#6A5D61">기각한 대안</p>
+<div style="display:flex;flex-direction:row;flex-wrap:wrap;gap:12px">
+<p style="font-size:24px;background:#ECE4E0;border-radius:999px;padding:8px 20px;text-decoration:line-through #8E8185">지역 2단계 등록</p>
+<p style="font-size:24px;background:#ECE4E0;border-radius:999px;padding:8px 20px;text-decoration:line-through #8E8185">큰 위치 변경 감지</p>
+<p style="font-size:24px;background:#ECE4E0;border-radius:999px;padding:8px 20px;text-decoration:line-through #8E8185">Android DWELL</p>
+<p style="font-size:24px;background:#ECE4E0;border-radius:999px;padding:8px 20px;text-decoration:line-through #8E8185">주기적 폴링</p>
+</div>
+</div>
+</div>
+<aside>[시간] 약 45초
+
+[대본]
+두 번째는 지오펜스입니다. 휴대폰 OS는 앱 하나가 등록할 수 있는 지오펜스 수를 제한합니다. iOS는 20개, Android는 100개입니다. 저장한 장소가 수백 곳이 되면 전부 등록할 수 없습니다.
+그래서 현재 위치에서 가까운 순서로 한도보다 하나 적게만 등록하고, 남은 한 자리에 그림의 점선 같은 큰 원, '재조회 원'을 등록합니다. 사용자가 이 원 밖으로 나가면 서버에 다시 물어서 새 위치 기준으로 목록을 갈아끼웁니다.
+덕분에 지역을 미리 나눌 필요가 없고, 안드로이드와 iOS가 같은 로직으로 동작합니다.
+지역 2단계 등록, iOS 큰 위치 변경 감지, 안드로이드 DWELL, 주기적 폴링도 검토했지만, 플랫폼마다 분기가 필요하거나 비용이 커서 기각했습니다.
+
+[세부 사실 — 질문 대비]
+- 장소 반경 150m. 재조회 원 반경 = 가장 먼 등록 장소까지 거리 + 500m(최소 3km). 실제 등록 수 iOS 19 / Android 99 + 재조회 원 1.
+- 서버: PostGIS로 가까운 순 N개 조회(GET /api/geofences).
+- 앱: expo-location + expo-task-manager. 장소별 안/밖 상태를 기억해 반복 보고 방지. 등록 시점에 이미 반경 안이면 거리 직접 계산.
+- 도착 보고는 큐 + 같은 이벤트 ID로 재시도(최대 20개, 30분 지난 이벤트 폐기). 서버는 항상 202 즉시 응답 → 결과는 FCM.
+
+[알려진 한계 — 스스로 인지하고 있음을 보여주면 좋음]
+- Android는 스쳐 지나가도 이벤트가 발생할 수 있음 → 쿨다운 소모(서버 2시간 쿨다운 + 에이전트 침묵 판단으로 과잉 알림 억제).
+- 재부팅 시 OS 등록이 사라짐 → 부팅 시 마지막 목록 자동 재등록 + 재동기화.
+- 현재 빌드는 Android 전용. iOS 한도까지 설계만 맞춰 둔 상태.</aside>
+</section>
+
+<!-- ===== 18 · tech-agent ===== -->
+<section id="tech-agent" style="background:#F6F1EE;color:#2A2126;font-family:'Noto Sans KR', Arial, sans-serif;padding:160px 128px 128px;display:flex;flex-direction:column;gap:48px">
+<div style="position:absolute;left:0;top:0;width:1920px;height:6px;background:#E4DAD5"></div>
+<div style="position:absolute;left:0;top:0;width:1329px;height:6px;background:#6B4E7A"></div>
+<div style="position:absolute;left:128px;top:36px;width:1664px;display:flex;flex-direction:row;justify-content:space-between">
+<p style="font-size:24px;color:#8E8185">배경</p>
+<p style="font-size:24px;color:#8E8185">문제</p>
+<p style="font-size:24px;color:#8E8185">솔루션</p>
+<p style="font-size:24px;color:#6B4E7A;font-weight:700">기술</p>
+<p style="font-size:24px;color:#8E8185">차별화</p>
+<p style="font-size:24px;color:#8E8185">로드맵</p>
+<p style="font-size:24px;color:#8E8185">팀</p>
+<p style="font-size:24px;color:#8E8185">시연</p>
+</div>
+<h2 style="font-family:'Gowun Dodum', 'Noto Sans KR', sans-serif;font-size:64px;font-weight:400;line-height:1.25">꺼내기 에이전트</h2>
+<div style="flex:1;display:flex;flex-direction:row;gap:24px;align-items:center">
+<div style="width:240px;display:flex;flex-direction:column;align-items:center;gap:20px">
+<div style="width:160px;height:160px;border-radius:50%;background:#FFFCFA;border:2px solid #DDD2CD;display:flex;align-items:center;justify-content:center"><x-icon name="Globe" style="color:#6B4E7A;width:72px;height:72px"></x-icon></div>
+<h3 style="font-family:'Gowun Dodum', 'Noto Sans KR', sans-serif;font-size:40px;font-weight:400">근처 도착</h3>
+</div>
+<x-connector head="end" style="width:56px;height:4px;color:#6B4E7A;border-width:3px"></x-connector>
+<div style="flex:1;display:flex;flex-direction:column;gap:24px;background:#F4EEF6;border:2px solid #6B4E7A;border-radius:16px;padding:36px">
+<h3 style="font-family:'Gowun Dodum', 'Noto Sans KR', sans-serif;font-size:40px;font-weight:400;color:#5A3F68">Gemini · 도구 호출</h3>
+<div style="display:flex;flex-direction:column;gap:14px;background:#FFFCFA;border-radius:12px;padding:24px 28px">
+<p style="font-size:28px;font-weight:700;font-family:'Courier New', monospace">searchCandidates</p>
+<div style="display:flex;flex-direction:row;flex-wrap:wrap;gap:10px">
+<p style="font-size:24px;background:#E6DAEB;border-radius:999px;padding:6px 18px">pgvector 유사도</p>
+<p style="font-size:24px;background:#E6DAEB;border-radius:999px;padding:6px 18px">위치 반경</p>
+<p style="font-size:24px;background:#E6DAEB;border-radius:999px;padding:6px 18px">공개 / 개인</p>
+</div>
+</div>
+<div style="display:flex;flex-direction:column;gap:14px;background:#FFFCFA;border-radius:12px;padding:24px 28px">
+<p style="font-size:28px;font-weight:700;font-family:'Courier New', monospace">checkVisitConditions</p>
+<div style="display:flex;flex-direction:row;flex-wrap:wrap;gap:10px">
+<p style="font-size:24px;background:#E6DAEB;border-radius:999px;padding:6px 18px">영업 · 휴무</p>
+<p style="font-size:24px;background:#E6DAEB;border-radius:999px;padding:6px 18px">알림 무시 이력</p>
+<p style="font-size:24px;background:#E6DAEB;border-radius:999px;padding:6px 18px">실시간 날씨</p>
+</div>
+</div>
+</div>
+<x-connector head="end" style="width:56px;height:4px;color:#6B4E7A;border-width:3px"></x-connector>
+<div style="width:340px;display:flex;flex-direction:column;gap:16px">
+<div style="display:flex;flex-direction:column;gap:8px;background:#6B4E7A;border-radius:16px;padding:28px 32px">
+<p style="font-size:24px;color:#E6DAEB;font-weight:700">제안</p>
+<p style="font-size:28px;color:#FFFCFA">장소 · 코스 · 영상</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:8px;background:#FFFCFA;border:1px solid #DDD2CD;border-radius:16px;padding:28px 32px">
+<p style="font-size:24px;color:#6A5D61;font-weight:700">침묵</p>
+<p style="font-size:28px">근거 약하면 안 보냄</p>
+</div>
+<p style="font-size:24px;color:#6B4E7A;font-weight:700;padding:8px 0 0 4px">예) 비 → 루프탑 대신 실내 카페</p>
+</div>
+</div>
+<aside>[시간] 약 45초
+
+[대본]
+세 번째, 꺼내기 에이전트입니다. 근처에 왔다고 무조건 알림을 보내면 금방 스팸처럼 느껴지고, 결국 알림을 끄게 됩니다.
+그래서 거리 기준이 아니라 AI가 직접 판단하게 했습니다. 도착 이벤트가 오면 Gemini 에이전트가 두 도구를 직접 골라 호출합니다.
+하나는 후보 검색 도구로, 의미가 비슷한 콘텐츠를 pgvector로 찾으면서 위치 반경과 공개·개인 범위까지 한 쿼리로 묶어 찾습니다.
+다른 하나는 방문 조건 확인 도구로, 지금 영업 중인지, 최근 비슷한 알림을 무시했는지, 실시간 날씨를 확인합니다.
+그래서 비가 오면 루프탑 카페 대신 근처 실내 카페를 제안하고, 근거가 약하면 아예 보내지 않습니다. "근처면 알림"이 아니라 "근처 + AI 판단"입니다.
+
+[UX 연결 — Notion]
+- 날씨·알림 이력을 고려한 알림 타이밍 = "저장만 하고 잊은 걸 적절한 순간에 꺼내준다"는 핵심 가치를 실제로 구현한 부분.
+
+[세부 사실 — 질문 대비]
+- 목표: "반드시 추천"이 아니라 "지금 다시 보여줄 가치가 있는가". 근거가 약하면 침묵(NO_ACTION).
+- 흐름: 잠정 제안 → 방문 조건 확인 → 안 맞으면 대안 검색 → 최종 제안 또는 침묵.
+- 제안 형태: PLACE(장소) / COURSE(도보 30분 이내 2곳 이상) / CONTENT(영상) / NO_ACTION.
+- 예산: 도구 호출 최대 6회, 모델 30초, 실행 90초. 후보 반경 1km, 개인 10 · 공용 10 · 의미 검색 5개.
+- checkVisitConditions: 운영 기간·휴무, 최근 보낸 알림 열람 여부, 기상청 단기예보. 최대 3곳.
+- 필수 조건 7가지: 받은 후보만 사용 / 콘텐츠-장소 연결 정확 / 미확인 사실 단정 금지 / 사용자 상황 지어내기 금지 / 형태 제약 준수 / 종료·휴무와 모순 금지 / 공용 후보의 저장 관계 비노출.
+- 과잉 알림 방지: 회원 단위 2시간 쿨다운(침묵도 1회로 셈), 30분 지난 이벤트 무시.
+- 구현: Spring AI ChatClient + 도구 2개(ADR005), gemini-3.6-flash.</aside>
+</section>
+
+<!-- ===== 19 · tech-eval ===== -->
+<section id="tech-eval" style="background:#F6F1EE;color:#2A2126;font-family:'Noto Sans KR', Arial, sans-serif;padding:160px 128px 128px;display:flex;flex-direction:column;gap:48px">
+<div style="position:absolute;left:0;top:0;width:1920px;height:6px;background:#E4DAD5"></div>
+<div style="position:absolute;left:0;top:0;width:1403px;height:6px;background:#6B4E7A"></div>
+<div style="position:absolute;left:128px;top:36px;width:1664px;display:flex;flex-direction:row;justify-content:space-between">
+<p style="font-size:24px;color:#8E8185">배경</p>
+<p style="font-size:24px;color:#8E8185">문제</p>
+<p style="font-size:24px;color:#8E8185">솔루션</p>
+<p style="font-size:24px;color:#6B4E7A;font-weight:700">기술</p>
+<p style="font-size:24px;color:#8E8185">차별화</p>
+<p style="font-size:24px;color:#8E8185">로드맵</p>
+<p style="font-size:24px;color:#8E8185">팀</p>
+<p style="font-size:24px;color:#8E8185">시연</p>
+</div>
+<h2 style="font-family:'Gowun Dodum', 'Noto Sans KR', sans-serif;font-size:64px;font-weight:400;line-height:1.25">LLM-as-judge 평가</h2>
+<div style="flex:1;display:flex;flex-direction:row;gap:120px;align-items:start;justify-content:center">
+<div style="display:flex;flex-direction:column;gap:24px">
+<p style="font-size:28px;font-weight:700">BAD 판단 <span style="color:#6A5D61">(72건 중)</span></p>
+<div style="display:flex;flex-direction:row;align-items:end;gap:48px;height:380px;border-bottom:2px solid #2A2126;padding:0 24px">
+<div style="display:flex;flex-direction:column;align-items:center;gap:12px"><p style="font-size:32px;font-weight:700">5</p><div style="width:100px;height:300px;background:#A69A9E;border-radius:4px 4px 0 0"></div></div>
+<div style="display:flex;flex-direction:column;align-items:center;gap:12px"><p style="font-size:32px;font-weight:700">4</p><div style="width:100px;height:240px;background:#A69A9E;border-radius:4px 4px 0 0"></div></div>
+<div style="display:flex;flex-direction:column;align-items:center;gap:12px"><p style="font-size:32px;font-weight:700">1</p><div style="width:100px;height:60px;background:#A69A9E;border-radius:4px 4px 0 0"></div></div>
+<div style="display:flex;flex-direction:column;align-items:center;gap:12px"><p style="font-size:32px;font-weight:700;color:#6B4E7A">0</p><div style="width:100px;height:4px;background:#6B4E7A"></div></div>
+</div>
+<div style="display:flex;flex-direction:row;gap:48px;padding:0 24px">
+<p style="width:100px;font-size:24px;text-align:center">v1</p>
+<p style="width:100px;font-size:24px;text-align:center">v2</p>
+<p style="width:100px;font-size:24px;text-align:center">v3</p>
+<p style="width:100px;font-size:24px;text-align:center;color:#6B4E7A;font-weight:700">v4</p>
+</div>
+</div>
+<div style="display:flex;flex-direction:column;gap:28px">
+<p style="font-size:28px;font-weight:700">품질 평균 <span style="color:#6A5D61">(5점 척도)</span></p>
+<div style="display:flex;flex-direction:row;align-items:center;gap:24px"><p style="width:60px;font-size:24px">v1</p><div style="position:relative;width:480px;height:40px"><div style="position:absolute;left:0;top:18px;width:480px;height:4px;background:#DDD2CD"></div><div style="position:absolute;left:calc(38.75% - 14px);top:6px;width:28px;height:28px;border-radius:50%;background:#A69A9E"></div></div><p style="width:110px;font-size:28px;text-align:right">4.16</p></div>
+<div style="display:flex;flex-direction:row;align-items:center;gap:24px"><p style="width:60px;font-size:24px">v2</p><div style="position:relative;width:480px;height:40px"><div style="position:absolute;left:0;top:18px;width:480px;height:4px;background:#DDD2CD"></div><div style="position:absolute;left:calc(48.5% - 14px);top:6px;width:28px;height:28px;border-radius:50%;background:#A69A9E"></div></div><p style="width:110px;font-size:28px;text-align:right">4.19</p></div>
+<div style="display:flex;flex-direction:row;align-items:center;gap:24px"><p style="width:60px;font-size:24px">v3</p><div style="position:relative;width:480px;height:40px"><div style="position:absolute;left:0;top:18px;width:480px;height:4px;background:#DDD2CD"></div><div style="position:absolute;left:calc(55.5% - 14px);top:6px;width:28px;height:28px;border-radius:50%;background:#A69A9E"></div></div><p style="width:110px;font-size:28px;text-align:right">4.22</p></div>
+<div style="display:flex;flex-direction:row;align-items:center;gap:24px"><p style="width:60px;font-size:24px;color:#6B4E7A;font-weight:700">v4</p><div style="position:relative;width:480px;height:40px"><div style="position:absolute;left:0;top:18px;width:480px;height:4px;background:#DDD2CD"></div><div style="position:absolute;left:calc(88% - 14px);top:6px;width:28px;height:28px;border-radius:50%;background:#6B4E7A"></div></div><p style="width:110px;font-size:28px;text-align:right;color:#6B4E7A;font-weight:700">4.35</p></div>
+<div style="display:flex;flex-direction:row;gap:24px"><p style="width:60px;font-size:24px"></p><div style="width:480px;display:flex;flex-direction:row;justify-content:space-between"><p style="font-size:24px;color:#8E8185">4.0</p><p style="font-size:24px;color:#8E8185">4.2</p><p style="font-size:24px;color:#8E8185">4.4</p></div></div>
+<div style="display:flex;flex-direction:row;flex-wrap:wrap;gap:12px;padding:16px 0 0 0">
+<p style="font-size:24px;background:#ECE4E0;border-radius:999px;padding:8px 20px">실패 분리 집계</p>
+<p style="font-size:24px;background:#ECE4E0;border-radius:999px;padding:8px 20px">기준 해시 고정</p>
+<p style="font-size:24px;background:#E6DAEB;border-radius:999px;padding:8px 20px;color:#5A3F68;font-weight:700">holdout 6 / 6</p>
+</div>
+</div>
+</div>
+<aside>[시간] 약 45초
+
+[대본]
+그런데 AI 에이전트가 "판단을 잘한다"는 건 어떻게 증명할까요? 저희는 에이전트를 만들고 끝내지 않고 평가 체계를 따로 만들었습니다.
+에이전트의 판단을 또 다른 AI 심판이 5점 척도로 채점하는 LLM-as-judge 방식입니다. 24개 상황을 세 번씩, 72건을 돌렸고, 품질 점수와 "에이전트나 채점 자체가 실패한 경우"를 따로 세서 통계가 왜곡되지 않게 했습니다. 평가 기준 문서는 해시로 고정해서 언제 돌려도 같은 조건이 되게 했습니다.
+결과를 보시면, 도구가 없던 v1은 잘못된 판단이 72건 중 5건이었는데 최종 v4는 0건이 됐고, 품질 평균도 4.35로 가장 높았습니다. 처음 보는 상황 6개에서도 6개 모두 좋은 판단을 했습니다.
+
+[그래프]
+- 왼쪽: 버전별 BAD(필수 조건 7개 중 하나라도 어긴 판단) 건수. v4 = 0.
+- 오른쪽: 품질 평균. 축이 4.0~4.4 구간만 보여주는 점 그래프라 차이가 확대되어 보입니다. 질문 받으면 "5점 만점 기준 4.16 → 4.35"라고 정확히 말하세요.
+
+[버전]
+v1 도구 없음 / v2 도구 추가 / v3 프롬프트 개선(운영 기간·휴무 확인 문단) / v4 확인 중심(채택).
+
+[인사이트 — 질문 대비]
+- BAD를 줄인 주역은 도구 추가(v2)가 아니라 v3 프롬프트의 "운영 기간·휴무 확인" 문단. 측정으로 원인을 찾음.
+- v2의 '정보 재노출형' 도구는 토큰만 2배(1,840 → 3,971), 품질 개선 미미 → 측정 덕분에 걸러냄.
+- v4는 토큰 6,513·응답 중앙값 8.6초로 늘었지만, 알림 판단은 비동기(FCM) 구조라 감당 가능.
+- 도구 세트 평가(18장면 × 3회 = 54건): BAD 0, 확인 도구 호출률 100%(42/42), 조건 하나만 바꾼 6쌍 중 5쌍에서 판단 변경(예: 비 → 실내 카페).
+- 심판 모델: Claude Sonnet(Elice API 경유), 온도 0. 실패율: v1 1.4% / v2 0% / v3 0% / v4 1.4%(품질과 별도 집계). 완결 기준 5개 모두 통과.</aside>
+</section>
+
+<!-- ===== 20 · tech-fail ===== -->
+<section id="tech-fail" style="background:#F6F1EE;color:#2A2126;font-family:'Noto Sans KR', Arial, sans-serif;padding:160px 128px 128px;display:flex;flex-direction:column;gap:48px">
+<div style="position:absolute;left:0;top:0;width:1920px;height:6px;background:#E4DAD5"></div>
+<div style="position:absolute;left:0;top:0;width:1477px;height:6px;background:#6B4E7A"></div>
+<div style="position:absolute;left:128px;top:36px;width:1664px;display:flex;flex-direction:row;justify-content:space-between">
+<p style="font-size:24px;color:#8E8185">배경</p>
+<p style="font-size:24px;color:#8E8185">문제</p>
+<p style="font-size:24px;color:#8E8185">솔루션</p>
+<p style="font-size:24px;color:#6B4E7A;font-weight:700">기술</p>
+<p style="font-size:24px;color:#8E8185">차별화</p>
+<p style="font-size:24px;color:#8E8185">로드맵</p>
+<p style="font-size:24px;color:#8E8185">팀</p>
+<p style="font-size:24px;color:#8E8185">시연</p>
+</div>
+<h2 style="font-family:'Gowun Dodum', 'Noto Sans KR', sans-serif;font-size:64px;font-weight:400;line-height:1.25">실패 · 재시도 설계</h2>
+<div style="flex:1;display:flex;flex-direction:row;gap:96px;align-items:start">
+<div style="flex:1;display:flex;flex-direction:column;gap:48px">
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+<div style="display:flex;flex-direction:row;align-items:center;gap:20px;background:#FFFCFA;border:1px solid #DDD2CD;border-radius:16px;padding:28px 32px"><x-icon name="Warning" style="color:#6B4E7A;width:48px;height:48px"></x-icon><h3 style="font-family:'Gowun Dodum', 'Noto Sans KR', sans-serif;font-size:34px;font-weight:400">실패 코드 분류</h3></div>
+<div style="display:flex;flex-direction:row;align-items:center;gap:20px;background:#FFFCFA;border:1px solid #DDD2CD;border-radius:16px;padding:28px 32px"><x-icon name="Activity" style="color:#6B4E7A;width:48px;height:48px"></x-icon><h3 style="font-family:'Gowun Dodum', 'Noto Sans KR', sans-serif;font-size:34px;font-weight:400">후보별 독립 처리</h3></div>
+<div style="display:flex;flex-direction:row;align-items:center;gap:20px;background:#FFFCFA;border:1px solid #DDD2CD;border-radius:16px;padding:28px 32px"><x-icon name="Lock" style="color:#6B4E7A;width:48px;height:48px"></x-icon><h3 style="font-family:'Gowun Dodum', 'Noto Sans KR', sans-serif;font-size:34px;font-weight:400">중복 요청 무시</h3></div>
+<div style="display:flex;flex-direction:row;align-items:center;gap:20px;background:#FFFCFA;border:1px solid #DDD2CD;border-radius:16px;padding:28px 32px"><x-icon name="Cloud" style="color:#6B4E7A;width:48px;height:48px"></x-icon><h3 style="font-family:'Gowun Dodum', 'Noto Sans KR', sans-serif;font-size:34px;font-weight:400">저장 큐 재시도</h3></div>
+</div>
+<div style="display:flex;flex-direction:column;gap:24px">
+<p style="font-size:28px;font-weight:700">영상 분석 성공률</p>
+<div style="display:flex;flex-direction:row;align-items:center;gap:32px">
+<p style="width:200px;font-size:26px;color:#6A5D61">1차 시도</p>
+<div style="flex:1;height:56px;background:#ECE4E0;border-radius:4px;display:flex;flex-direction:row"><div style="width:80%;background:#A69A9E;border-radius:4px"></div></div>
+<p style="width:120px;font-size:40px;font-weight:700;text-align:right">80%</p>
+</div>
+<div style="display:flex;flex-direction:row;align-items:center;gap:32px">
+<p style="width:200px;font-size:26px;color:#6B4E7A;font-weight:700">재시도 포함</p>
+<div style="flex:1;height:56px;background:#ECE4E0;border-radius:4px;display:flex;flex-direction:row"><div style="width:100%;background:#6B4E7A;border-radius:4px"></div></div>
+<p style="width:120px;font-size:40px;font-weight:700;text-align:right;color:#6B4E7A">100%</p>
+</div>
+</div>
+</div>
+<div style="display:flex;flex-direction:column;gap:16px;align-items:center">
+<img src="deck/assets/s05.png" alt="분석 실패 화면: 영상을 불러오지 못했어요, 다시 시도 버튼" style="width:252px;height:560px;object-fit:cover;border-radius:28px;border:6px solid #2A2126;box-shadow:0 20px 40px rgba(42,33,38,0.16)">
+<p style="font-size:24px;color:#6A5D61">재시도 가능한 실패</p>
+</div>
+</div>
+<aside>[시간] 약 30초
+
+[대본]
+외부 API와 AI를 여러 개 엮는 서비스라 실패는 반드시 일어납니다. 그래서 "실패해도 멈추지 않게"라는 한 가지 원칙을 모든 모듈에 적용했습니다.
+분석이 실패하면 다시 시도하면 되는 실패인지, 영상이 삭제돼서 안 되는 실패인지를 코드로 나누고, 화면 문구와 '다시 시도' 버튼까지 다르게 보여줍니다.
+장소 후보 하나가 실패해도 나머지는 계속 진행하고, 같은 영상이 동시에 들어와도 분석은 한 번만 합니다. 보내지 못한 공유는 큐에 남겨 뒀다가 자동으로 다시 보냅니다.
+실제로 영상 분석 1차 성공률은 80%였는데, 재시도 설계로 100%가 됐습니다.
+
+[이 원칙이 생긴 실제 사례]
+- 평가 중 Gemini 호출이 확률적으로 20~50% 실패하는 현상 발견. 같은 영상이 1번째 실패, 3번째 성공처럼 번갈아 나옴. 처음엔 '영상 접근 불가'로 잘못 단정한 2건이 있었는데 실제로는 호출 실패 → '재시도 가능(EXTRACTION_API_ERROR)'으로 분류 정정 + 재시도 추가. 무제한이던 타임아웃도 60초로 설정.
+
+[세부 사실 — 질문 대비]
+- 분석 상태: PENDING → ANALYZING → SUCCESS / PARTIAL / FAILED.
+- 실패 코드와 화면 문구:
+  · EXTRACTION_API_ERROR(재시도 가능): "영상을 불러오지 못했어요" + 다시 시도
+  · VIDEO_UNAVAILABLE: "볼 수 없는 영상이에요"(비공개·삭제), 다시 시도 없음
+  · 분석 불가: "장소를 알아내지 못했어요 — 링크는 보관", 다시 시도 없음
+  · 요약은 얻었는데 장소 검색 API만 장애 → PARTIAL
+- 중복 방지: 콘텐츠는 INSERT … ON CONFLICT DO NOTHING, 상태 PENDING → ANALYZING 조건부 UPDATE에 성공한 요청 하나만 Gemini 호출.
+- 분석 중 5분 넘게 멈춘 건은 1분마다 도는 스케줄러가 회수.
+- 저장·분석·삭제 경쟁 시 write skew 방지: 회원 → 콘텐츠 순서로 공통 부모 행 잠금(데드락 회피).
+- 외부 API 호출은 트랜잭션 밖에서, 앞뒤로 짧은 트랜잭션 두 개.</aside>
+</section>
+
+<!-- ===== 21 · diff ===== -->
+<section id="diff" style="background:#F6F1EE;color:#2A2126;font-family:'Noto Sans KR', Arial, sans-serif;padding:160px 128px 160px;display:flex;flex-direction:column;gap:48px">
+<div style="position:absolute;left:0;top:0;width:1920px;height:6px;background:#E4DAD5"></div>
+<div style="position:absolute;left:0;top:0;width:1551px;height:6px;background:#6B4E7A"></div>
+<div style="position:absolute;left:128px;top:36px;width:1664px;display:flex;flex-direction:row;justify-content:space-between">
+<p style="font-size:24px;color:#8E8185">배경</p>
+<p style="font-size:24px;color:#8E8185">문제</p>
+<p style="font-size:24px;color:#8E8185">솔루션</p>
+<p style="font-size:24px;color:#8E8185">기술</p>
+<p style="font-size:24px;color:#6B4E7A;font-weight:700">차별화</p>
+<p style="font-size:24px;color:#8E8185">로드맵</p>
+<p style="font-size:24px;color:#8E8185">팀</p>
+<p style="font-size:24px;color:#8E8185">시연</p>
+</div>
+<h2 style="font-family:'Gowun Dodum', 'Noto Sans KR', sans-serif;font-size:64px;font-weight:400;line-height:1.25">경쟁 서비스 비교</h2>
+<table style="font-size:32px;color:#2A2126">
+<tr style="background:#ECE4E0"><th style="width:24%;text-align:left;font-size:28px">기능</th><th style="width:20%;text-align:center;font-size:28px">채록 · MapDreamy</th><th style="width:16%;text-align:center;font-size:28px">Stash</th><th style="width:18%;text-align:center;font-size:28px">미리 알림</th><th style="width:22%;text-align:center;font-size:28px;color:#5A3F68">REMEMBRALL</th></tr>
+<tr><td>숏폼 공유 저장</td><td style="text-align:center">O</td><td style="text-align:center">O</td><td style="text-align:center;color:#8E8185">△</td><td style="text-align:center;color:#6B4E7A">O</td></tr>
+<tr><td>AI 장소 추출</td><td style="text-align:center">O</td><td style="text-align:center;color:#8E8185">X</td><td style="text-align:center;color:#8E8185">X</td><td style="text-align:center;color:#6B4E7A">O</td></tr>
+<tr><td>지도 자동 등록</td><td style="text-align:center">O</td><td style="text-align:center;color:#8E8185">X</td><td style="text-align:center;color:#8E8185">X</td><td style="text-align:center;color:#6B4E7A">O</td></tr>
+<tr style="background:#F4EEF6"><td>근처 도착 알림</td><td style="text-align:center;color:#8E8185">X</td><td style="text-align:center;color:#8E8185">X</td><td style="text-align:center;color:#8E8185">△</td><td style="text-align:center;color:#6B4E7A">O</td></tr>
+<tr style="background:#F4EEF6"><td>AI 알림 판단</td><td style="text-align:center;color:#8E8185">X</td><td style="text-align:center;color:#8E8185">X</td><td style="text-align:center;color:#8E8185">X</td><td style="text-align:center;color:#6B4E7A">O</td></tr>
+</table>
+<p style="position:absolute;left:128px;bottom:64px;width:1664px;font-size:24px;color:#8E8185">△ = 부분 지원 · 사용자가 직접 입력·설정</p>
+<aside>[시간] 약 40초
+
+[대본]
+비슷한 서비스가 없었던 건 아닙니다.
+채록이나 MapDreamy 같은 '지도 저장형'은 릴스를 공유하면 AI가 장소를 뽑아 지도에 핀을 꽂아 줍니다. 하지만 결국 사용자가 "오늘 뭐 먹지?" 하고 앱을 직접 열어야 가치가 생깁니다.
+Stash 같은 북마크 앱은 알림을 보내 주지만, 매일 몇 시처럼 정해진 시간 기준이라 내가 어디 있는지는 모릅니다.
+애플 미리 알림 같은 앱은 위치 알림이 되지만, 장소와 조건을 사람이 직접 입력해야 합니다.
+REMEMBRALL은 공유 한 번으로 장소를 자동으로 정리하고, 앱을 열지 않아도 근처에 가면 먼저 꺼내 줍니다. 그리고 그때 AI가 보낼지 말지를 판단합니다. 아래 두 줄, 근처 도착 알림과 AI 판단을 함께 하는 서비스는 저희가 조사한 범위에서는 없었습니다.
+
+[표 근거]
+- 미리 알림(Apple 미리 알림 / Google Keep / TickTick): 링크는 URL 첨부만(△), 위치 도착 알림은 가능하지만 장소를 직접 입력(△).
+- Stash: SNS 링크 저장 + 지정 요일·시간 리마인드, 지도 링크 저장 시 현재 위치로부터 거리 표시(근처 도착 알림은 아님 → X).
+- RemindLink도 Stash와 같은 '시간 기반 리마인더' 부류(표에서는 생략).
+- Plotline / Triply / Pintra(글로벌)는 채록·MapDreamy와 같은 '지도 저장형' 부류(영상 텍스트·오디오·캡션 분석 → 지도 매핑, 카테고리 자동 분류).
+- MapDreamy는 저장 장소로 여행 동선·캘린더 생성 기능도 있음(알림은 아님).
+
+[차별화 핵심]
+1. 컨텍스트 인지형 리마인드: 앱을 켜지 않아도 근처에 가면(지오펜싱) 선제적 알림 → '저장 후 방치'를 가장 근본적으로 해결.
+2. 알림 품질: 단순 근접 알림이 아니라 AI 판단(날씨·영업·알림 무시 이력)으로 스팸이 되지 않게.
+(+ 로드맵) 공간(맛집 → 지도)과 시간(축제·팝업 → 캘린더) 분기는 기존 서비스들이 장소 하나에만 집중하는 것과 다른 확장 방향.
+
+[주의]
+- "없다"는 단정 대신 "조사한 범위에서는"이라고 말하는 걸 권장합니다.
+- 경쟁사 로고는 넣지 않았습니다(상표 문제). 필요하면 이름만으로 충분합니다.</aside>
+</section>
+
+<!-- ===== 22 · roadmap ===== -->
+<section id="roadmap" style="background:#F6F1EE;color:#2A2126;font-family:'Noto Sans KR', Arial, sans-serif;padding:160px 128px 128px;display:flex;flex-direction:column;gap:48px">
+<div style="position:absolute;left:0;top:0;width:1920px;height:6px;background:#E4DAD5"></div>
+<div style="position:absolute;left:0;top:0;width:1625px;height:6px;background:#6B4E7A"></div>
+<div style="position:absolute;left:128px;top:36px;width:1664px;display:flex;flex-direction:row;justify-content:space-between">
+<p style="font-size:24px;color:#8E8185">배경</p>
+<p style="font-size:24px;color:#8E8185">문제</p>
+<p style="font-size:24px;color:#8E8185">솔루션</p>
+<p style="font-size:24px;color:#8E8185">기술</p>
+<p style="font-size:24px;color:#8E8185">차별화</p>
+<p style="font-size:24px;color:#6B4E7A;font-weight:700">로드맵</p>
+<p style="font-size:24px;color:#8E8185">팀</p>
+<p style="font-size:24px;color:#8E8185">시연</p>
+</div>
+<h2 style="font-family:'Gowun Dodum', 'Noto Sans KR', sans-serif;font-size:64px;font-weight:400;line-height:1.25">로드맵</h2>
+<div style="flex:1;display:flex;flex-direction:row;gap:32px;align-items:stretch">
+<div style="flex:1;display:flex;flex-direction:column;gap:24px;background:#6B4E7A;border-radius:16px;padding:48px 44px">
+<p style="font-size:24px;font-weight:700;color:#E6DAEB">NOW · MVP</p>
+<h3 style="font-family:'Gowun Dodum', 'Noto Sans KR', sans-serif;font-size:52px;font-weight:400;color:#FFFCFA">장소</h3>
+<p style="font-size:30px;color:#F4EEF6">YouTube Shorts</p>
+<p style="font-size:30px;color:#F4EEF6">위치 트리거</p>
+<p style="font-size:30px;color:#F4EEF6">AI 판단 알림</p>
+<p style="font-size:30px;color:#F4EEF6">Android</p>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:24px;background:#FFFCFA;border:1px solid #DDD2CD;border-radius:16px;padding:48px 44px">
+<p style="font-size:24px;font-weight:700;color:#6B4E7A">NEXT</p>
+<h3 style="font-family:'Gowun Dodum', 'Noto Sans KR', sans-serif;font-size:52px;font-weight:400">시간</h3>
+<p style="font-size:30px;color:#6A5D61">일정 트리거 · 캘린더</p>
+<p style="font-size:30px;color:#6A5D61">Instagram 릴스</p>
+<p style="font-size:30px;color:#6A5D61">카카오 로그인</p>
+<p style="font-size:30px;color:#6A5D61">iOS</p>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:24px;background:#FFFCFA;border:1px solid #DDD2CD;border-radius:16px;padding:48px 44px">
+<p style="font-size:24px;font-weight:700;color:#6B4E7A">LATER</p>
+<h3 style="font-family:'Gowun Dodum', 'Noto Sans KR', sans-serif;font-size:52px;font-weight:400">함께</h3>
+<p style="font-size:30px;color:#6A5D61">공용 풀 추천</p>
+<p style="font-size:30px;color:#6A5D61">길 안내</p>
+<p style="font-size:30px;color:#6A5D61">파트너 BM</p>
+</div>
+</div>
+<aside>[시간] 약 35초
+
+[대본]
+지금 MVP는 '장소를 기억하는' 단계입니다. 유튜브 쇼츠를 저장하고, 장소를 확정하고, 근처에 가면 꺼내 줍니다.
+다음은 '시간도 기억하는' 단계입니다. 축제나 팝업스토어처럼 기간이 정해진 콘텐츠는 지도 대신 캘린더로 보내서, 날짜가 다가오면 알려 주려고 합니다. 영상에서 기간 정보는 이미 추출하고 있어서 트리거로 연결하는 일만 남았습니다. 인스타그램 릴스, 카카오 로그인, iOS도 이 단계입니다.
+그다음은 '함께 기억하는' 단계입니다. 사용자가 동의한 저장물을 다른 사용자의 추천 후보로 쓰고, 그 위에서 수익 모델을 만들 수 있습니다.
+
+[세부 사실 — 질문 대비]
+- MVP 범위(docs/카테켐프로젝트 개요.md): YouTube Shorts, 장소 추출·검증, 위치 트리거. 일정 트리거와 Instagram은 명시적으로 제외.
+- 기간 정보: 분석 결과에 기간 정보(TemporalInfoDto)가 이미 포함, 트리거 미연결. 장소 카테고리에서 '축제'를 제외한 이유 = 시간 트리거 대상.
+- 카카오 로그인: 디자인·서버 구조 준비 완료(비활성). MVP는 설치 ID 기반 게스트 세션.
+- iOS: 지오펜스 설계는 iOS 한도(20개) 기준, 현재 빌드는 Android 전용.
+- 공용 풀: 에이전트의 searchCandidates가 이미 개인/공용 범위를 구분해 검색하도록 설계. 공용 후보의 저장 관계 비노출이 평가 필수 조건.
+- 길 안내: 상세 화면 버튼은 디자인만, 경로 API 연결 전.
+- 기술 로드맵(질문 시): 장소 단위 쿨다운, 필요 시 LangGraph4j 재검토, 트래픽 증가 시 벡터 검색 분리(ADR001에 조건 명시).</aside>
+</section>
+
+<!-- ===== 23 · bm ===== -->
+<section id="bm" style="background:#F6F1EE;color:#2A2126;font-family:'Noto Sans KR', Arial, sans-serif;padding:160px 128px 128px;display:flex;flex-direction:column;gap:40px">
+<div style="position:absolute;left:0;top:0;width:1920px;height:6px;background:#E4DAD5"></div>
+<div style="position:absolute;left:0;top:0;width:1698px;height:6px;background:#6B4E7A"></div>
+<div style="position:absolute;left:128px;top:36px;width:1664px;display:flex;flex-direction:row;justify-content:space-between">
+<p style="font-size:24px;color:#8E8185">배경</p>
+<p style="font-size:24px;color:#8E8185">문제</p>
+<p style="font-size:24px;color:#8E8185">솔루션</p>
+<p style="font-size:24px;color:#8E8185">기술</p>
+<p style="font-size:24px;color:#8E8185">차별화</p>
+<p style="font-size:24px;color:#6B4E7A;font-weight:700">로드맵</p>
+<p style="font-size:24px;color:#8E8185">팀</p>
+<p style="font-size:24px;color:#8E8185">시연</p>
+</div>
+<h2 style="font-family:'Gowun Dodum', 'Noto Sans KR', sans-serif;font-size:64px;font-weight:400;line-height:1.25">BM <span style="color:#A69A9E">· 컨셉</span></h2>
+<div style="flex:1;display:flex;flex-direction:row;gap:56px;align-items:center">
+<img src="deck/assets/bm.png" alt="BM 컨셉 화면 4개: 근처 새 영상 배너, 저장한 곳 기반 추천(광고 포함), 도착 혜택이 붙은 장소 상세, 파트너용 저장→방문 퍼널 대시보드" style="width:1180px;height:641px;object-fit:contain;border-radius:16px;background:#FFFCFA">
+<div style="flex:1;display:flex;flex-direction:column;gap:40px">
+<div style="display:flex;flex-direction:row;align-items:center;gap:16px"><p style="font-size:24px;font-weight:700;color:#FFFCFA;background:#6B4E7A;border-radius:999px;padding:4px 14px">1</p><h3 style="font-family:'Gowun Dodum', 'Noto Sans KR', sans-serif;font-size:36px;font-weight:400">근처 추천</h3></div>
+<div style="display:flex;flex-direction:row;align-items:center;gap:16px"><p style="font-size:24px;font-weight:700;color:#FFFCFA;background:#6B4E7A;border-radius:999px;padding:4px 14px">2</p><h3 style="font-family:'Gowun Dodum', 'Noto Sans KR', sans-serif;font-size:36px;font-weight:400">도착 혜택</h3></div>
+<div style="display:flex;flex-direction:row;align-items:center;gap:16px"><p style="font-size:24px;font-weight:700;color:#FFFCFA;background:#6B4E7A;border-radius:999px;padding:4px 14px">3</p><h3 style="font-family:'Gowun Dodum', 'Noto Sans KR', sans-serif;font-size:36px;font-weight:400">파트너 대시보드</h3></div>
+<p style="font-size:24px;color:#8E8185">숫자는 예시</p>
+</div>
+</div>
+<aside>[시간] 약 35초
+
+[대본]
+수익 모델은 아직 앱에 구현하지 않은 컨셉 단계입니다.
+REMEMBRALL만 가진 특별한 순간은 "이 사람이 이 장소를 저장했고, 지금 그 근처에 와 있다"는 순간입니다. 가게 입장에서는 방문 직전의 손님을 만나는 셈입니다.
+그래서 세 가지를 생각하고 있습니다. 첫째, 저장한 곳 주변 가게를 추천하는 근처 추천과 광고 슬롯. 둘째, 근처에 왔을 때만 쓸 수 있는 도착 혜택, 예를 들어 "아메리카노 한 잔" 쿠폰. 셋째, 가게 사장님께 "저장 → 근처 도착 → 상세 열람 → 혜택 사용"까지의 퍼널을 보여주는 파트너 대시보드입니다.
+
+[화면 설명 — 왼쪽부터]
+1. 기억 탭: "저장한 곳 근처의 새 영상 6개" 배너
+2. 추천: "성심당 본점 외 2곳을 저장해서" → 근처 가게 추천(광고 표시 포함)
+3. 장소 상세(광고): 도착 혜택 "아메리카노 한 잔을 드려요 · 오늘 자정까지"
+4. 파트너 대시보드: 최근 30일, 저장 128 → 근처 도착 알림 41(32%) → 상세 열람 23(18%) → 혜택 사용 9(7%), 어떤 크리에이터 영상으로 저장됐는지까지
+
+[꼭 말할 것]
+- Figma에 "BM 컨셉 — 발표용 · 앱에 구현되지 않음"으로 표시된 시안. 화면 속 숫자는 예시(실측 아님).
+- 정책 메모(레포 문서): YouTube API 데이터가 노출된 화면에 광고를 붙이려면 독립 콘텐츠가 필요, 구독 등 앱 자체 유료화는 제한 없음. 광고는 영상 데이터와 분리된 '가게 추천' 영역에 두는 방향이 안전.
+- 질문 대비(팀 합의 필요): 꺼내기 알림 자체는 광고로 쓰지 않는다는 원칙.</aside>
+</section>
+
+<!-- ===== 24 · team ===== -->
+<section id="team" style="background:#F6F1EE;color:#2A2126;font-family:'Noto Sans KR', Arial, sans-serif;padding:160px 128px 128px;display:flex;flex-direction:column;gap:48px">
+<div style="position:absolute;left:0;top:0;width:1920px;height:6px;background:#E4DAD5"></div>
+<div style="position:absolute;left:0;top:0;width:1772px;height:6px;background:#6B4E7A"></div>
+<div style="position:absolute;left:128px;top:36px;width:1664px;display:flex;flex-direction:row;justify-content:space-between">
+<p style="font-size:24px;color:#8E8185">배경</p>
+<p style="font-size:24px;color:#8E8185">문제</p>
+<p style="font-size:24px;color:#8E8185">솔루션</p>
+<p style="font-size:24px;color:#8E8185">기술</p>
+<p style="font-size:24px;color:#8E8185">차별화</p>
+<p style="font-size:24px;color:#8E8185">로드맵</p>
+<p style="font-size:24px;color:#6B4E7A;font-weight:700">팀</p>
+<p style="font-size:24px;color:#8E8185">시연</p>
+</div>
+<h2 style="font-family:'Gowun Dodum', 'Noto Sans KR', sans-serif;font-size:64px;font-weight:400;line-height:1.25">충남대 3팀 - 파워레인저</h2>
+<div style="flex:1;display:flex;flex-direction:row;justify-content:space-between;align-items:center">
+<div style="width:250px;display:flex;flex-direction:column;gap:12px;align-items:center">
+<div style="width:200px;height:200px;border-radius:50%;background:#ECE4E0;border:3px dashed #A69A9E"></div>
+<p style="font-size:24px;font-weight:700;color:#6B4E7A;padding:12px 0 0 0">팀장 (PM)</p>
+<p style="font-family:'Gowun Dodum', 'Noto Sans KR', sans-serif;font-size:40px">남준혁</p>
+<p style="font-size:24px;color:#6A5D61">BE</p>
+</div>
+<div style="width:250px;display:flex;flex-direction:column;gap:12px;align-items:center">
+<div style="width:200px;height:200px;border-radius:50%;background:#ECE4E0;border:3px dashed #A69A9E"></div>
+<p style="font-size:24px;font-weight:700;color:#6B4E7A;padding:12px 0 0 0">FE 리드</p>
+<p style="font-family:'Gowun Dodum', 'Noto Sans KR', sans-serif;font-size:40px">김동희</p>
+<p style="font-size:24px;color:#6A5D61">FE · AI</p>
+</div>
+<div style="width:250px;display:flex;flex-direction:column;gap:12px;align-items:center">
+<div style="width:200px;height:200px;border-radius:50%;background:#ECE4E0;border:3px dashed #A69A9E"></div>
+<p style="font-size:24px;font-weight:700;color:#6B4E7A;padding:12px 0 0 0">BE 리드</p>
+<p style="font-family:'Gowun Dodum', 'Noto Sans KR', sans-serif;font-size:40px">서민규</p>
+<p style="font-size:24px;color:#6A5D61">BE · AI</p>
+</div>
+<div style="width:250px;display:flex;flex-direction:column;gap:12px;align-items:center">
+<div style="width:200px;height:200px;border-radius:50%;background:#ECE4E0;border:3px dashed #A69A9E"></div>
+<p style="font-size:24px;font-weight:700;color:#6B4E7A;padding:12px 0 0 0">AI 리드</p>
+<p style="font-family:'Gowun Dodum', 'Noto Sans KR', sans-serif;font-size:40px">김종훈</p>
+<p style="font-size:24px;color:#6A5D61">BE · AI</p>
+</div>
+<div style="width:250px;display:flex;flex-direction:column;gap:12px;align-items:center">
+<div style="width:200px;height:200px;border-radius:50%;background:#ECE4E0;border:3px dashed #A69A9E"></div>
+<p style="font-size:24px;font-weight:700;color:#6B4E7A;padding:12px 0 0 0">플래너</p>
+<p style="font-family:'Gowun Dodum', 'Noto Sans KR', sans-serif;font-size:40px">김에스더</p>
+<p style="font-size:24px;color:#6A5D61">BE · AI</p>
+</div>
+<div style="width:250px;display:flex;flex-direction:column;gap:12px;align-items:center">
+<div style="width:200px;height:200px;border-radius:50%;background:#ECE4E0;border:3px dashed #A69A9E"></div>
+<p style="font-size:24px;font-weight:700;color:#6B4E7A;padding:12px 0 0 0">메이커</p>
+<p style="font-family:'Gowun Dodum', 'Noto Sans KR', sans-serif;font-size:40px">박정현</p>
+<p style="font-size:24px;color:#6A5D61">BE · FE</p>
+</div>
+</div>
+<aside>[시간] 약 20초
+
+[대본]
+REMEMBRALL을 만든 충남대 3팀 파워레인저입니다.
+팀장이자 PM인 남준혁, 프론트엔드 리드 김동희, 백엔드 리드 서민규, AI 리드 김종훈, 플래너 김에스더, 메이커 박정현, 여섯 명이 함께 만들었습니다.
+
+[메모]
+- 원형 칸은 사진 자리입니다.
+- 이름·역할은 레포 README 기준(카카오테크캠퍼스 충남대학교 3팀 파워레인저).
+- 각자 한 줄 소개를 넣는다면(시간이 남을 때만):
+  · 남준혁: [담당 핵심 작업]
+  · 김동희: [담당 핵심 작업]
+  · 서민규: [담당 핵심 작업]
+  · 김종훈: [담당 핵심 작업]
+  · 김에스더: [담당 핵심 작업]
+  · 박정현: [담당 핵심 작업]
+
+[팀 활동 수치 — 필요 시]
+- 기간 2026-08-20 ~ 2026-11-07, 커밋 323개, PR 머지 53회.
+- 백엔드 테스트 @Test 453개, Bruno API 회귀 테스트 요청 384개, QA 시나리오 약 73개.
+- ADR 5개, 구현 결정 문서 6개.</aside>
+</section>
+
+<!-- ===== 25 · demo ===== -->
+<section id="demo" style="background:#F6F1EE;color:#2A2126;font-family:'Noto Sans KR', Arial, sans-serif;padding:160px 128px 128px;display:flex;flex-direction:column;align-items:center;gap:40px">
+<div style="position:absolute;left:0;top:0;width:1920px;height:6px;background:#E4DAD5"></div>
+<div style="position:absolute;left:0;top:0;width:1846px;height:6px;background:#6B4E7A"></div>
+<div style="position:absolute;left:128px;top:36px;width:1664px;display:flex;flex-direction:row;justify-content:space-between">
+<p style="font-size:24px;color:#8E8185">배경</p>
+<p style="font-size:24px;color:#8E8185">문제</p>
+<p style="font-size:24px;color:#8E8185">솔루션</p>
+<p style="font-size:24px;color:#8E8185">기술</p>
+<p style="font-size:24px;color:#8E8185">차별화</p>
+<p style="font-size:24px;color:#8E8185">로드맵</p>
+<p style="font-size:24px;color:#8E8185">팀</p>
+<p style="font-size:24px;color:#6B4E7A;font-weight:700">시연</p>
+</div>
+<h2 style="font-family:'Gowun Dodum', 'Noto Sans KR', sans-serif;font-size:64px;font-weight:400;line-height:1.25;align-self:start">시연 영상</h2>
+<div style="width:1120px;height:630px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:24px;background:#FFFCFA;border:3px dashed #A69A9E;border-radius:16px">
+<x-icon name="Play" style="color:#6B4E7A;width:96px;height:96px"></x-icon>
+</div>
+<aside>[시간] 영상 길이에 따라 (10분 발표면 1분 30초~2분 권장)
+
+[대본 — 영상 틀기 전]
+그럼 실제로 동작하는 모습을 보여드리겠습니다.
+
+[시연 순서 제안 — 영상 촬영·편집용]
+1. 유튜브에서 대전 맛집 쇼츠 시청 → 공유 → REMEMBRALL → "저장했어요" 시트 → '돌아가기'로 유튜브 복귀
+2. 기억 탭: 방금 저장한 영상 '분석 중' → 잠시 뒤 장소 확정
+3. (애매한 영상) "이 영상, 어디였을까요?" 되묻기 → 후보 선택
+4. 근처 탭 / 지도 탭: 저장한 곳이 썸네일 핀으로
+5. 근처 도착 → 잠금화면 알림 "3주 전에 저장한 빵집이 도보 4분 거리에 있어요" → 탭하면 장소 상세
+6. (선택) 기억 탭에서 오래된 썸네일이 바래 있는 모습
+
+[시연 안전장치 — Notion UX 강조점, 한 줄 언급용]
+- 목(mock) 모드: 서버 없이도 전체 흐름(분석 딜레이, 되묻기, 알림)을 실제처럼 재현. 가짜 알림도 실제 알림과 같은 코드 경로로 열리고, 네트워크 끊김·분석 실패 같은 에러도 강제로 재현 가능. 서버 없이 시연하는 preview-mock APK 있음.
+- 시연 도구(연결 상태 표시줄): 서버 연결 / 목 모드 / FCM 상태를 한눈에 확인. 설정 맨 아래에서 "{장소}에 도착" 가상 도착 이벤트를 보내 실제로 가지 않아도 알림 흐름을 보여줄 수 있음.
+- 멘트 예: "실제 장소에 갈 수 없어서, 시연 도구로 도착 이벤트를 보내 실제와 같은 경로로 알림을 띄웠습니다." → '운영까지 신경 썼다'는 과정 언급.
+
+[메모]
+- 영상 링크가 정해지면 이 장에 넣습니다(링크 또는 QR).</aside>
+</section>
+
+<!-- ===== 26 · end ===== -->
+<section id="end" style="background:#F6F1EE;color:#2A2126;font-family:'Noto Sans KR', Arial, sans-serif;padding:128px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:40px">
+<div style="width:280px;height:280px"></div>
+<h1 style="font-family:'Gowun Dodum', 'Noto Sans KR', sans-serif;font-size:120px;font-weight:400;line-height:1.1;text-align:center">감사합니다</h1>
+<p style="font-size:32px;font-weight:700;color:#FFFCFA;background:#6B4E7A;border-radius:999px;padding:12px 40px">Q &amp; A</p>
+<p style="position:absolute;left:128px;bottom:64px;width:1664px;font-size:24px;color:#8E8185;text-align:center">REMEMBRALL · 충남대 3팀 - 파워레인저</p>
+<x-embed style="position:absolute;left:820px;top:176px;width:280px;height:280px"><template><!doctype html><html><head><meta charset="utf-8"><style>
+html,body{margin:0;height:100%;background:transparent;overflow:hidden}
+.icon{position:absolute;left:20px;top:20px;width:240px;height:240px;border-radius:53px;background:#6B4E7A;box-shadow:0 16px 32px rgba(107,78,122,.28)}
+.c{position:absolute;background:#FFFCFA;animation-duration:4.8s;animation-iteration-count:infinite;animation-timing-function:ease-in-out}
+.b1{left:28.8px;top:124.8px;width:72px;height:72px;border-radius:15.8px;opacity:.22;animation-name:b1}
+.b2{left:64.8px;top:81.6px;width:81.6px;height:81.6px;border-radius:18px;opacity:.48;animation-name:b2}
+.f{left:110.4px;top:33.6px;width:96px;height:96px;border-radius:21px;animation-name:f}
+.dot{position:absolute;left:55.2px;top:16.8px;width:24px;height:24px;border-radius:50%;background:#6B4E7A}
+.ring{position:absolute;left:107.4px;top:30.6px;width:96px;height:96px;border-radius:21px;border:3px solid #FFFCFA;opacity:0;animation:ring 4.8s infinite cubic-bezier(.22,.7,.2,1)}
+@keyframes b1{0%,12%,25%,37%,100%{opacity:.22;transform:translateY(0) scale(1)}5.5%,30.5%{opacity:1;transform:translateY(-7.2px) scale(1.08)}}
+@keyframes b2{0%,3.33%,15.33%,28.33%,40.33%,100%{opacity:.48;transform:translateY(0) scale(1)}8.83%,33.83%{opacity:1;transform:translateY(-7.2px) scale(1.08)}}
+@keyframes f{0%,6.67%,18.67%,31.67%,43.67%,50%,59.75%,100%{transform:translateY(0) scale(1)}12.17%,37.17%{transform:translateY(-7.2px) scale(1.06)}53%{transform:scale(1.24)}55.25%{transform:scale(.92)}57.5%{transform:scale(1.05)}}
+@keyframes ring{0%,49.9%{opacity:0;transform:scale(.9)}50%{opacity:.7;transform:scale(.9)}58.25%,100%{opacity:0;transform:scale(1.9)}}
+@media (prefers-reduced-motion:reduce){.c,.ring{animation:none}}
+</style></head><body><div class="icon"><div class="c b1"></div><div class="c b2"></div><div class="ring"></div><div class="c f"><div class="dot"></div></div></div></body></html></template></x-embed>
+<aside>[시간] 약 10초 + 질의응답
+
+[대본]
+저장만 해두고 잊은 곳, 이제 근처에 가면 REMEMBRALL이 다시 꺼내드리겠습니다. 감사합니다. 질문 받겠습니다.
+
+[예상 질문과 답변]
+Q. 근처에 갈 때마다 알림이 오면 귀찮지 않나요?
+A. 거리만으로 보내지 않습니다. 에이전트가 영업 여부·날씨·최근 알림 무시 여부를 보고 근거가 약하면 보내지 않습니다. 서버에서도 회원 단위 2시간 쿨다운을 둡니다.
+
+Q. 배터리 소모는요?
+A. 위치를 계속 추적하지 않고 OS 지오펜스를 씁니다. 등록한 원에 들어갈 때만 OS가 앱을 깨우고, 그때 장소와 시각만 보냅니다. 주기적 폴링은 검토 후 기각했습니다.
+
+Q. 위치 개인정보는요?
+A. 위치기반서비스 약관 동의를 따로 받고, 이동 경로나 실시간 위치는 보내지 않고 도착한 장소와 시각만 보냅니다. 동의를 거두면 지오펜스를 해제합니다. 영상·음성·자막 원본은 저장하지 않습니다.
+
+Q. AI가 장소를 틀리면요?
+A. 확신이 없으면 추측하지 않고 되묻습니다(후보 2~3곳). 실측 평가에서 59곳 모두 정확했고, 틀렸을 때는 상세 화면의 "이 장소가 아니에요"로 바로 바꿀 수 있습니다.
+
+Q. 인스타그램은요? 축제·팝업 같은 일정은요?
+A. MVP는 YouTube Shorts와 위치에 집중했습니다. 기간 정보는 이미 추출하고 있어 일정 트리거와 릴스 지원이 다음 단계입니다.
+
+Q. 왜 처음 쓰던 API를 바꿨나요?
+A. Elice API(OpenAI 호환)는 영상 입력을 400으로 거부했습니다. Vertex AI Gemini는 YouTube URL을 직접 받아, 다운로드·음성 인식 없이 정책 위반 위험도 피할 수 있었습니다.
+
+Q. iOS는요?
+A. 지오펜스 설계는 iOS 한도(20개)까지 맞춰 뒀고, 현재 빌드는 Android 전용입니다.
+
+Q. 비용은?
+A. PoC 기준 쇼츠 1편 분석 약 3,900토큰, 호출당 1원 미만. 에이전트 판단은 v4 기준 약 6,500토큰.</aside>
+</section>
+
+</div>
+<div id="notes"></div>
+<div id="counter"></div>
+
+<script>
+(() => {
+  /* 아이콘 (Lucide, ISC 라이선스) — 이름은 Slides 아티팩트의 x-icon 이름과 같습니다 */
+  const ICONS = {
+    PaperPlane: '<path d="M14.536 21.686a.5.5 0 0 0 .937-.024l6.5-19a.496.496 0 0 0-.635-.635l-19 6.5a.5.5 0 0 0-.024.937l7.93 3.18a2 2 0 0 1 1.112 1.11z"/><path d="m21.854 2.147-10.94 10.939"/>',
+    Search: '<circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>',
+    Verified: '<path d="M3.85 8.62a4 4 0 0 1 4.78-4.77 4 4 0 0 1 6.74 0 4 4 0 0 1 4.78 4.78 4 4 0 0 1 0 6.74 4 4 0 0 1-4.77 4.78 4 4 0 0 1-6.75 0 4 4 0 0 1-4.78-4.77 4 4 0 0 1 0-6.76Z"/><path d="m9 12 2 2 4-4"/>',
+    Clock: '<circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>',
+    Lightning: '<path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z"/>',
+    Check: '<path d="M20 6 9 17l-5-5"/>',
+    CheckCircle: '<circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/>',
+    Globe: '<circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/>',
+    Home: '<path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"/><path d="M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>',
+    Wrench: '<path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>',
+    Warning: '<path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/>',
+    Activity: '<path d="M22 12h-2.48a2 2 0 0 0-1.93 1.46l-2.35 8.36a.25.25 0 0 1-.48 0L9.24 2.18a.25.25 0 0 0-.48 0l-2.35 8.36A2 2 0 0 1 4.49 12H2"/>',
+    Lock: '<rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>',
+    Cloud: '<path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/>',
+    Play: '<path d="M6 3.5v17a1 1 0 0 0 1.5.86l14-8.5a1 1 0 0 0 0-1.72l-14-8.5A1 1 0 0 0 6 3.5z"/>',
+    Users: '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>',
+    Star: '<path d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z"/>',
+    Lightbulb: '<path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"/><path d="M9 18h6"/><path d="M10 22h4"/>',
+    Database: '<ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5V19A9 3 0 0 0 21 19V5"/><path d="M3 12A9 3 0 0 0 21 12"/>',
+    Settings: '<path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/>'
+  };
+
+  const stage = document.getElementById('stage');
+  const slides = [...stage.querySelectorAll(':scope > section')];
+  const notesEl = document.getElementById('notes');
+  const counter = document.getElementById('counter');
+
+  /* x-icon */
+  stage.querySelectorAll('x-icon').forEach(el => {
+    const body = ICONS[el.getAttribute('name')] || '';
+    el.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${body}</svg>`;
+  });
+
+  /* x-connector */
+  let mid = 0;
+  stage.querySelectorAll('x-connector').forEach(el => {
+    const s = el.style;
+    const color = s.color || '#2A2126';
+    const w = parseFloat(s.borderWidth) || 2;
+    const dash = s.borderStyle === 'dashed' ? `stroke-dasharray="${w * 3} ${w * 2}"` : s.borderStyle === 'dotted' ? `stroke-dasharray="${w} ${w * 1.5}"` : '';
+    const head = el.getAttribute('head') || 'end';
+    s.border = 'none';
+    const hl = Math.max(14, w * 5);
+    const id = 'xc' + (mid++);
+    const marker = `<marker id="${id}" viewBox="0 0 10 10" refX="9" refY="5" markerUnits="userSpaceOnUse" markerWidth="${hl}" markerHeight="${hl}" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="${color}"/></marker>`;
+    const ends = (head === 'both' ? `marker-start="url(#${id})" ` : '') + (head !== 'none' ? `marker-end="url(#${id})"` : '');
+    let d, W, H;
+    if (el.hasAttribute('x1')) {
+      const [x1, y1, x2, y2] = ['x1', 'y1', 'x2', 'y2'].map(a => parseFloat(el.getAttribute(a)));
+      const route = el.getAttribute('route') || 'straight';
+      if (route === 'elbow') { const mx = (x1 + x2) / 2; d = `M${x1} ${y1}H${mx}V${y2}H${x2}`; }
+      else if (route === 'hv') d = `M${x1} ${y1}H${x2}V${y2}`;
+      else if (route === 'vh') d = `M${x1} ${y1}V${y2}H${x2}`;
+      else d = `M${x1} ${y1}L${x2} ${y2}`;
+      Object.assign(s, { position: 'absolute', left: '0', top: '0', width: '1920px', height: '1080px' });
+      W = 1920; H = 1080;
+    } else {
+      W = parseFloat(s.width) || 64; H = parseFloat(s.height) || 0;
+      d = H <= 8 ? `M0 ${H / 2}H${W}` : `M0 0L${W} ${H}`;
+    }
+    el.innerHTML = `<svg width="${W}" height="${Math.max(H, 1)}" viewBox="0 0 ${W} ${Math.max(H, 1)}" aria-hidden="true"><defs>${marker}</defs><path d="${d}" fill="none" stroke="${color}" stroke-width="${w}" stroke-linejoin="round" ${dash} ${ends}/></svg>`;
+  });
+
+  /* x-embed → iframe */
+  stage.querySelectorAll('x-embed').forEach(el => {
+    const t = el.querySelector('template');
+    const f = document.createElement('iframe');
+    f.setAttribute('aria-hidden', 'true');
+    f.srcdoc = '<!doctype html><html><head><meta charset="utf-8"></head><body>' + (t ? t.innerHTML : '') + '</body></html>';
+    el.replaceChildren(f);
+  });
+
+  /* 배치: 16:9 고정, 창에 맞춰 확대·축소 */
+  function layout() {
+    const notesH = document.body.classList.contains('show-notes') ? notesEl.offsetHeight : 0;
+    const W = innerWidth, H = innerHeight - notesH;
+    const k = Math.min(W / 1920, H / 1080);
+    stage.style.transform = `translate(${(W - 1920 * k) / 2}px, ${(H - 1080 * k) / 2}px) scale(${k})`;
+  }
+
+  /* 빌드인 */
+  function playBuilds(sec) {
+    sec.querySelectorAll('[data-build-in]').forEach(el => {
+      const [type = 'fade', order = '1'] = el.dataset.buildIn.split(/\s+/);
+      el.style.animation = 'none'; void el.offsetWidth;
+      el.style.animation = `bi-${type} .8s cubic-bezier(.22,.7,.2,1) ${300 + (parseInt(order, 10) - 1) * 350}ms both`;
+    });
+  }
+  function resetBuilds(sec) { sec.querySelectorAll('[data-build-in]').forEach(el => { el.style.animation = 'none'; }); }
+
+  /* 이동 */
+  let cur = -1;
+  function go(n, push = true) {
+    n = Math.max(0, Math.min(slides.length - 1, n));
+    if (n === cur) return;
+    const prev = slides[cur];
+    const next = slides[n];
+    const fade = prev && prev.dataset.transition === 'fade';
+    slides.forEach(s => s.classList.remove('leaving', 'fade-in'));
+    if (prev) { prev.classList.remove('active'); resetBuilds(prev); if (fade) { prev.classList.add('leaving'); setTimeout(() => prev.classList.remove('leaving'), 650); } }
+    next.classList.add('active');
+    if (fade) next.classList.add('fade-in');
+    playBuilds(next);
+    cur = n;
+    const aside = next.querySelector(':scope > aside');
+    notesEl.innerHTML = `<b>${n + 1} / ${slides.length} · ${next.id}</b>` + (aside ? aside.innerHTML : '(노트 없음)');
+    notesEl.scrollTop = 0;
+    counter.textContent = `${n + 1} / ${slides.length}`;
+    if (push) history.replaceState(null, '', '#' + (n + 1));
+  }
+
+  let uiTimer;
+  function pokeUI() { document.body.classList.add('ui'); clearTimeout(uiTimer); uiTimer = setTimeout(() => document.body.classList.remove('ui'), 1800); }
+
+  addEventListener('keydown', e => {
+    if (e.metaKey || e.ctrlKey || e.altKey) return;
+    const k = e.key;
+    if (['ArrowRight', 'ArrowDown', 'PageDown', ' ', 'Enter'].includes(k)) { e.preventDefault(); go(cur + 1); }
+    else if (['ArrowLeft', 'ArrowUp', 'PageUp', 'Backspace'].includes(k)) { e.preventDefault(); go(cur - 1); }
+    else if (k === 'Home') go(0);
+    else if (k === 'End') go(slides.length - 1);
+    else if (k === 'n' || k === 'N') { document.body.classList.toggle('show-notes'); layout(); }
+    else if (k === 'f' || k === 'F') { document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen(); }
+    else return;
+    pokeUI();
+  });
+  addEventListener('click', e => {
+    if (notesEl.contains(e.target)) return;
+    go(e.clientX > innerWidth / 2 ? cur + 1 : cur - 1); pokeUI();
+  });
+  let tx = null;
+  addEventListener('touchstart', e => { tx = e.touches[0].clientX; }, { passive: true });
+  addEventListener('touchend', e => { if (tx === null) return; const dx = e.changedTouches[0].clientX - tx; if (Math.abs(dx) > 40) go(dx < 0 ? cur + 1 : cur - 1); tx = null; });
+  addEventListener('mousemove', pokeUI);
+  addEventListener('resize', layout);
+  addEventListener('hashchange', () => go((parseInt(location.hash.slice(1), 10) || 1) - 1, false));
+
+  layout();
+  go((parseInt(location.hash.slice(1), 10) || 1) - 1, false);
+  document.fonts && document.fonts.ready.then(layout);
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,44 @@
+<section id="scr-recall" style="background:#F6F1EE;color:#2A2126;font-family:'Noto Sans KR', Arial, sans-serif;padding:160px 128px 128px;display:flex;flex-direction:column;gap:40px">
+<div style="position:absolute;left:0;top:0;width:1920px;height:6px;background:#E4DAD5"></div>
+<div style="position:absolute;left:0;top:0;width:886px;height:6px;background:#6B4E7A"></div>
+<div style="position:absolute;left:128px;top:36px;width:1664px;display:flex;flex-direction:row;justify-content:space-between">
+<p style="font-size:24px;color:#8E8185">배경</p>
+<p style="font-size:24px;color:#8E8185">문제</p>
+<p style="font-size:24px;color:#6B4E7A;font-weight:700">솔루션</p>
+<p style="font-size:24px;color:#8E8185">기술</p>
+<p style="font-size:24px;color:#8E8185">차별화</p>
+<p style="font-size:24px;color:#8E8185">로드맵</p>
+<p style="font-size:24px;color:#8E8185">팀</p>
+<p style="font-size:24px;color:#8E8185">시연</p>
+</div>
+<h2 style="font-family:'Gowun Dodum', 'Noto Sans KR', sans-serif;font-size:64px;font-weight:400;line-height:1.25">꺼내기</h2>
+<div style="flex:1;display:flex;flex-direction:row;justify-content:center;align-items:start;gap:120px">
+<div style="display:flex;flex-direction:column;gap:16px;align-items:center">
+<img src="/_blob/a2e4bbcb2d31a04edace126f415b98ee" alt="근처 탭: 잊고 있던 곳 5개를 찾았어요, 3주 전 성심당 본점 카드" style="width:270px;height:600px;object-fit:cover;border-radius:30px;border:6px solid #2A2126;box-shadow:0 20px 40px rgba(42,33,38,0.16)">
+<p style="font-size:28px">근처</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:16px;align-items:center">
+<img src="/_blob/2e719164e861da7054fb3a5d997ebfc7" alt="지도 탭: 저장한 장소가 썸네일 핀으로 표시" style="width:270px;height:600px;object-fit:cover;border-radius:30px;border:6px solid #2A2126;box-shadow:0 20px 40px rgba(42,33,38,0.16)">
+<p style="font-size:28px">지도</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:16px;align-items:center">
+<img src="/_blob/c11e40f6d141edf8a121513795a2a183" alt="장소 상세: 영상에서 저장해둔 메모, 태그, 원본 영상 다시 보기" style="width:270px;height:600px;object-fit:cover;border-radius:30px;border:6px solid #2A2126;box-shadow:0 20px 40px rgba(42,33,38,0.16)">
+<p style="font-size:28px">장소 상세</p>
+</div>
+</div>
+<aside>[시간] 약 30초
+
+[대본]
+저장한 장소는 세 가지 방식으로 다시 만납니다.
+'근처' 탭은 지금 내 위치에서 가까운 저장 장소를 보여줍니다. 장소 이름보다 "3주 전"처럼 언제 저장했는지가 더 크게 보이는데, 잊고 있던 기억을 다시 떠올리게 하는 게 이 앱의 목적이기 때문입니다.
+'지도' 탭에서는 저장한 곳이 영상 썸네일 핀으로 찍혀 있고, 핀을 누르면 상세로 이어집니다.
+상세 화면에는 영상에서 저장해 둔 메모와 태그, 원본 영상으로 돌아가는 링크가 있습니다.
+
+[세부 사실 — 질문 대비]
+- 하단 탭: 근처 · 지도 · 기억 (설정은 헤더 톱니).
+- 지도: Google Maps SDK(react-native-maps) + Figma 색 토큰 커스텀 스타일. 핀과 겹치는 가게·교통·도로 라벨 숨김. 썸네일 핀, 오래된 기억일수록 핀이 작아짐(40 → 26 → 22).
+- 상세: 바텀시트(기본/펼침). 메모·태그·위치 권한이 없으면 해당 줄 숨김.
+- "이 장소가 아니에요" → 직접 찾기로 장소 변경 가능.
+- "길 안내 시작" 버튼은 디자인만 있고 경로 API 연결 전(로드맵).
+- 헤딩 서체 Gowun Dodum(앨범에 손으로 적은 캡션 같은 온기), 본문 Noto Sans KR.</aside>
+</section>

@@ -1,0 +1,55 @@
+<section id="scr-onboard" style="background:#F6F1EE;color:#2A2126;font-family:'Noto Sans KR', Arial, sans-serif;padding:160px 128px 128px;display:flex;flex-direction:column;gap:48px">
+<div style="position:absolute;left:0;top:0;width:1920px;height:6px;background:#E4DAD5"></div>
+<div style="position:absolute;left:0;top:0;width:1034px;height:6px;background:#6B4E7A"></div>
+<div style="position:absolute;left:128px;top:36px;width:1664px;display:flex;flex-direction:row;justify-content:space-between">
+<p style="font-size:24px;color:#8E8185">배경</p>
+<p style="font-size:24px;color:#8E8185">문제</p>
+<p style="font-size:24px;color:#6B4E7A;font-weight:700">솔루션</p>
+<p style="font-size:24px;color:#8E8185">기술</p>
+<p style="font-size:24px;color:#8E8185">차별화</p>
+<p style="font-size:24px;color:#8E8185">로드맵</p>
+<p style="font-size:24px;color:#8E8185">팀</p>
+<p style="font-size:24px;color:#8E8185">시연</p>
+</div>
+<h2 style="font-family:'Gowun Dodum', 'Noto Sans KR', sans-serif;font-size:64px;font-weight:400;line-height:1.25">온보딩 · 권한</h2>
+<div style="flex:1;display:flex;flex-direction:row;justify-content:space-between;align-items:start">
+<div style="display:flex;flex-direction:column;gap:16px;align-items:center">
+<img src="/_blob/47c158b71962e6e867e1496de2d6e624" alt="시작 화면" style="width:238px;height:529px;object-fit:cover;border-radius:26px;border:6px solid #2A2126;box-shadow:0 16px 32px rgba(42,33,38,0.14)">
+<p style="font-size:24px">시작</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:16px;align-items:center">
+<img src="/_blob/c9bb8327968ad690a0e6e7b3db102878" alt="알림 권한 화면" style="width:238px;height:529px;object-fit:cover;border-radius:26px;border:6px solid #2A2126;box-shadow:0 16px 32px rgba(42,33,38,0.14)">
+<p style="font-size:24px">알림</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:16px;align-items:center">
+<img src="/_blob/ccd505129c04ad3f0da50f9bb0aed082" alt="위치 1단계: 앱 사용 중 허용" style="width:238px;height:529px;object-fit:cover;border-radius:26px;border:6px solid #2A2126;box-shadow:0 16px 32px rgba(42,33,38,0.14)">
+<p style="font-size:24px">위치 ①</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:16px;align-items:center">
+<img src="/_blob/f7676de019d545061ec3a9e1aace2434" alt="위치 정보 이용 동의 시트" style="width:238px;height:529px;object-fit:cover;border-radius:26px;border:6px solid #6B4E7A;box-shadow:0 16px 32px rgba(107,78,122,0.24)">
+<p style="font-size:24px;color:#6B4E7A;font-weight:700">위치 정보 동의</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:16px;align-items:center">
+<img src="/_blob/8fe3615440eceff62dd33b101e7f1533" alt="위치 2단계: 항상 허용" style="width:238px;height:529px;object-fit:cover;border-radius:26px;border:6px solid #2A2126;box-shadow:0 16px 32px rgba(42,33,38,0.14)">
+<p style="font-size:24px">위치 ②</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:16px;align-items:center">
+<img src="/_blob/38e95361412a5614ae8b4afb3b0ff47e" alt="첫 저장 안내" style="width:238px;height:529px;object-fit:cover;border-radius:26px;border:6px solid #2A2126;box-shadow:0 16px 32px rgba(42,33,38,0.14)">
+<p style="font-size:24px">첫 저장 안내</p>
+</div>
+</div>
+<aside>[시간] 약 30초
+
+[대본]
+처음 앱을 켜면 이런 순서로 시작합니다.
+이 앱은 위치를 '항상 허용'으로 받아야 앱을 닫아도 근처 도착을 알 수 있습니다. 그런데 처음부터 "항상 허용해 주세요"라고 하면 대부분 거절하죠.
+그래서 권한마다 왜 필요한지 먼저 보여주고, 위치는 '앱 사용 중 허용' → '설정에서 항상 허용' 두 단계로 나눠 받습니다. 그 사이에 위치정보 이용 동의 시트로 "도착한 장소와 시각만 보내고, 이동 경로나 실시간 위치는 보내지 않는다"고 분명히 알려줍니다.
+"나중에 할게요"를 눌러도 앱은 그대로 쓸 수 있고, 설정에서 언제든 다시 켤 수 있습니다.
+
+[세부 사실 — 질문 대비]
+- 흐름: 00a 시작 → 00c 알림 → 00d 위치 1단계(앱 사용 중) → 위치 동의 시트 → 00e 위치 2단계(항상 허용) → 00f 첫 저장 안내 → 근처 탭.
+- 백그라운드 위치는 Google Play 정책상 사용 전 고지가 필요 → 00d·00e가 그 역할.
+- 위치정보 이용 동의(위치기반서비스 약관): 시트 하나를 온보딩·근처 탭(위치 꺼짐)·설정 세 곳에서 재사용. 동의 → PUT /api/me/consents/LOCATION_BASED_SERVICE → 성공 시 OS 권한 요청. 약관 버전이 바뀌면 재동의. 동의를 거두면 지오펜스 해제.
+- 위치가 '앱 사용 중'까지만이면 근처 알림만 동작하지 않고 나머지는 정상.
+- 로그인: MVP는 게스트 세션(설치 ID로 조용히 발급)이라 로그인 화면 생략. 카카오 로그인은 디자인·구조 준비 완료, MVP 이후 활성화(로드맵).</aside>
+</section>

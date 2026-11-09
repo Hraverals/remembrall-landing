@@ -1,0 +1,50 @@
+<section id="scr-notify" style="background:#F6F1EE;color:#2A2126;font-family:'Noto Sans KR', Arial, sans-serif;padding:160px 128px 128px;display:flex;flex-direction:column;gap:40px">
+<div style="position:absolute;left:0;top:0;width:1920px;height:6px;background:#E4DAD5"></div>
+<div style="position:absolute;left:0;top:0;width:960px;height:6px;background:#6B4E7A"></div>
+<div style="position:absolute;left:128px;top:36px;width:1664px;display:flex;flex-direction:row;justify-content:space-between">
+<p style="font-size:24px;color:#8E8185">배경</p>
+<p style="font-size:24px;color:#8E8185">문제</p>
+<p style="font-size:24px;color:#6B4E7A;font-weight:700">솔루션</p>
+<p style="font-size:24px;color:#8E8185">기술</p>
+<p style="font-size:24px;color:#8E8185">차별화</p>
+<p style="font-size:24px;color:#8E8185">로드맵</p>
+<p style="font-size:24px;color:#8E8185">팀</p>
+<p style="font-size:24px;color:#8E8185">시연</p>
+</div>
+<h2 style="font-family:'Gowun Dodum', 'Noto Sans KR', sans-serif;font-size:64px;font-weight:400;line-height:1.25">알림 · 바랜 기억</h2>
+<div style="flex:1;display:flex;flex-direction:row;justify-content:center;align-items:start;gap:120px">
+<div style="display:flex;flex-direction:column;gap:16px;align-items:center">
+<img src="/_blob/8e3c24c0e43acb4587edfefead946421" alt="잠금화면 알림: 3주 전에 저장한 빵집이 도보 4분 거리에 있어요" style="width:270px;height:600px;object-fit:cover;border-radius:30px;border:6px solid #6B4E7A;box-shadow:0 20px 40px rgba(107,78,122,0.24)">
+<p style="font-size:28px;color:#6B4E7A;font-weight:700">근처 도착 알림</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:16px;align-items:center">
+<img src="/_blob/80871da782e60e077683ad5e2827be88" alt="기억 탭: 저장한 영상이 시간순 앨범으로, 오래된 것일수록 썸네일이 바래 있음" style="width:270px;height:600px;object-fit:cover;border-radius:30px;border:6px solid #2A2126;box-shadow:0 20px 40px rgba(42,33,38,0.16)">
+<p style="font-size:28px">기억</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:28px;align-self:center">
+<div style="display:flex;flex-direction:row;gap:20px;align-items:end">
+<div style="display:flex;flex-direction:column;gap:12px;align-items:center"><div style="width:96px;height:171px;border-radius:12px;background:linear-gradient(160deg, #D9A066 0%, #A8643A 100%)"></div><p style="font-size:24px">오늘</p></div>
+<div style="display:flex;flex-direction:column;gap:12px;align-items:center"><div style="width:96px;height:171px;border-radius:12px;background:linear-gradient(160deg, #D9A066 0%, #A8643A 100%);opacity:0.7"></div><p style="font-size:24px;color:#6A5D61">3주</p></div>
+<div style="display:flex;flex-direction:column;gap:12px;align-items:center"><div style="width:96px;height:171px;border-radius:12px;background:linear-gradient(160deg, #D9A066 0%, #A8643A 100%);opacity:0.5"></div><p style="font-size:24px;color:#6A5D61">5개월</p></div>
+<x-connector head="end" style="width:56px;height:4px;color:#6B4E7A;border-width:3px;align-self:center"></x-connector>
+<div style="display:flex;flex-direction:column;gap:12px;align-items:center"><div style="width:96px;height:171px;border-radius:12px;background:linear-gradient(160deg, #D9A066 0%, #A8643A 100%);box-shadow:0 0 0 4px #6B4E7A"></div><p style="font-size:24px;color:#6B4E7A;font-weight:700">근처</p></div>
+</div>
+<p style="font-size:24px;color:#6A5D61">썸네일 투명도 0% · 30% · 50% → 복원</p>
+</div>
+</div>
+<aside>[시간] 약 30초
+
+[대본]
+그리고 이 앱의 핵심 순간입니다. 저장한 장소 근처에 도착하면, 앱을 열지 않아도 잠금화면에 먼저 알림이 옵니다.
+"3주 전에 저장한 빵집이 도보 4분 거리에 있어요." 단순히 가게가 근처에 있다는 게 아니라, 내가 언제 저장했는지를 함께 꺼내 줍니다.
+'기억' 탭은 저장한 영상을 시간순 앨범으로 보여주는데, 오래 잊은 것일수록 썸네일이 점점 바래 있습니다. 그리고 그 장소 근처에 가면 원래 색으로 돌아옵니다. 저희 발표 앞부분이 흑백이었던 이유도 여기에 있습니다.
+
+[그래프/도식]
+- 오른쪽 썸네일 네 장: 오늘(0%) → 3주(30%) → 5개월(50%) 바램 → 근처에 오면 복원.
+
+[세부 사실 — 질문 대비]
+- 바램 단계(디자인 토큰): 썸네일 위에 배경색 레이어를 투명도로 덮는 방식이라 필터·셰이더 없이 가벼움. 텍스트·버튼은 바래지 않음('비활성'과 구분하기 위해).
+- 앱 구현 기준 구간: 저장 후 7일 / 30일 / 그 이후. 계절 섹션(이번 주·지난 몇 주·올해 봄…)으로 묶음.
+- 알림 빈도 주의: 잠금화면 시안 문구는 "같은 장소는 하루에 한 번만 알려요"지만, 현재 서버 구현은 "회원 단위 2시간 쿨다운"(침묵 판단도 1회로 셈). 질문 시 "현재는 2시간 쿨다운, 장소 단위 쿨다운은 개선 예정"이 정확합니다.
+- 알림은 FCM, 탭하면 해당 장소 상세로 바로 열림.</aside>
+</section>
