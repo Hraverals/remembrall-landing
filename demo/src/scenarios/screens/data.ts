@@ -10,6 +10,8 @@ import type { LatLng } from "../../kit/ui/geo";
 
 export const DEMO_NOW = new Date(2026, 10, 8, 14, 14);
 export const DEMO_LATER = new Date(2026, 10, 29, 14, 14);
+// S4 셋째 시점(T0 + 5개월). 해가 바뀌어 섹션이 "지난해 가을 · 여름"이 된다. 그동안 새 저장은 없다고 둔다.
+export const DEMO_MONTHS_LATER = new Date(2027, 3, 8, 14, 14);
 
 function daysBefore(days: number): Date {
     return new Date(DEMO_NOW.getTime() - days * 24 * 60 * 60 * 1000);

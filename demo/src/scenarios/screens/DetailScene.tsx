@@ -1,6 +1,7 @@
 // 08 장소 상세. 지도 위에 시트. 시트 구성과 수치는 앱 features/content-detail(DetailSheet · DetailFooter)과 같다.
 // 지도: 현재 위치 → 장소 점선 경로(text/secondary 2, 점선 4 · 4), 장소 사진 핀(폭 40, 테두리 3, 그림자)과 이름표.
-// fade 는 핀 · 썸네일의 바램이다. 근처에서 알림으로 열면 원래 색(recent)이다. 3번 커밋에서 30% → 0 전환을 시간에 맞춰 보인다.
+// 바램은 앱 savedPlaceSheet 과 같다. fade 는 핀 · 썸네일의 바램(근처에서 연 08 이면 원래 색 recent)이고,
+// thumbFade 는 썸네일만 따로 준다(앱 restoreFrom: 근처에서 열면 썸네일만 저장 시각대로의 바램에서 600ms 동안 풀린다). 없으면 fade.
 import type { CSSProperties } from "react";
 
 import { detailMap, sungsimdang as detail } from "./data";
@@ -22,7 +23,12 @@ import {
 import type { Fade } from "../../kit/ui/fade";
 import { Thumb } from "../../kit/ui/Thumb";
 
-export function DetailScene({ fade }: { fade: Fade | number }) {
+type Props = {
+    fade: Fade;
+    thumbFade?: Fade | number;
+};
+
+export function DetailScene({ fade, thumbFade = fade }: Props) {
     const { place, current } = detailMap;
     return (
         <div style={styles.screen}>
@@ -49,7 +55,7 @@ export function DetailScene({ fade }: { fade: Fade | number }) {
                 </div>
                 <div style={styles.body}>
                     <div style={styles.head}>
-                        <Thumb id={detail.photo} fade={fade} width={72} />
+                        <Thumb id={detail.photo} fade={thumbFade} width={72} />
                         <div style={styles.info}>
                             <p style={styles.time}>{detail.time}</p>
                             <p style={styles.place}>{detail.place}</p>

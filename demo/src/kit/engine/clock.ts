@@ -8,13 +8,19 @@ export function easeInOutCubic(p: number): number {
     return p < 0.5 ? 4 * p ** 3 : 1 - (-2 * p + 2) ** 3 / 2;
 }
 
-// start 부터 duration 동안 0 → 1 (easeInOutCubic).
+// Reanimated withTiming 의 기본 easing(Easing.inOut(Easing.quad)). 앱 애니메이션 시간을 그대로 옮길 때 쓴다.
+export function easeInOutQuad(p: number): number {
+    return p < 0.5 ? 2 * p ** 2 : 1 - (-2 * p + 2) ** 2 / 2;
+}
+
+// start 부터 duration 동안 0 → 1 (기본 easeInOutCubic).
 export function progress(
     time: number,
     start: number,
     duration: number,
+    ease: (p: number) => number = easeInOutCubic,
 ): number {
-    return easeInOutCubic(Math.max(0, Math.min(1, (time - start) / duration)));
+    return ease(Math.max(0, Math.min(1, (time - start) / duration)));
 }
 
 function quantize(value: number): number {

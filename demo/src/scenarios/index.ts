@@ -2,8 +2,10 @@
 // 하나만 쓰면 개별 import(예: import { S2 } from "./s2")로 나머지를 번들에서 뺄 수 있다.
 import type { Scenario } from "../kit/engine/types";
 import { S2 } from "./s2";
+import { S4 } from "./s4";
+import { S5 } from "./s5";
 
-export const SCENARIOS: readonly Scenario[] = [S2];
+export const SCENARIOS: readonly Scenario[] = [S2, S4, S5];
 
 export function findScenario(id: string): Scenario | undefined {
     return SCENARIOS.find((scenario) => scenario.id === id);
