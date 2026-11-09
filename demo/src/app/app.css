@@ -1,0 +1,152 @@
+/* 갤러리 · 정지 화면 스타일. 전역 선택자는 app/ 안에서만 쓴다(kit · scenarios 는 .rmd- 만). */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    background: #ece4e0;
+    color: #2a2126;
+    font:
+        400 14px / 1.5 "RMD Noto Sans KR",
+        system-ui,
+        sans-serif;
+    word-break: keep-all;
+}
+
+button {
+    font: inherit;
+    color: inherit;
+}
+
+/* 정지 화면: 1920×1080 을 왼쪽 위에 그대로 둔다(스크린샷 크기와 같게). */
+.app-frozen {
+    width: 1920px;
+    height: 1080px;
+    display: grid;
+    place-items: center;
+}
+
+.app-gallery {
+    display: grid;
+    grid-template-columns: 220px minmax(0, 1fr);
+    height: 100svh;
+}
+
+.app-list {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 16px 12px;
+    border-right: 1px solid #ddd2cd;
+    background: #fffcfa;
+}
+
+.app-list__item {
+    padding: 10px 12px;
+    border: 0;
+    border-radius: 8px;
+    background: transparent;
+    text-align: left;
+    cursor: pointer;
+}
+
+.app-list__item[aria-current="true"] {
+    background: #ece4e0;
+}
+
+.app-list__id {
+    display: inline-block;
+    min-width: 28px;
+    color: #6a5d61;
+}
+
+.app-main {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    padding: 16px;
+    gap: 12px;
+}
+
+.app-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 16px;
+}
+
+.app-group {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.app-group__label {
+    margin-right: 4px;
+    color: #6a5d61;
+}
+
+.app-group button {
+    padding: 4px 10px;
+    border: 1px solid #ddd2cd;
+    border-radius: 6px;
+    background: #fffcfa;
+    cursor: pointer;
+}
+
+.app-group button[aria-pressed="true"] {
+    border-color: #4d4145;
+    background: #4d4145;
+    color: #fffcfa;
+}
+
+.app-beat {
+    min-width: 132px;
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+}
+
+.app-ended {
+    min-width: 64px;
+    color: #6a5d61;
+}
+
+.app-area {
+    flex: 1;
+    min-height: 0;
+    display: grid;
+    place-items: center;
+}
+
+.app-box {
+    outline: 1px dashed #a69a9e;
+}
+
+.app-box--wide {
+    width: 100%;
+    height: 100%;
+}
+
+/* 좁고 낮은 상자: 높이가 모자란 슬라이드 칸. 무대 · 폰 모두 세로 200 안에 들어와야 한다. */
+.app-box--small {
+    width: 420px;
+    height: 200px;
+}
+
+/* 투명 바탕 확인용 슬라이드 바탕(줄무늬). */
+.app-box--slide {
+    background: repeating-linear-gradient(
+        135deg,
+        #dfe3ea 0 16px,
+        #eef0f4 16px 32px
+    );
+}
+
+.app-caption {
+    margin: 0;
+    color: #6a5d61;
+    text-align: center;
+}
