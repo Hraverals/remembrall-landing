@@ -145,13 +145,53 @@
     margin-top: var(--space-lg);
 }
 
-.doc-body ul,
-.doc-body ol {
+.doc-body ul {
     padding-left: 1.25em;
 }
 
-.doc-body li + li {
+.doc-body ul li + li {
     margin-top: var(--space-xs);
+}
+
+/* 근거 줄(<small>). 본문 아래 한 줄로 작게. */
+.doc-body small {
+    display: block;
+    margin-top: var(--space-xs);
+    font: var(--type-page-caption);
+    color: var(--text-secondary);
+}
+
+/* 번호 목록 = 흐름 단계. 랜딩 StepList 처럼 번호 칸 | 내용, 줄 사이 얇은 선. 첫 굵은 글씨가 단계 제목이다. */
+.doc-body ol {
+    padding: 0;
+    list-style: none;
+    counter-reset: doc-step;
+}
+
+.doc-body ol > li {
+    counter-increment: doc-step;
+    display: grid;
+    grid-template-columns: 2.5rem minmax(0, 1fr);
+    padding-block: var(--space-lg);
+    border-bottom: 1px solid var(--border-default);
+}
+
+.doc-body ol > li::before {
+    content: counter(doc-step, decimal-leading-zero);
+    padding-top: 2px;
+    font: 400 1rem / 1.6 var(--font-heading);
+    color: var(--text-secondary);
+    font-variant-numeric: tabular-nums;
+}
+
+.doc-body ol > li > p {
+    margin: 0;
+}
+
+.doc-body ol > li > :first-child > strong:first-child,
+.doc-body ol > li > strong:first-child {
+    display: block;
+    margin-bottom: var(--space-xs);
 }
 
 .doc-body strong {
@@ -184,6 +224,15 @@
     line-height: 1.6;
 }
 
+/* 칸이 너무 좁아지기 전에 표를 가로 스크롤로 넘긴다. 표 안 코드(설정 키 · 모델 이름)는 쪼개지 않는다. */
+.doc-body td {
+    min-width: 6.5rem;
+}
+
+.doc-body td code {
+    white-space: nowrap;
+}
+
 .doc-body th,
 .doc-body td {
     padding: var(--space-sm) var(--space-md) var(--space-sm) 0;
@@ -196,6 +245,150 @@
     font-weight: 500;
     color: var(--text-secondary);
     white-space: nowrap;
+}
+
+/*
+ * 구조도(md 안 HTML 블록 figure.doc-arch). 앱 · 서버 · DB 상자 → 외부 API 두 묶음.
+ * 폰: 위에서 아래로 쌓고 화살표도 아래(↓)·위(↑)로. 640 이상: 앱 → 서버 → DB 를 한 줄로, 외부 묶음은 2열.
+ * 강조색은 쓰지 않는다. 핵심 상자는 bg-surface, 외부 묶음은 테두리만.
+ */
+.doc-arch {
+    margin: var(--space-xl) 0 0;
+    font-size: 0.875rem;
+    line-height: 1.5;
+}
+
+/* 본문 p 의 위 여백(.doc-body p)을 구조도 안에서는 끈다. */
+.doc-body .doc-arch p {
+    margin: 0;
+}
+
+.doc-arch__core {
+    display: grid;
+    gap: var(--space-sm);
+}
+
+.doc-arch__box,
+.doc-arch__group {
+    padding: var(--space-md);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-md);
+}
+
+.doc-arch__box {
+    background: var(--bg-surface);
+}
+
+.doc-arch__name,
+.doc-arch__group-title {
+    font: 500 0.9375rem / 1.4 var(--font-body);
+}
+
+.doc-body .doc-arch .doc-arch__meta {
+    margin-top: 2px;
+    color: var(--text-secondary);
+    font-size: 0.8125rem;
+}
+
+.doc-body .doc-arch__list {
+    margin: var(--space-sm) 0 0;
+    padding: 0;
+    list-style: none;
+}
+
+.doc-body .doc-arch__list li + li {
+    margin-top: 2px;
+}
+
+/* 연결선: 글자 화살표 + 이름. 폰은 세로(↓ ↑), 640 이상은 가로(→ ←). */
+.doc-arch__link,
+.doc-body .doc-arch .doc-arch__drop {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: var(--space-xs) var(--space-lg);
+    margin: 0;
+    color: var(--text-secondary);
+    font-size: 0.8125rem;
+}
+
+.doc-body .doc-arch .doc-arch__drop {
+    margin-block: var(--space-sm);
+}
+
+.doc-arch__arrow::before {
+    margin-right: var(--space-xs);
+    font-size: 1rem;
+}
+
+.doc-arch__arrow--fwd::before,
+.doc-arch__arrow--down::before {
+    content: "↓";
+}
+
+.doc-arch__arrow--back::before {
+    content: "↑";
+}
+
+.doc-arch__arrow--both::before {
+    content: "↕";
+}
+
+.doc-arch__groups {
+    display: grid;
+    gap: var(--space-sm);
+}
+
+.doc-arch figcaption {
+    margin-top: var(--space-md);
+    font: var(--type-page-caption);
+    color: var(--text-secondary);
+}
+
+@media (min-width: 640px) {
+    .doc-arch__core {
+        grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr) auto minmax(
+                0,
+                1fr
+            );
+        align-items: center;
+    }
+
+    .doc-arch__box {
+        align-self: stretch;
+    }
+
+    .doc-arch__link {
+        flex-direction: column;
+        gap: var(--space-sm);
+    }
+
+    .doc-arch__link .doc-arch__arrow {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        white-space: nowrap;
+    }
+
+    .doc-arch__link .doc-arch__arrow::before {
+        margin-right: 0;
+    }
+
+    .doc-arch__arrow--fwd::before {
+        content: "→";
+    }
+
+    .doc-arch__arrow--back::before {
+        content: "←";
+    }
+
+    .doc-arch__arrow--both::before {
+        content: "↔";
+    }
+
+    .doc-arch__groups {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
 }
 
 /* 푸터 */
