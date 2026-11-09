@@ -49,31 +49,44 @@
 <p style="position:absolute;left:412px;top:450px;width:70px;font-size:24px;font-weight:700;color:#6B4E7A">공유</p>
 <p style="position:absolute;left:412px;top:578px;width:70px;font-size:24px;font-weight:700;color:#6B4E7A">도착</p>
 <p style="position:absolute;left:380px;top:868px;width:80px;font-size:24px;font-weight:700;color:#6B4E7A">알림</p>
-<aside>[시간] 약 40초
+<aside>■ 이 장의 역할
+- 전체 시스템 구성. 핵심 메시지 "저장은 파이프라인, 꺼내기는 에이전트"
 
-[대본]
-기술 구성입니다. 핵심은 "저장은 파이프라인, 꺼내기는 에이전트"로 나눈 것입니다.
-저장은 URL 검증, 영상 분석, 장소 확정, 트리거 저장까지 순서가 정해져 있어서 AI가 스스로 도구를 고를 이유가 없습니다. 그래서 안정적인 고정 파이프라인으로 만들었습니다.
-반대로 꺼내기는 "지금 이 사람에게 보여주는 게 맞나?"를 상황마다 판단해야 해서, 이쪽에만 도구를 쓰는 AI 에이전트를 붙였습니다.
-데이터는 PostgreSQL 하나에 PostGIS(좌표)와 pgvector(의미 검색)를 함께 써서, 위치와 의미를 한 쿼리로 찾습니다.
+■ 화면 구성
+- 앱 → (공유) 저장 파이프라인 → DB / 앱 → (도착) 꺼내기 에이전트 → (알림, 점선) 앱
+- 오른쪽 외부 서비스: 저장 쪽(Gemini, YouTube Data API, 카카오 로컬·LocationIQ, 공공 상가·TourAPI), 꺼내기 쪽(Gemini, 기상청, FCM)
 
-[화살표]
-- 공유: 앱 → 저장 파이프라인 (POST /api/personal-saves)
-- 도착: 지오펜스 도착 이벤트 → 에이전트 (POST /api/location-events, 항상 202 즉시 응답)
-- 알림(점선): 에이전트 판단 → FCM → 앱
+■ 저장은 파이프라인, 꺼내기는 에이전트
+- 저장: URL 검증 → 영상 분석 → 장소 확정 → 트리거 저장이 정해진 순서. AI가 도구를 고를 여지가 없어 에이전트가 아니라 고정 절차로 둠. 저장 쪽 LLM 호출은 영상 분석 1회뿐
+- 꺼내기: "지금 이 사람에게 보여줄 가치가 있나"를 상황마다 판단해야 해서 도구 호출형 에이전트
+- 에이전트·파이프라인은 DB를 직접 수정하지 않음. 저장은 Spring 서비스 계층이 담당
 
-[주요 설계 결정 — 질문 대비 (ADR)]
-1. 영상 분석을 Vertex AI Gemini로: 처음 쓰던 Elice API(OpenAI 호환)가 video 입력을 400으로 거부. Vertex는 YouTube URL을 영상 입력으로 직접 받아 다운로드·STT 없이 처리 → 정책 위반 위험도 제거.
-2. 단일 DB(ADR001): 별도 벡터DB(Qdrant/ES)나 MongoDB는 두 저장소 동기화 비용 때문에 기각.
-3. 에이전트·파이프라인은 DB를 직접 수정하지 않음. 결과만 돌려주고 저장은 Spring 서비스 계층.
-4. 결과 전달 FCM + 202: 에이전트 실행 시간이 일정하지 않고 iOS 백그라운드 제한(약 10초)이 있어서. 로컬 알림·WebSocket·폴링 기각.
-5. Spring AI(ADR005): LangChain4j·LangGraph4j와 비교 후 기존 모델·관측 체계 재사용. 그래프형 흐름이 필요해지면 LangGraph4j 재검토 조건 문서화.
-6. 인증: JWT 대신 DB 불투명 세션(ADR002). MVP는 게스트 세션.
+■ 스택
+- 앱: Expo SDK 57, React Native 0.86, TypeScript, Reanimated, react-native-maps, expo-location·task-manager·notifications·share-intent, EAS Build (Android 우선)
+- 서버: Java 21, Spring Boot 4.1, Spring AI 2.0, JPA, Flyway(마이그레이션 21개), firebase-admin
+- AI: Vertex AI Gemini(영상 분석·에이전트), gemini-embedding-001(768차원) → pgvector
+- DB: PostgreSQL + PostGIS(좌표) + pgvector(의미 검색) 단일 DB
 
-[스택]
-FE: Expo SDK 57 · React Native 0.86 · TypeScript · Reanimated · react-native-maps · expo-location/task-manager/notifications/share-intent · EAS Build
-BE: Java 21 · Spring Boot 4.1 · Spring AI 2.0 · JPA · Flyway · firebase-admin
-AI: Gemini(분석·에이전트) · gemini-embedding-001(768차원) → pgvector
-QA: GitHub Actions 빌드 + JUnit(Testcontainers) + Bruno API 회귀. @Test 453개, Bruno 요청 384개.
-레포: 커밋 323개, PR 머지 53회 (2026-08-20 ~ 2026-11-07).</aside>
+■ 주요 설계 결정 (ADR)
+- ADR001 Java/Spring 단일 앱: Python 분리의 명확한 이점 없음, 배포·통신 단순, 팀 숙련도. DB는 PG 하나 — MySQL+벡터DB(동기화 부담), MongoDB(관계 많아 부적합), ES 분리 기각. 재검토 조건: 검색량 때문에 응답시간 목표를 못 맞추면 분리
+- ADR002 인증: JWT 대신 DB 불투명 세션 토큰(해시만 저장). 로그아웃·기기 교체 즉시 반영, 토큰 회전 동시성 문제 없음. 비용은 요청당 DB 조회 1회, 세션 30일
+- ADR003 지오펜스: 가까운 N곳 + 재조회 원(17번 장)
+- ADR004 임베딩: 768차원(pgvector 인덱스 한도 2,000 이하), 직접 정규화, 저장용/검색용 task_type 구분, 제목+요약+카테고리를 임베딩. 실패해도 분석 결과는 저장
+- ADR005 Spring AI: 기존 모델 연결·관측 재사용. LangChain4j 기각, LangGraph4j는 다단계 분기·상태 저장이 필요해지면 재검토
+- 결과 전달 FCM + 202: 에이전트 실행 시간이 일정치 않고 iOS 백그라운드 제한 → 앱엔 즉시 202, 결과는 푸시. 로컬 알림·WebSocket·폴링 기각
+
+■ 영상 분석 엔진 전환 일화
+- 처음 쓰던 Elice API(OpenAI 호환)는 영상 입력 400, 다른 엔드포인트 404 → Vertex AI로 전환
+- Vertex는 YouTube URL을 영상 입력으로 직접 받음 → 다운로드·STT 없음(정책 위반 위험 제거), 화면 글자·음성 모두 인식
+- 기각안: 메타데이터만(음성·자막 속 장소 놓침), 다운로드+STT(정책 위반 소지, 화면 글자 못 읽음)
+- 첫 검증: 영상 3,354 + 음성 350 = 3,927토큰, 1원 미만
+- 모델 단종 대응: 3.6-flash 404 → 2.5 Flash → 신규 키에서 막혀 3.8-flash
+
+■ 데이터 정책
+- 영상·음성·전체 자막 저장 안 함
+- YouTube 원본 제목·설명·댓글 최대 30일 보관, 삭제 요청 7일 내 처리, AI 분석은 'AI 자체 분석' 표시(정책 문서 기준, 자동 삭제 스케줄러는 미구현)
+- 좌표는 영구 저장이 허용되는 LocationIQ 사용(Google Geocoding은 캐싱 30일 제한)
+
+■ 시간
+- 약 40초</aside>
 </section>
