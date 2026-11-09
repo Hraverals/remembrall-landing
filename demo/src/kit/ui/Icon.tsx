@@ -18,6 +18,12 @@ const LUCIDE = {
         ["path", { d: "M19 12H5" }],
     ],
     chevronRight: [["path", { d: "m9 18 6-6-6-6" }]],
+    // 앱 C/Icon close(lucide x) · check
+    close: [
+        ["path", { d: "M18 6 6 18" }],
+        ["path", { d: "m6 6 12 12" }],
+    ],
+    check: [["path", { d: "M20 6 9 17l-5-5" }]],
     footprints: [
         [
             "path",

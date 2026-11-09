@@ -40,9 +40,16 @@ export type Motion = {
     camera?: (time: number) => CameraPose;
 };
 
-export type AsideProps = { beat: number; time: number };
+// ScenarioStage 의 폰 옆 설명 층. 장면과 같이 시각에서 상태를 계산한다(view 안의 숫자는 0.02 로 끊어 key 에 넣는다).
+// 그래서 speed · step 되감기 · ?t= · 동작 줄이기에서 폰과 똑같이 움직인다. beat 는 지금 비트(-1 은 없음).
+export type AsideProps<A> = { view: A; beat: number };
 
-export type Scenario<V = unknown> = {
+export type Aside<A> = {
+    view: (time: number) => A;
+    Component: ComponentType<AsideProps<A>>;
+};
+
+export type Scenario<V = unknown, A = unknown> = {
     id: string;
     title: string;
     concept?: boolean;
@@ -53,11 +60,13 @@ export type Scenario<V = unknown> = {
     segments: readonly Segment<V>[];
     Screen: ComponentType<{ view: V }>;
     motion: Motion;
-    // ScenarioStage 의 폰 옆 설명 층. beat 는 지금 비트(-1 은 없음), time 은 화면이 다시 그려질 때의 시각이다(프레임마다 오지 않는다).
-    Aside?: ComponentType<AsideProps>;
+    // ScenarioStage 의 폰 옆 설명 층(없으면 폰이 가운데). ScenarioPhone 은 그리지 않는다.
+    aside?: Aside<A>;
 };
 
-// 시나리오 안에서는 V 로 타입을 검사하고, 등록부 · 컴포넌트에는 V 를 지운 Scenario 로 넘긴다.
-export function defineScenario<V>(scenario: Scenario<V>): Scenario {
+// 시나리오 안에서는 V · A 로 타입을 검사하고, 등록부 · 컴포넌트에는 둘을 지운 Scenario 로 넘긴다.
+export function defineScenario<V, A = never>(
+    scenario: Scenario<V, A>,
+): Scenario {
     return scenario as unknown as Scenario;
 }

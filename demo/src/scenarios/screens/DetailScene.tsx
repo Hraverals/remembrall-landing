@@ -2,9 +2,11 @@
 // 지도: 현재 위치 → 장소 점선 경로(text/secondary 2, 점선 4 · 4), 장소 사진 핀(폭 40, 테두리 3, 그림자)과 이름표.
 // 바램은 앱 savedPlaceSheet 과 같다. fade 는 핀 · 썸네일의 바램(근처에서 연 08 이면 원래 색 recent)이고,
 // thumbFade 는 썸네일만 따로 준다(앱 restoreFrom: 근처에서 열면 썸네일만 저장 시각대로의 바램에서 600ms 동안 풀린다). 없으면 fade.
+// detail: 시트 내용. 없으면 3주 전에 저장한 성심당 본점(S5). 저장 결과에서 바로 연 08 은 저장 시점이 "방금"이다(S3).
 import type { CSSProperties } from "react";
 
-import { detailMap, sungsimdang as detail } from "./data";
+import type { PhotoId } from "../../kit/assets/photos";
+import { detailMap, sungsimdang } from "./data";
 import { AppButton } from "../../kit/ui/AppButton";
 import { DemoMap } from "../../kit/ui/DemoMap";
 import { Icon } from "../../kit/ui/Icon";
@@ -23,12 +25,28 @@ import {
 import type { Fade } from "../../kit/ui/fade";
 import { Thumb } from "../../kit/ui/Thumb";
 
+export type DetailContent = {
+    time: string;
+    place: string;
+    address: string;
+    walk: string;
+    photo: PhotoId;
+    note: string;
+    tags: readonly string[];
+    sourceMeta: string;
+};
+
 type Props = {
     fade: Fade;
     thumbFade?: Fade | number;
+    detail?: DetailContent;
 };
 
-export function DetailScene({ fade, thumbFade = fade }: Props) {
+export function DetailScene({
+    fade,
+    thumbFade = fade,
+    detail = sungsimdang,
+}: Props) {
     const { place, current } = detailMap;
     return (
         <div style={styles.screen}>

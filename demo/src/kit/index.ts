@@ -7,6 +7,7 @@ export {
     progress,
 } from "./engine/clock";
 export type {
+    Aside,
     AsideProps,
     Beat,
     CameraPose,

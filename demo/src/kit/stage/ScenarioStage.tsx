@@ -24,7 +24,7 @@ function Player({ background = "screen", ...props }: ScenarioStageProps) {
     const scale = useScale(stage, STAGE_WIDTH);
     const { snapshot, ready } = usePlayback(root, props);
     const { scenario } = props;
-    const { Aside } = scenario;
+    const Aside = scenario.aside?.Component;
     const className = [
         "rmd-stage",
         background === "screen" && "rmd-stage--screen",
@@ -66,7 +66,7 @@ function Player({ background = "screen", ...props }: ScenarioStageProps) {
                     </div>
                     {Aside != null && (
                         <div className="rmd-stage__aside" aria-hidden="true">
-                            <Aside beat={snapshot.beat} time={snapshot.time} />
+                            <Aside view={snapshot.aside} beat={snapshot.beat} />
                         </div>
                     )}
                     {scenario.concept === true && (

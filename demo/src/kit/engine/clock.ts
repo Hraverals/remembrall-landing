@@ -53,6 +53,8 @@ export type Snapshot = {
     time: number;
     layers: readonly Layer[];
     captions: readonly Caption[];
+    // 옆 설명 층 상태(scenario.aside 가 있을 때만).
+    aside?: unknown;
 };
 
 const CAPTION_FADE = 0.25;
@@ -153,11 +155,16 @@ export function snapshotAt(scenario: Scenario, time: number): Snapshot {
         opacity: quantize(caption.opacity),
     }));
     const beat = beatAt(scenario, t);
+    const aside =
+        scenario.aside == null
+            ? undefined
+            : quantizeDeep(scenario.aside.view(t));
     return {
-        key: JSON.stringify([beat, layers, captions]),
+        key: JSON.stringify([beat, layers, captions, aside]),
         beat,
         time: t,
         layers,
         captions,
+        aside,
     };
 }

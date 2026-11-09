@@ -121,6 +121,32 @@ export const sungsimdang = {
     sourceMeta: "@daejeon.bread · YouTube Shorts",
 } as const;
 
+// S3 원본 영상(지어낸 Shorts). 영상에 지점명이 나오지 않아 성심당 지점 중 어디인지 되묻는다.
+export const s3Video = {
+    photo: 1080 satisfies PhotoId,
+    title: "대전 빵지순례 1순위",
+    handle: "@daejeon.bread",
+} as const;
+
+// S3 되묻기 선택지(서버 ConfirmCandidateResponse.options 모양). 앱 Figma 02 목과 같은 두 지점(실제 지점)이다.
+// 주소는 LocationIQ 형식 원문이고 화면에는 shortAddress 로 다듬은 형태가 나온다(우편번호는 보이지 않는다).
+export const s3Options = [
+    {
+        candidateId: "sungsimdang-main",
+        name: "성심당 본점",
+        branchName: null,
+        address:
+            "성심당 본점, 대종로480번길, 은행동, 중구, 대전, 34917, 대한민국",
+    },
+    {
+        candidateId: "sungsimdang-dcc",
+        name: "성심당 DCC점",
+        branchName: null,
+        address:
+            "성심당 DCC점, 엑스포로, 도룡동, 유성구, 대전, 34126, 대한민국",
+    },
+] as const;
+
 // 08 지도 위 좌표(360×800 논리 px). 08 은 지금 위치와 장소를 함께 맞춘 확대라 지도 탭과 배율이 다르다.
 export const detailMap = {
     place: { x: 232, y: 214 },

@@ -1,5 +1,5 @@
 // 검증용 스크린샷. vite dev 서버를 띄우고 설치된 브라우저(playwright-core, 기본 Edge)로 찍어 .shots/ 에 둔다(커밋하지 않는다).
-// 1) 정지: ?s=ID&beat=n(비트 n 끝 상태) 을 1920×1080 으로 — beat-n.png
+// 1) 정지: ?s=ID&beat=n(비트 n 끝 상태) 을 1920×1080 으로 — beat-n.png, 마지막 비트는 폰만(&view=phone)도 — phone-last.png
 // 2) step 재생: 갤러리에서 → 로 비트를 하나씩 재생하고 "비트 n 끝"이 뜨면 무대만 — step-n.png, ← 로 돌아간 끝 상태 — back-n.png
 // 3) 맞춤: 갤러리 "좁고 낮게"(420×200) 상자에 무대 · 폰이 들어가는지 재고 찍는다 — fit-stage.png · fit-phone.png
 // 다른 브라우저는 SHOTS_BROWSER_CHANNEL=chrome 처럼 준다. 시나리오를 고르려면 node scripts/shots.mjs S2.
@@ -70,7 +70,20 @@ try {
             await page.waitForTimeout(300);
             await page.screenshot({ path: `${dir}beat-${index}.png` });
         }
-        report.push(`${scenario.id} 정지 ${scenario.beats.length}장`);
+        const last = scenario.beats.length - 1;
+        await page.goto(`${base}?s=${scenario.id}&beat=${last}&view=phone`, {
+            waitUntil: "networkidle",
+        });
+        await page.waitForSelector("[data-rmd-ready]");
+        await settle(page);
+        await page.waitForTimeout(300);
+        await page
+            .locator(".rmd-fit")
+            .first()
+            .screenshot({ path: `${dir}phone-last.png` });
+        report.push(
+            `${scenario.id} 정지 ${scenario.beats.length}장 + 폰만 1장`,
+        );
 
         // 2) step 재생 · 뒤로
         await page.goto(`${base}?s=${scenario.id}`, {
