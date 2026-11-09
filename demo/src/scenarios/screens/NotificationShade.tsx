@@ -6,7 +6,7 @@
 import type { CSSProperties } from "react";
 
 import notificationIcon from "../../kit/assets/icon/notification-icon.png";
-import { nearbyBody } from "./album";
+import { type DemoSave, nearbyBody } from "./album";
 import { ANDROID_APP_NAME, saves } from "./data";
 import { Icon, type IconName } from "../../kit/ui/Icon";
 import { StatusBar } from "../../kit/ui/StatusBar";
@@ -18,8 +18,14 @@ function dateLabel(now: Date): string {
     return `${now.getMonth() + 1}월 ${now.getDate()}일 ${WEEKDAYS[now.getDay()]}요일`;
 }
 
-export function NotificationShade({ now, pull }: { now: Date; pull: number }) {
-    const saved = saves[0];
+type Props = {
+    now: Date;
+    pull: number;
+    // 알린 저장물. 없으면 데모 저장물 첫 항목(성심당 본점).
+    saved?: DemoSave;
+};
+
+export function NotificationShade({ now, pull, saved = saves[0] }: Props) {
     if (saved == null) return null;
     return (
         <>

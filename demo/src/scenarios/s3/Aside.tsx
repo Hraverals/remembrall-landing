@@ -3,11 +3,10 @@
 //   ② VideoContentAnalyzer: AI 가 영상 자체를 보고(1 의 텍스트는 참고) 상호명 · 지점명 · 지역을 나눠 뽑는다
 //   ③ PlaceResolver + KakaoPlaceLookup: 지도 검색 · 공공 상가정보로 실제 업소를 대조하고 카카오 장소로 검증한다
 //   ④ 확신이 없고 후보가 3곳 이하(MAX_CONFIRMATION_CANDIDATES)일 때만 되묻는다
-// 서비스 이름은 넣지 않는다(기술 이름은 아키텍처 슬라이드가 맡는다). 강조색은 쓰지 않고 불투명도로만 켠다.
-// view.lit: 단계마다 켜진 정도 0~1(아직이면 0.3 으로 흐리게). 1920×1080 무대의 옆 칸(800×860) 안, 논리 px.
-import type { CSSProperties } from "react";
-
+// 서비스 이름은 넣지 않는다(기술 이름은 아키텍처 슬라이드가 맡는다). 모양은 screens/StepsAside(S6 과 같이 쓴다).
+// view.lit: 단계마다 켜진 정도 0~1.
 import type { AsideProps } from "../../kit/engine/types";
+import { StepsAside } from "../screens/StepsAside";
 
 export type AsideView = { lit: readonly number[] };
 
@@ -30,64 +29,6 @@ const STEPS = [
     },
 ] as const;
 
-const DIM = 0.3;
-
 export function Aside({ view }: AsideProps<AsideView>) {
-    return (
-        <ol style={styles.list}>
-            {STEPS.map((step, index) => (
-                <li
-                    key={step.title}
-                    style={{
-                        ...styles.row,
-                        opacity: DIM + (1 - DIM) * (view.lit[index] ?? 0),
-                    }}
-                >
-                    <span style={styles.number}>{index + 1}</span>
-                    <span style={styles.text}>
-                        <span style={styles.title}>{step.title}</span>
-                        <span style={styles.detail}>{step.detail}</span>
-                    </span>
-                </li>
-            ))}
-        </ol>
-    );
+    return <StepsAside steps={STEPS} lit={view.lit} />;
 }
-
-const styles = {
-    list: {
-        display: "flex",
-        flexDirection: "column",
-        justifyContent: "center",
-        gap: 56,
-        height: "100%",
-        margin: 0,
-        padding: 0,
-        listStyle: "none",
-    },
-    row: {
-        display: "flex",
-        alignItems: "baseline",
-        gap: 28,
-    },
-    number: {
-        flex: "none",
-        width: 40,
-        font: "400 44px / 46px var(--font-heading)",
-        color: "var(--text-primary)",
-    },
-    text: {
-        display: "flex",
-        flexDirection: "column",
-        gap: 8,
-    },
-    title: {
-        font: "500 34px / 46px var(--font-body)",
-        letterSpacing: "-0.4px",
-        color: "var(--text-primary)",
-    },
-    detail: {
-        font: "400 24px / 34px var(--font-body)",
-        color: "var(--text-secondary)",
-    },
-} satisfies Record<string, CSSProperties>;

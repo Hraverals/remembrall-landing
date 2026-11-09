@@ -1,5 +1,5 @@
 // 사진 URL. landing scripts/fetch-photos.mjs 가 만든 webp 를 그대로 복사했다(출처 credits.json).
-// lg 720×1280(Shorts 화면 · 배경 카드), sm 270×480(썸네일 · 셀 · 핀).
+// lg 720×1280(Shorts 화면 · 배경 카드), sm 270×480(썸네일 · 셀 · 핀). 490 · 444 · 478 · 326 은 demo scripts/fetch-photos.mjs 로 새로 받았다.
 // 번들러에 매이지 않게 import.meta.glob 대신 정적 import 로 부른다(Vite · webpack 5 asset 모듈 모두 URL 문자열을 준다).
 import p1015 from "./photos/1015.webp";
 import p1015Sm from "./photos/1015-sm.webp";
@@ -23,6 +23,14 @@ import p488 from "./photos/488.webp";
 import p488Sm from "./photos/488-sm.webp";
 import p674 from "./photos/674.webp";
 import p674Sm from "./photos/674-sm.webp";
+import p490 from "./photos/490.webp";
+import p490Sm from "./photos/490-sm.webp";
+import p444 from "./photos/444.webp";
+import p444Sm from "./photos/444-sm.webp";
+import p478 from "./photos/478.webp";
+import p478Sm from "./photos/478-sm.webp";
+import p326 from "./photos/326.webp";
+import p326Sm from "./photos/326-sm.webp";
 
 const PHOTOS = {
     1080: { lg: p1080, sm: p1080Sm },
@@ -36,6 +44,11 @@ const PHOTOS = {
     1015: { lg: p1015, sm: p1015Sm },
     431: { lg: p431, sm: p431Sm },
     225: { lg: p225, sm: p225Sm },
+    // S6 추천(14) 카드
+    490: { lg: p490, sm: p490Sm },
+    444: { lg: p444, sm: p444Sm },
+    478: { lg: p478, sm: p478Sm },
+    326: { lg: p326, sm: p326Sm },
 } as const satisfies Record<number, { lg: string; sm: string }>;
 
 export type PhotoId = keyof typeof PHOTOS;

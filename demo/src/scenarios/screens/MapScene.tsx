@@ -5,8 +5,8 @@
 // newSave: 방금 공유한 저장물(성심당) 핀을 그릴지. 받음 시트 뒤(T0)에는 아직 장소를 몰라 그리지 않는다. 앱 10 처럼 경로 점선은 없다.
 import type { CSSProperties } from "react";
 
-import { fadeFor } from "./album";
-import { coordinates, saves, WALK_END, walkStart } from "./data";
+import { type DemoSave, fadeFor } from "./album";
+import { coordinates, saves as demoSaves, WALK_END, walkStart } from "./data";
 import { lerp, project } from "../../kit/ui/geo";
 import { BOTTOM_NAV_HEIGHT, BottomNav } from "../../kit/ui/BottomNav";
 import { DemoMap } from "../../kit/ui/DemoMap";
@@ -22,9 +22,17 @@ type Props = {
     walk: number;
     notified: boolean;
     newSave: boolean;
+    // 지도에 그릴 저장물(최신 저장순, 첫 항목이 newSave 대상). 없으면 데모 저장물 9개.
+    saves?: readonly DemoSave[];
 };
 
-export function MapScene({ now, walk, notified, newSave }: Props) {
+export function MapScene({
+    now,
+    walk,
+    notified,
+    newSave,
+    saves = demoSaves,
+}: Props) {
     const pins = saves
         .filter((_save, index) => newSave || index !== 0)
         .map((save) => ({

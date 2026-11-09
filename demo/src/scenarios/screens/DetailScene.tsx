@@ -3,9 +3,13 @@
 // 바램은 앱 savedPlaceSheet 과 같다. fade 는 핀 · 썸네일의 바램(근처에서 연 08 이면 원래 색 recent)이고,
 // thumbFade 는 썸네일만 따로 준다(앱 restoreFrom: 근처에서 열면 썸네일만 저장 시각대로의 바램에서 600ms 동안 풀린다). 없으면 fade.
 // detail: 시트 내용. 없으면 3주 전에 저장한 성심당 본점(S5). 저장 결과에서 바로 연 08 은 저장 시점이 "방금"이다(S3).
+//   badge · benefit 은 S6 컨셉 08d(광고 장소 · 도착 혜택)에만 있다: info 맨 위 "광고" 배지(bg/subtle, 11/500, radius sm),
+//   메모 아래 도착 혜택 카드(bg/subtle, radius md, 안쪽 12 · 14). 둘 다 강조색을 쓰지 않는다(주 버튼은 "길 안내 시작" 하나).
+// map: 지도 위 장소 · 지금 위치(360×800 논리 px). 없으면 성심당 08 배치(detailMap).
 import type { CSSProperties } from "react";
 
 import type { PhotoId } from "../../kit/assets/photos";
+import type { Point } from "../../kit/ui/geo";
 import { detailMap, sungsimdang } from "./data";
 import { AppButton } from "../../kit/ui/AppButton";
 import { DemoMap } from "../../kit/ui/DemoMap";
@@ -34,20 +38,24 @@ export type DetailContent = {
     note: string;
     tags: readonly string[];
     sourceMeta: string;
+    badge?: string;
+    benefit?: { label: string; title: string; note: string };
 };
 
 type Props = {
     fade: Fade;
     thumbFade?: Fade | number;
     detail?: DetailContent;
+    map?: { place: Point; current: Point };
 };
 
 export function DetailScene({
     fade,
     thumbFade = fade,
     detail = sungsimdang,
+    map = detailMap,
 }: Props) {
-    const { place, current } = detailMap;
+    const { place, current } = map;
     return (
         <div style={styles.screen}>
             <DemoMap />
@@ -75,6 +83,9 @@ export function DetailScene({
                     <div style={styles.head}>
                         <Thumb id={detail.photo} fade={thumbFade} width={72} />
                         <div style={styles.info}>
+                            {detail.badge != null && (
+                                <span style={styles.badge}>{detail.badge}</span>
+                            )}
                             <p style={styles.time}>{detail.time}</p>
                             <p style={styles.place}>{detail.place}</p>
                             <p style={styles.caption}>
@@ -94,6 +105,16 @@ export function DetailScene({
                             ))}
                         </div>
                     </div>
+
+                    {detail.benefit != null && (
+                        <div style={styles.benefit}>
+                            <p style={styles.caption}>{detail.benefit.label}</p>
+                            <p style={styles.benefitTitle}>
+                                {detail.benefit.title}
+                            </p>
+                            <p style={styles.caption}>{detail.benefit.note}</p>
+                        </div>
+                    )}
 
                     <div style={styles.source}>
                         <div style={styles.sourceText}>
@@ -210,6 +231,27 @@ const styles = {
         WebkitLineClamp: 2,
         WebkitBoxOrient: "vertical",
         overflow: "hidden",
+    },
+    badge: {
+        alignSelf: "flex-start",
+        marginBottom: 2,
+        padding: "2px 6px",
+        borderRadius: "var(--radius-sm)",
+        background: "var(--bg-subtle)",
+        color: "var(--text-on-subtle)",
+        font: "500 11px / 14px var(--font-body)",
+    },
+    benefit: {
+        display: "flex",
+        flexDirection: "column",
+        gap: 4,
+        padding: "12px 14px",
+        borderRadius: "var(--radius-md)",
+        background: "var(--bg-subtle)",
+    },
+    benefitTitle: {
+        font: "var(--type-title-card)",
+        letterSpacing: "var(--tracking-title-card)",
     },
     tags: {
         display: "flex",

@@ -152,3 +152,160 @@ export const detailMap = {
     place: { x: 232, y: 214 },
     current: { x: 108, y: 262 },
 } as const;
+
+// ── S6 추천에서 방문까지(BM 컨셉) ───────────────────────────────────────────────
+// 앱에 없는 컨셉 화면이다(처음 브리프의 S6 화면 명세). 장소 · 채널 이름은 모두 지어낸 이름이고 숫자는 설명용 예시다.
+// 흐름: T0 에 추천(14)에서 광고 카드 "오후 네시"를 저장 → 2주 뒤(T0 + 14일) 그 근처에서 알림 → 08d.
+// 기존 데모 저장물의 오후 네시(2주 전 저장)는 S6 에서는 빼고, 추천에서 T0 에 새로 저장한 것으로 둔다.
+export const DEMO_TWO_WEEKS_LATER = new Date(2026, 10, 22, 14, 14);
+
+// 07e 기억 탭(오후 네시 뺀 8개).
+export const s6ArchiveSaves: readonly DemoSave[] = saves.filter(
+    (save) => save.id !== "afternoon-four",
+);
+
+// 2주 뒤 지도 · 알림: 추천에서 T0 에 저장한 오후 네시가 맨 앞(최신)이다.
+export const s6AdSave: DemoSave = {
+    id: "afternoon-four",
+    place: "오후 네시",
+    photo: 1060,
+    savedAt: DEMO_NOW,
+};
+export const s6MapSaves: readonly DemoSave[] = [s6AdSave, ...s6ArchiveSaves];
+
+export type RecommendCard = {
+    id: string;
+    name: string;
+    photo: PhotoId;
+    walk: string;
+    // 광고 카드만 있다: 썸네일 왼쪽 위 "광고" 배지 · 이름 아래 한 줄.
+    ad?: { line: string };
+};
+
+export type RecommendSection = {
+    area: string;
+    reason: string;
+    cards: readonly RecommendCard[];
+};
+
+// 07e 진입 줄.
+export const recommendEntry = {
+    title: "저장한 곳 근처의 새 영상 6개",
+    areas: "은행동 · 소제동",
+    photos: [490, 1060, 444] satisfies PhotoId[],
+} as const;
+
+// 14 추천. 광고 카드 id 는 AD_CARD_ID.
+export const AD_CARD_ID = "afternoon-four";
+export const recommendSections: readonly RecommendSection[] = [
+    {
+        area: "은행동",
+        reason: "성심당 본점 외 2곳을 저장해서",
+        cards: [
+            {
+                id: "corner-kalguksu",
+                name: "모퉁이 칼국수",
+                photo: 490,
+                walk: "성심당에서 도보 5분",
+            },
+            {
+                id: AD_CARD_ID,
+                name: "오후 네시",
+                photo: 1060,
+                walk: "성심당에서 도보 7분",
+                ad: { line: "도착하면 음료 한 잔" },
+            },
+            {
+                id: "alley-books",
+                name: "골목 끝 서점",
+                photo: 444,
+                walk: "성심당에서 도보 9분",
+            },
+        ],
+    },
+    {
+        area: "소제동",
+        reason: "소제동 카페거리 외 1곳을 저장해서",
+        cards: [
+            {
+                id: "rail-garden",
+                name: "철길 옆 정원",
+                photo: 478,
+                walk: "소제동 카페거리에서 도보 3분",
+            },
+            {
+                id: "gwansa-dessert",
+                name: "관사촌 디저트",
+                photo: 431,
+                walk: "소제동 카페거리에서 도보 4분",
+            },
+            {
+                id: "soje-gukbap",
+                name: "소제 국밥",
+                photo: 326,
+                walk: "소제동 카페거리에서 도보 6분",
+            },
+        ],
+    },
+];
+
+// 08d 오후 네시 상세(도착해서 연 08).
+export const afternoonFour = {
+    time: "2주 전",
+    place: "오후 네시",
+    address: "대전 중구 은행동",
+    walk: "도보 2분",
+    photo: 1060 satisfies PhotoId,
+    note: "아인슈페너가 유명하다. 해 질 무렵 창가 자리가 예쁘다고 함.",
+    tags: ["카페", "디저트", "창가"],
+    sourceMeta: "@daejeon.cafe · YouTube Shorts",
+    badge: "광고",
+    benefit: {
+        label: "도착 혜택",
+        title: "아메리카노 한 잔을 드려요",
+        note: "오늘 자정까지 · 계산할 때 이 화면을 보여 주세요",
+    },
+} as const;
+
+// 08d 지도: 지금 위치가 장소에 더 가깝다(도보 2분). 도착 혜택 카드로 시트가 높아져(지도가 약 190 까지 보인다)
+// 핀 · 이름표 · 지금 위치를 성심당 08 보다 위로 올려 시트에 가리지 않게 한다.
+export const afternoonFourMap = {
+    place: { x: 236, y: 146 },
+    current: { x: 176, y: 118 },
+} as const;
+
+// 15 광고주 성과. 저장 대비 비율은 화면에서 반올림한다(41 → 32%, 23 → 18%, 9 → 7%).
+export const partner = {
+    caption: "REMEMBRALL 파트너",
+    name: "오후 네시",
+    period: "최근 30일 · 추천에서 본 사람 1,240명",
+    viewers: 1240,
+    funnelTitle: "저장에서 방문까지",
+    funnel: [
+        { label: "저장", count: 128 },
+        { label: "근처 도착 알림", count: 41 },
+        { label: "상세 열람", count: 23 },
+        { label: "도착 혜택 사용", count: 9 },
+    ],
+    videosTitle: "이 영상으로 저장됐어요",
+    videos: [
+        {
+            handle: "@daejeon.cafe",
+            stats: "저장 86 · 근처 도착 29",
+            photo: 1060 satisfies PhotoId,
+        },
+        {
+            handle: "@weekend.daejeon",
+            stats: "저장 42 · 근처 도착 12",
+            photo: 431 satisfies PhotoId,
+        },
+    ],
+    note: "숫자는 설명을 위한 예시예요.",
+} as const;
+
+// 저장(퍼널 첫 줄) 대비 비율. 15 화면과 S6 옆 설명이 같이 쓴다.
+export const SAVES_BASE = partner.funnel[0]?.count ?? 1;
+
+export function percentOfSaves(count: number): number {
+    return Math.round((count / SAVES_BASE) * 100);
+}

@@ -3,11 +3,11 @@
 // analyzing: 맨 앞(방금 공유한 성심당) 셀이 "분석 중" 배지 · "제목 없는 영상"이다. 끝나면 장소명으로 바뀐다.
 // 화면 밖으로 넘치는 셀은 잘린다(앱도 스크롤 전에는 첫 화면만 보인다).
 // fade: 셀 바램(단계 또는 불투명도). 없으면 앱 규칙대로 fadeFor(savedAt, now). 시점 사이를 이어 바꿀 때 시나리오가 준다(S4).
-import type { CSSProperties } from "react";
+import type { CSSProperties, ReactNode } from "react";
 
-import { fadeFor, toAlbumSections } from "./album";
+import { type DemoSave, fadeFor, toAlbumSections } from "./album";
 import type { Fade } from "../../kit/ui/fade";
-import { saves } from "./data";
+import { saves as demoSaves } from "./data";
 import { Badge } from "../../kit/ui/Badge";
 import { BOTTOM_NAV_HEIGHT, BottomNav } from "../../kit/ui/BottomNav";
 import { SCREEN_HEADER_BOTTOM, ScreenHeader } from "../../kit/ui/ScreenHeader";
@@ -22,12 +22,18 @@ type Props = {
     now: Date;
     analyzing?: boolean;
     fade?: (savedAt: Date) => Fade | number;
+    // 저장물(최신 저장순). 없으면 데모 저장물 9개. 캡션의 개수도 이 목록으로 센다.
+    saves?: readonly DemoSave[];
+    // 캡션과 첫 섹션 사이에 넣는 줄(S6 컨셉 07e 추천 진입 줄).
+    entry?: ReactNode;
 };
 
 export function ArchiveScene({
     now,
     analyzing = false,
     fade = (savedAt) => fadeFor(savedAt, now),
+    saves = demoSaves,
+    entry,
 }: Props) {
     const sections = toAlbumSections(
         saves.map((save, index) =>
@@ -44,6 +50,7 @@ export function ArchiveScene({
                 <p style={styles.intro}>
                     모두 {saves.length}개 · 오래 잊은 것일수록 바래 있어요
                 </p>
+                {entry != null && <div style={styles.entry}>{entry}</div>}
                 <div style={styles.album}>
                     {sections.map((section) => (
                         <section key={section.key} style={styles.section}>
@@ -96,6 +103,10 @@ const styles = {
         right: 0,
         bottom: BOTTOM_NAV_HEIGHT,
         overflow: "hidden",
+    },
+    // 진입 줄: 캡션 아래 12, 좌우 20.
+    entry: {
+        padding: "12px 20px 0",
     },
     intro: {
         padding: "20px 20px 0",
