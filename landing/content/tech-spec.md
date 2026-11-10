@@ -108,7 +108,7 @@ MVP 범위는 Shorts 지원, 영상에서 장소 추출, 실제 장소와 좌표
 
 5. **장소 찾기**
    장소 후보마다 따로 찾는다. 지점명이 있으면 VWorld 또는 LocationIQ로 기준점을 잡고, 그 주변의 공공 상가정보 · 지방행정 인허가 업소에서 상호가 맞는 곳을 찾는다. 지점명이 없으면 TourAPI 관광지 이름 일치, 지역 상가 데이터 순으로 찾는다. 여기서 못 찾으면 LocationIQ 검색 결과를 이름 · 종류 · 시도로 거르고, 100m 안의 중복 등록을 하나로 합친다.
-   <small>근거: [PlaceResolver](repo:backend/Remembrall/src/main/java/com/ktc/chungnam3/remembrall/save/place/PlaceResolver.java) · [PlaceSearchClient](repo:backend/Remembrall/src/main/java/com/ktc/chungnam3/remembrall/save/place/PlaceSearchClient.java) · [VWorldSearchClient](repo:backend/Remembrall/src/main/java/com/ktc/chungnam3/remembrall/save/place/VWorldSearchClient.java) · [TourApiClient](repo:backend/Remembrall/src/main/java/com/ktc/chungnam3/remembrall/save/place/TourApiClient.java) · [CompositeNearbyStoreLookup](repo:backend/Remembrall/src/main/java/com/ktc/chungnam3/remembrall/save/place/CompositeNearbyStoreLookup.java)</small>
+   <small>근거: [PlaceResolver](repo:backend/Remembrall/src/main/java/com/ktc/chungnam3/remembrall/save/place/PlaceResolver.java) · [PlaceSearchClient](repo:backend/Remembrall/src/main/java/com/ktc/chungnam3/remembrall/save/place/PlaceSearchClient.java) · [VWorldSearchClient](repo:backend/Remembrall/src/main/java/com/ktc/chungnam3/remembrall/save/place/VWorldSearchClient.java) · [TourApiClient](repo:backend/Remembrall/src/main/java/com/ktc/chungnam3/remembrall/save/place/TourApiClient.java) · [CompositeNearbyStoreLookup](repo:backend/Remembrall/src/main/java/com/ktc/chungnam3/remembrall/save/place/CompositeNearbyStoreLookup.java) · [바뀐 과정](#changes)</small>
 
 6. **판정**
    남은 후보가 1곳이면 확정한다. 단, 지점명이 다르거나 반경 100m 안 상가 이름과 맞지 않으면 되묻는다. 2~3곳이면 되묻되, 지점명 교차검증으로 한 곳으로 좁혀지면 확정한다. 0곳이거나 4곳 이상이면 장소 없음으로 본다.
@@ -136,7 +136,7 @@ MVP 범위는 Shorts 지원, 영상에서 장소 추출, 실제 장소와 좌표
 
 3. **OS 등록**
    장소 지오펜스는 들어옴 · 나감을, 재조회 지오펜스는 나감만 OS에 등록한다. 장소에 들어오면 도착을 보고하고, 나가면 앱 안의 상태만 되돌린다.
-   <small>근거: [registrationPlan.ts](repo:frontend/src/runtime/geofence/registrationPlan.ts) · [geofenceManager.ts](repo:frontend/src/runtime/geofence/geofenceManager.ts)</small>
+   <small>근거: [registrationPlan.ts](repo:frontend/src/runtime/geofence/registrationPlan.ts) · [geofenceManager.ts](repo:frontend/src/runtime/geofence/geofenceManager.ts) · [바뀐 과정](#changes)</small>
 
 4. **도착 보고**
    앱은 이벤트 id(`triggerEventId`)를 새로 만들어 보낸다. 실패하면 대기열에 남겨 같은 id로 다시 보내고, 30분이 지난 보고는 버린다. 도착 보고에는 좌표를 넣지 않고, 도착한 장소의 id와 이벤트 id · 종류 · 시각만 보낸다(서버 API는 좌표를 선택 값으로 받는다).
@@ -346,6 +346,7 @@ CI는 실제 API 키 대신 무효한 고정 값을 쓰고, 꺼내기 에이전�
 ### 서버
 
 서버는 GitHub에서 검사한 이미지를 GHCR에 올리고, 서버의 배포기가 그 이미지를 가져가는 방식이다. GitHub에 SSH 키를 두지 않는다.
+<small>[바뀐 과정](#changes)</small>
 
 1. **CI 재사용**
    main에 push하면 Backend release 워크플로가 같은 커밋으로 Backend CI 다섯 검사를 다시 돌린다.
@@ -447,6 +448,31 @@ Gowun Dodum은 고정 문구와 숫자에만 쓰고, 장소명 같은 동적 텍
 
 랜딩 · 발표 데모 · 이 문서도 같은 토큰 값을 쓴다.
 <small>근거: [랜딩 tokens.css](https://github.com/Hraverals/remembrall-landing/blob/main/landing/src/styles/tokens.css) · [데모 kit.css](https://github.com/Hraverals/remembrall-landing/blob/main/demo/src/kit/kit.css)</small>
+
+## 설계에서 바뀐 것 {#changes}
+
+앞 장은 지금 코드 기준이다. 이 장은 처음 설계에서 바뀐 것과 바꾼 이유를 정리한다. 이유는 ADR · 구현 결정 문서 · PR · 커밋에 적힌 것만 옮겼다.
+
+| 영역               | 처음 설계                                                      | 지금                                                                                                                                | 바꾼 이유                                                                                                                                                                                                                                             |
+| ------------------ | -------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| ① 저장 담당        | 저장 에이전트(영상 분석 · 장소 검색 · 확정)                    | 정해진 순서의 저장 파이프라인. LLM 호출은 영상 분석 한 번이다                                                                       | 장소 후보 판단과 재검색은 AI가 고를 여지 없이 정해진 순서대로 하는 절차라 에이전트로 보기 어렵다고 판단했다                                                                                                                                           |
+| ② 장소 찾기        | LocationIQ 검색으로 좌표 확보                                  | 지점 기준점(VWorld · LocationIQ) · TourAPI · 공공 상가정보 · 지방행정 인허가 대조를 더하고, 확정한 장소는 카카오 장소 ID로 확인한다 | LocationIQ 1건 결과도 구 · 동 단위로 틀린 곳일 수 있었다(실측: "을지로 골뱅이" → 잠실). 프랜차이즈 지점명은 주소에 나오지 않고, OSM에는 동네 개인 가게가 거의 없었다(실측: 오문창순대국밥 NO_PLACE). 같은 장소인지는 카카오 장소 ID로 판단하기로 했다 |
+| ③ 되묻기 검증      | 사용자가 답할 때 카카오로 검증하고, 실패하면 404               | 후보를 보여 주기 전에 카카오로 미리 검증해 통과 못 한 후보를 빼고, 같은 카카오 ID는 합친다. 답변 때 확인할 수 없으면 422            | 통과하지 못할 후보(LocationIQ의 틀린 좌표, 실측: 2002횟집)를 보여 주고 저장할 때마다 404가 났다. 다시 눌러도 같은 실패라 "후보 없음"(404)과 구분했다                                                                                                  |
+| ④ 지오펜스 등록    | 지역 지오펜스 + 장소 지오펜스 2단계                            | 가까운 장소 지오펜스 + 재조회 지오펜스 하나                                                                                         | 저장 지역이 많아지면 지역 지오펜스가 iOS 슬롯(20개)을 차지해 장소 슬롯이 줄고, 빠진 지역으로 가면 감지하지 못한다. 지역 묶음 계산과 경계 처리로 구현도 컸다                                                                                           |
+| ⑤ 도착 이벤트      | Android는 DWELL(30초 머묾), iOS는 ENTER                        | 두 플랫폼 모두 ENTER                                                                                                                | 30초 대기로는 걸어서 지나가는 경우를 거의 거르지 못하고, 네이티브 모듈 구현 비용이 컸다. 지나가기만 해도 이벤트가 나는 점은 감수하고 실기기로 확인하기로 했다                                                                                         |
+| ⑥ 실행 쿨다운      | 트리거 단위 10분                                               | 회원 단위 2시간(기본값). 최근 7일 안에 제안한 장소도 뺀다(기본값)                                                                   | 저장 장소가 몰린 동네를 걸으면 가게 앞마다 알림이 연달아 가고, 이벤트가 몇 초 간격으로 오면 에이전트가 겹쳐 돌아 LLM 비용이 중복됐다. 같은 장소를 다른 영상으로 다시 추천하는 반복도 막았다                                                           |
+| ⑦ 꺼내기 실행 응답 | 202를 먼저 돌려주고 서버가 비동기로 실행                       | 서버가 끝까지 처리한 뒤 202. 앱은 10초에서 끊고 같은 `triggerEventId`로 다시 보낸다                                                 | MVP는 동기로 처리한다. 요청이 끊겨도 서버는 실행을 마치고 결과를 FCM으로 보내고, 중복 요청은 이벤트 id로 거른다. 비동기 전환은 실행 시간을 잰 뒤 정한다                                                                                               |
+| ⑧ 인증             | JWT Access Token + DB Refresh Token                            | DB 불투명 세션 토큰 하나                                                                                                            | 서버 한 대 · 회원당 기기 하나라 JWT의 이점이 필요 없었다. 반면 토큰 회전 · 동시성, 로그아웃 뒤에도 Access Token이 유효한 문제가 있었다. 로그아웃 · 기기 교체를 다음 요청부터 바로 반영하려 했다                                                       |
+| ⑨ 꺼내기 에이전트  | v1 도구 없음 → v2 검색 · 상세 · 거리 도구                      | v4 방문 조건 확인 · 대안 검색 두 도구                                                                                               | 아래 A. 평가 결과 문서의 "확인한 것" 그대로다                                                                                                                                                                                                         |
+| ⑩ 서버 배포        | GitHub Actions가 SSH로 JAR를 보내고 Nginx로 전환(운영 배포 전) | GHCR에 이미지를 게시하고 서버 배포기가 가져가는 구조                                                                                | GitHub에 서버 SSH 키를 등록하지 않기 위해서다                                                                                                                                                                                                         |
+
+<small>근거: ① [개요](<repo:docs/카테켐프로젝트 개요.md>) · [저장 파이프라인.md §1](<repo:backend/Remembrall/src/main/java/com/ktc/chungnam3/remembrall/save/docs/저장 파이프라인.md>) / ② [저장 파이프라인.md §3](<repo:backend/Remembrall/src/main/java/com/ktc/chungnam3/remembrall/save/docs/저장 파이프라인.md>) · [#17](https://github.com/kakaotechcampus-4/ktc4-chungnam-3/pull/17) · [#35](https://github.com/kakaotechcampus-4/ktc4-chungnam-3/pull/35) · [#67](https://github.com/kakaotechcampus-4/ktc4-chungnam-3/pull/67) · [PlaceResolver](repo:backend/Remembrall/src/main/java/com/ktc/chungnam3/remembrall/save/place/PlaceResolver.java) / ③ [커밋 014c39a](https://github.com/kakaotechcampus-4/ktc4-chungnam-3/commit/014c39ac6f903123b6cb270184688be21f9681ec)(#72) · [SavePipelineService](repo:backend/Remembrall/src/main/java/com/ktc/chungnam3/remembrall/save/SavePipelineService.java) · [ConfirmAnswerService](repo:backend/Remembrall/src/main/java/com/ktc/chungnam3/remembrall/save/confirm/ConfirmAnswerService.java) / ④ [ADR003](repo:backend/docs/ADR/ADR003_지오펜스.md) / ⑤ [구현결정 5](<repo:backend/docs/구현결정/5 지오펜스 이벤트 구현 결정.md>) · [ADR003](repo:backend/docs/ADR/ADR003_지오펜스.md) / ⑥ [구현결정 5](<repo:backend/docs/구현결정/5 지오펜스 이벤트 구현 결정.md>) · [구현결정 7](<repo:backend/docs/구현결정/7. 꺼내기 실행 쿨다운.md>) · [#71](https://github.com/kakaotechcampus-4/ktc4-chungnam-3/pull/71) / ⑦ [ADR001 변경 커밋 bb57ee0](https://github.com/kakaotechcampus-4/ktc4-chungnam-3/commit/bb57ee0e5cf5b692b4413b87942a59447c86b400) · [구현결정 5](<repo:backend/docs/구현결정/5 지오펜스 이벤트 구현 결정.md>) / ⑧ [ADR002](<repo:backend/docs/ADR/ADR002_인증 방식 변경 - JWT 폐기 및 DB 불투명 세션 전환.md>) / ⑨ [에이전트 평가 결과](<repo:backend/docs/에이전트 평가 결과.md>) / ⑩ [이전 SSH 배포 문서](repo:.github/deploy/README.md) · [#74](https://github.com/kakaotechcampus-4/ktc4-chungnam-3/pull/74) · [#77](https://github.com/kakaotechcampus-4/ktc4-chungnam-3/pull/77)</small>
+
+**A. 꺼내기 에이전트는 평가 숫자로 정했다.** 도구를 더한 v2는 tune BAD가 5건에서 4건으로 줄었을 뿐이고 실행당 토큰은 두 배가 됐다. BAD를 0건으로 줄인 것은 v3의 운영 기간 · 휴무 확인 문단이었다. v4의 확인 중심 도구는 조건 하나만 바꾼 쌍 6개 중 5개에서 판단을 바꿨다. 그래서 v4를 켰다. 숫자는 [5장](#agent-eval)의 표와 같은 출처다.
+
+**B. 장소 찾기는 실측에서 실패한 영상마다 단계를 더했다.** "을지로 골뱅이"가 잠실로 잡히자 공공 상가정보 대조를 더했고(#17), "교보문고 광화문점"이 기준점에서 500m 넘게 떨어져 있자 기준점 반경을 300m에서 1000m로 넓혔고(`PlaceResolver` 주석), "오문창순대국밥"을 못 찾자 상호명 기준점을 더했다(#67). 실제 영상에서 틀리거나 못 찾은 사례를 고칠 때마다 경로를 하나씩 더했고, 기존 흐름은 항상 폴백으로 남겼다.
+
+**C. 도착 이벤트는 정확도와 구현 비용을 맞바꿨다.** DWELL은 지나가는 이벤트를 줄이지만, 30초로는 걸어서 지나가는 경우를 거의 거르지 못했고 네이티브 모듈이 필요했다. 그래서 ENTER로 단순하게 두고, 지나가는 이벤트가 회원 쿨다운을 쓰는 영향은 실기기 측정으로 보기로 했다. <small>근거: [ADR003](repo:backend/docs/ADR/ADR003_지오펜스.md)</small>
 
 ## 한계와 다음 단계 {#next}
 
