@@ -366,9 +366,6 @@ CI는 실제 API 키 대신 무효한 고정 값을 쓰고, 꺼내기 에이전�
 배포는 두 스위치가 모두 켜져야 돈다. GitHub 쪽 `BACKEND_DEPLOY_ENABLED`가 채널 갱신을, 서버 설정의 `enabled`와 timer가 실제 적용을 정한다. 이미지 게시가 곧 운영 배포는 아니다.
 <small>근거: [container README](repo:.github/container/README.md)</small>
 
-운영에서는 두 스위치가 모두 켜져 있고, main에 머지하면 서버가 새 이미지로 바뀐다(팀 확인). GHCR 패키지는 공개로 바꾸지 않은 비공개 패키지다. 서버는 `read:packages` 권한만 있는 클래식 개인 액세스 토큰으로 ghcr.io에 로그인해 두었고, 배포기(`pull.py`)는 `docker pull`로 이미지를 가져오므로 이 로그인 정보를 그대로 쓴다(팀 확인).
-<small>근거: 팀 확인 · [pull.py](repo:.github/container/pull.py#L101)(`docker pull`) · [container README](repo:.github/container/README.md)(비공개 패키지 설정)</small>
-
 ### 앱
 
 EAS 빌드 프로필은 development · preview · preview-mock · production이다. development와 preview(이를 물려받는 preview-mock 포함)는 APK를 만든다. preview는 설정 화면에 시연 도구를 켜고(`EXPO_PUBLIC_DEMO_TOOLS=1`), preview-mock은 서버 · FCM 없이 목 데이터로 시연하는 백업 APK다(`EXPO_PUBLIC_FORCE_MOCK=1`).
@@ -395,7 +392,7 @@ EAS 빌드 프로필은 development · preview · preview-mock · production이�
   <small>근거: [카테켐프로젝트 개요](<repo:docs/카테켐프로젝트 개요.md>) · [V4](repo:backend/Remembrall/src/main/resources/db/migration/V4__create_content_and_personal_save.sql) · [KakaoPlaceClient](repo:backend/Remembrall/src/main/java/com/ktc/chungnam3/remembrall/save/place/KakaoPlaceClient.java) · [VWorldSearchClient](repo:backend/Remembrall/src/main/java/com/ktc/chungnam3/remembrall/save/place/VWorldSearchClient.java)</small>
 - **세션과 설치 id**: 세션 토큰은 DB에 해시로만 둔다. 앱은 세션과 설치 id를 `expo-secure-store`(Android Keystore)에 둔다.
   <small>근거: [SessionTokenHasher](repo:backend/Remembrall/src/main/java/com/ktc/chungnam3/remembrall/auth/token/SessionTokenHasher.java) · [STRUCTURE.md](repo:frontend/STRUCTURE.md) · [guest.ts](repo:frontend/src/shared/auth/guest.ts)</small>
-- **키 관리**: 운영 서버의 API 키와 Firebase 인증 파일은 서버에만 두고 컨테이너에 읽기 전용으로 연결한다. 이미지에는 넣지 않는다. 배포 전 실제 연동 검사의 키는 GitHub `external-api` Environment Secret에 둔다. CI는 무효한 고정 값을 쓴다. 서버가 GHCR 이미지를 받는 토큰은 서버 root 계정의 Docker 설정에만 있고, 권한은 `read:packages` 하나다(팀 확인).
+- **키 관리**: 운영 서버의 API 키와 Firebase 인증 파일은 서버에만 두고 컨테이너에 읽기 전용으로 연결한다. 이미지에는 넣지 않는다. 배포 전 실제 연동 검사의 키는 GitHub `external-api` Environment Secret에 둔다. CI는 무효한 고정 값을 쓴다.
   <small>근거: [container README](repo:.github/container/README.md) · [CI.md](repo:test/CI.md)</small>
 
 ## 디자인 시스템 {#design-system}
