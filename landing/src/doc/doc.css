@@ -400,6 +400,40 @@
     }
 }
 
+/*
+ * 토큰 칩(10장). 색은 md 의 인라인 style 로 토큰 변수를 받는다.
+ * --photo: 사진 대신 쓴 색 띠 위에 bg/fade 를 --swatch-fade 만큼 덮어 바램 단계를 보인다.
+ */
+.doc-swatch {
+    display: inline-block;
+    width: 2rem;
+    height: 1.25rem;
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-sm);
+    vertical-align: middle;
+}
+
+.doc-swatch--photo {
+    position: relative;
+    width: 3.5rem;
+    height: 2rem;
+    overflow: hidden;
+    background: linear-gradient(
+        135deg,
+        var(--brand-primary),
+        var(--status-info-fg) 55%,
+        var(--text-primary)
+    );
+}
+
+.doc-swatch--photo::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: var(--bg-fade);
+    opacity: var(--swatch-fade, 0);
+}
+
 /* 푸터 */
 .doc-footer {
     display: flex;

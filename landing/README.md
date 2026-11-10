@@ -62,6 +62,15 @@ REMEMBRALL 앱 소개 페이지(Vite + React 정적 사이트)를 Cloudflare Pag
 - `<!-- 메모 -->` 는 빌드 결과에서 빠진다.
 - 말투는 "~다" 체로 쓴다(랜딩 문구의 "~요" 체와 구분).
 
+### 링크 확인
+
+```sh
+npm run build
+npm run check:links
+```
+
+`dist/*.html` 의 바깥 링크를 모두 열어 상태 코드별 개수를 보여 준다. 리다이렉트를 거쳐 열린 링크는 따로 알리고, 깨진 링크(4xx · 5xx · 네트워크 오류)가 있으면 목록을 보이고 1 로 끝난다. 사람이 돌리는 스크립트이고 CI · 빌드에는 넣지 않는다. GitHub 링크가 많아 1~2분 걸릴 수 있다.
+
 ### 문서 페이지를 더할 때
 
 1. `content/<name>.md` 와 `<name>.html`(`tech-spec.html` 을 복사해 title · description · og · 제목 · 요약만 바꾼다)을 만든다.

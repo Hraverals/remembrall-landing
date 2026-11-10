@@ -5,3 +5,6 @@ export const APK_URL =
 
 export const APP_REPO_URL =
     "https://github.com/kakaotechcampus-4/ktc4-chungnam-3";
+
+// 이 사이트의 문서 페이지(tech-spec.html → /tech-spec). vite.config.ts 의 DOC_PAGES 와 같이 바꾼다.
+export const TECH_SPEC_PATH = "/tech-spec";

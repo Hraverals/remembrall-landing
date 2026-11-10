@@ -397,12 +397,146 @@ EAS 빌드 프로필은 development · preview · preview-mock · production이�
 
 ## 디자인 시스템 {#design-system}
 
-작성 중이다.
+디자인 컨셉은 "바랜 기억"이다. 저장한 지 오래될수록 사진 위에 바탕색(`bg/fade`)을 덮어 바래게 한다. 저장 후 7일 미만은 0%, 30일 미만은 30%, 그 이상은 50%다. 근처에서 연 상세(알림 · 근처 탭의 "지금" 카드)는 장소를 원래 색으로 그리고, 썸네일이 저장 시각만큼 바랜 상태에서 600ms 동안 원래 색으로 풀린다.
+<small>근거: [savedAt.ts](repo:frontend/src/shared/ui/savedAt.ts)(`fadeFor`) · [fade.ts](repo:frontend/src/shared/ui/theme/fade.ts) · [Thumb.tsx](repo:frontend/src/shared/ui/Thumb.tsx) · [metrics.ts](repo:frontend/src/shared/ui/theme/metrics.ts)(`restoreDurationMs`) · [ContentDetailScreen](repo:frontend/src/features/content-detail/ContentDetailScreen.tsx) · [savedPlaceSheet.ts](repo:frontend/src/features/content-detail/savedPlaceSheet.ts)</small>
+
+토큰은 Figma의 `C · Color` · `C · Dimension` 컬렉션과 `C 바랜기억/` 텍스트 스타일을 이름 그대로 코드로 옮긴다. 화면 코드에는 색 · 간격 · radius · 타이포를 리터럴로 쓰지 않는다. 강조 색은 자두색(`brand/primary`) 하나이고, 로그인 제공자 색만 예외다. 색 토큰은 한 벌이다.
+<small>근거: [STRUCTURE.md](repo:frontend/STRUCTURE.md)(테마 토큰 · 로그인 제공자) · [colors.ts](repo:frontend/src/shared/ui/theme/colors.ts)</small>
+
+### 색
+
+| 칩                                                                               | 토큰                   | 값        | 쓰임                     |
+| -------------------------------------------------------------------------------- | ---------------------- | --------- | ------------------------ |
+| <span class="doc-swatch" style="background: var(--bg-screen)"></span>            | `bg/screen`            | `#f6f1ee` | 화면 바탕                |
+| <span class="doc-swatch" style="background: var(--bg-surface)"></span>           | `bg/surface`           | `#fffcfa` | 카드 · 시트              |
+| <span class="doc-swatch" style="background: var(--bg-subtle)"></span>            | `bg/subtle`            | `#ece4e0` | 보조 면                  |
+| <span class="doc-swatch" style="background: var(--border-default)"></span>       | `border/default`       | `#ddd2cd` | 선                       |
+| <span class="doc-swatch" style="background: var(--text-primary)"></span>         | `text/primary`         | `#2a2126` | 본문 글자                |
+| <span class="doc-swatch" style="background: var(--text-secondary)"></span>       | `text/secondary`       | `#6a5d61` | 보조 글자                |
+| <span class="doc-swatch" style="background: var(--brand-primary)"></span>        | `brand/primary`        | `#6b4e7a` | 강조 색(하나)            |
+| <span class="doc-swatch" style="background: var(--brand-primary-subtle)"></span> | `brand/primary-subtle` | `#f4eef6` | 강조 색의 옅은 면        |
+| <span class="doc-swatch" style="background: var(--bg-fade)"></span>              | `bg/fade`              | `#f6f1ee` | 바램 덮개(바탕색과 같다) |
+
+### 바램
+
+| 칩                                                                                           | 토큰          | 덮개 불투명도 | 저장 후 경과 |
+| -------------------------------------------------------------------------------------------- | ------------- | ------------: | ------------ |
+| <span class="doc-swatch doc-swatch--photo" style="--swatch-fade: var(--fade-recent)"></span> | `fade/recent` |            0% | 7일 미만     |
+| <span class="doc-swatch doc-swatch--photo" style="--swatch-fade: var(--fade-weeks)"></span>  | `fade/weeks`  |           30% | 30일 미만    |
+| <span class="doc-swatch doc-swatch--photo" style="--swatch-fade: var(--fade-months)"></span> | `fade/months` |           50% | 30일 이상    |
+
+칩의 색 띠는 사진 대신 쓴 예시이고, 그 위에 `bg/fade`를 표의 불투명도로 덮었다.
+
+### 간격 · radius · 텍스트
+
+| 토큰                                           | 값                        |
+| ---------------------------------------------- | ------------------------- |
+| `space/xs` · `sm` · `md` · `lg` · `xl` · `xxl` | 4 · 8 · 12 · 20 · 32 · 48 |
+| `radius/sm` · `md` · `lg` · `full`             | 6 · 12 · 16 · 999         |
+
+| 텍스트 역할      | 서체             | 크기 / 줄 높이 |
+| ---------------- | ---------------- | -------------- |
+| `Heading/Screen` | Gowun Dodum      | 22 / 30        |
+| `Title/Card`     | Noto Sans KR 500 | 16 / 22        |
+| `Body/Default`   | Noto Sans KR 400 | 14 / 22        |
+| `Label/Button`   | Noto Sans KR 500 | 14 / 20        |
+| `Caption/Meta`   | Noto Sans KR 400 | 12 / 16        |
+
+Gowun Dodum은 고정 문구와 숫자에만 쓰고, 장소명 같은 동적 텍스트에는 쓰지 않는다.
+<small>근거: [spacing.ts](repo:frontend/src/shared/ui/theme/spacing.ts) · [radius.ts](repo:frontend/src/shared/ui/theme/radius.ts) · [typography.ts](repo:frontend/src/shared/ui/theme/typography.ts) · [STRUCTURE.md](repo:frontend/STRUCTURE.md)</small>
+
+랜딩 · 발표 데모 · 이 문서도 같은 토큰 값을 쓴다.
+<small>근거: [랜딩 tokens.css](https://github.com/Hraverals/remembrall-landing/blob/main/landing/src/styles/tokens.css) · [데모 kit.css](https://github.com/Hraverals/remembrall-landing/blob/main/demo/src/kit/kit.css)</small>
 
 ## 한계와 다음 단계 {#next}
 
-작성 중이다.
+### 한계
+
+지금 코드 기준의 상태다.
+
+- **요청 제한**: 서버 코드에 회원당 저장 수나 요청 빈도 제한이 없다.
+  <small>근거: [PersonalSaveService](repo:backend/Remembrall/src/main/java/com/ktc/chungnam3/remembrall/personalsave/service/PersonalSaveService.java) · [SecurityConfig](repo:backend/Remembrall/src/main/java/com/ktc/chungnam3/remembrall/auth/security/SecurityConfig.java)</small>
+- **약관 페이지**: 약관 · 정책 페이지가 아직 없다(앱의 약관 주소가 비어 있다).
+  <small>근거: [consentTerms.ts](repo:frontend/src/shared/api/consentTerms.ts)</small>
+- **공용 후보 동의**: 앱에 공용 후보 기여 동의 화면이 없어, 앱 회원의 저장은 공용 후보로 쓰이지 않는다.
+  <small>근거: [consents.ts](repo:frontend/src/shared/api/consents.ts) · [PublicCandidateRepository](repo:backend/Remembrall/src/main/java/com/ktc/chungnam3/remembrall/repository/PublicCandidateRepository.java)</small>
+- **카카오 로그인**: 서버에 구현돼 있지만 앱에서는 꺼져 있다.
+  <small>근거: [providers.ts](repo:frontend/src/shared/auth/providers.ts)</small>
+- **장소 직접 찾기**: 장소 직접 찾기(02c) 화면은 있지만 저장 · 바꾸기가 서버에 연결되지 않았다(목 데이터).
+  <small>근거: [STRUCTURE.md](repo:frontend/STRUCTURE.md) · [PlaceSearchScreen](repo:frontend/src/features/save-result/PlaceSearchScreen.tsx)</small>
+- **여러 장소**: 장소가 여러 곳인 저장물은 상세에서 한 장소만 보이고 다른 장소로 넘겨 볼 수 없다. 여러 장소 제안(COURSE) 알림도 첫 장소만 연다.
+  <small>근거: [savedPlaceSheet.ts](repo:frontend/src/features/content-detail/savedPlaceSheet.ts) · [STRUCTURE.md](repo:frontend/STRUCTURE.md)</small>
+- **상세 주소**: 상세의 주소는 서버 값을 그대로 보여 준다. 되묻기 선택지에서만 주소를 짧게 다듬는다.
+  <small>근거: [savedPlaceSheet.ts](repo:frontend/src/features/content-detail/savedPlaceSheet.ts) · [confirmView.ts](repo:frontend/src/features/save-result/confirmView.ts)(`shortAddress`)</small>
+- **iOS**: iOS 빌드가 없다(EAS 프로필이 Android만 있다).
+  <small>근거: [eas.json](repo:frontend/eas.json)</small>
+- **서버 한 대 전제**: 분석 대기열이 서버 메모리에 있어 서버 한 대를 전제한다.
+  <small>근거: [PersonalSaveAnalysisService](repo:backend/Remembrall/src/main/java/com/ktc/chungnam3/remembrall/personalsave/service/PersonalSaveAnalysisService.java)</small>
+- **배포 중 점검**: 배포는 짧은 점검 시간에 앱을 교체한다. 무중단 · 다중 서버 구성이 아니다.
+  <small>근거: [container README](repo:.github/container/README.md)</small>
+- **범위 밖**: 일정 기반 트리거와 Instagram은 MVP에서 뺐다.
+  <small>근거: [카테켐프로젝트 개요](<repo:docs/카테켐프로젝트 개요.md>)</small>
+
+### 다음 단계
+
+아래는 계획이며 아직 구현하지 않았다.
+
+- 앱에서 카카오 로그인 켜기
+- 약관 페이지와 공용 후보 기여 동의 화면
+- 장소 직접 찾기(02c) 저장 연결
+- 여러 장소 저장물의 상세에서 장소 넘겨 보기
+- 상세 주소 다듬기
+- 요청 제한(회원당 저장 수 등)
+- 일정 기반 트리거
+- iOS 빌드
+
+저장 기록을 바탕으로 새 장소를 추천하고 장소 사업자와 제휴 광고를 하는 방향은 발표용 컨셉이다. 앱과 서버에는 구현되지 않았다.
+<small>근거: 팀 확인 · [발표 데모](https://github.com/Hraverals/remembrall-landing/tree/main/demo)</small>
 
 ## 더 읽을 문서 {#references}
 
-작성 중이다.
+팀 레포 develop 브랜치의 문서다.
+
+### 결정 기록(ADR)
+
+- [ADR001 선택한 기술](repo:backend/docs/ADR/ADR001_선택한기술.md)
+- [ADR002 인증 방식 변경 - JWT 폐기 및 DB 불투명 세션 전환](<repo:backend/docs/ADR/ADR002_인증 방식 변경 - JWT 폐기 및 DB 불투명 세션 전환.md>)
+- [ADR003 지오펜스](repo:backend/docs/ADR/ADR003_지오펜스.md)
+- [ADR004 컨텐츠 요약 임베딩 구현 결정](<repo:backend/docs/ADR/ADR004_컨텐츠 요약 임베딩 구현 결정.md>)
+- [ADR005 꺼내기 에이전트에 Spring AI 채택](<repo:backend/docs/ADR/ADR005_꺼내기 에이전트에 Spring AI 채택.md>)
+
+### 구현 결정
+
+- [YouTube URL 정규화](<repo:backend/docs/구현결정/2. YouTube URL 정규화.md>)
+- [Gemini 분석](<repo:backend/docs/구현결정/3. Gemini 분석.md>)
+- [트리거 생성 삭제의 동시성 처리](<repo:backend/docs/구현결정/4 트리거 생성 삭제의 동시성 처리.md>)
+- [지오펜스 이벤트 구현 결정](<repo:backend/docs/구현결정/5 지오펜스 이벤트 구현 결정.md>)
+- [에이전트 실행](<repo:backend/docs/구현결정/6. 에이전트 실행.md>)
+- [꺼내기 실행 쿨다운](<repo:backend/docs/구현결정/7. 꺼내기 실행 쿨다운.md>)
+
+### 데이터
+
+- 엔티티: [Member](repo:backend/docs/엔티티/Member.md) · [PersonalSave](repo:backend/docs/엔티티/PersonalSave.md) · [Content](repo:backend/docs/엔티티/Content.md) · [ContentPlace](repo:backend/docs/엔티티/ContentPlace.md) · [Place](repo:backend/docs/엔티티/Place.md) · [Trigger](repo:backend/docs/엔티티/Trigger.md) · [RecallExecution](repo:backend/docs/엔티티/RecallExecution.md) · [Notification](repo:backend/docs/엔티티/Notification.md)
+
+### API
+
+- [API 명세](repo:docs/API.md): 컨트롤러 · DTO 기준 API 목록이다. "기존 동기 저장 API" 절의 `POST /api/contents`는 지금 코드에 없다.
+
+### 에이전트 평가
+
+- [에이전트 평가 결과](<repo:backend/docs/에이전트 평가 결과.md>)
+- [에이전트 평가 기준](<repo:backend/docs/에이전트 평가 기준.md>)
+- [영상 분석 평가셋](repo:AI/평가셋.md)
+- [방문 조건 확인 도구 v4](repo:backend/Remembrall/src/test/resources/recall/evaluation/TOOL_EVALUATION.md)
+- [Judge 실행과 판정](repo:backend/Remembrall/src/test/resources/recall/evaluation/judge/README.md)
+
+### 앱
+
+- [STRUCTURE.md](repo:frontend/STRUCTURE.md): 앱 구조와 설계 근거
+- [frontend README](repo:frontend/README.md): 빌드 · 실행 · 시연 도구
+
+### 품질 · 배포
+
+- [CI 안내](repo:test/CI.md)
+- [QA 운영 계획](repo:test/README.md)
+- [GHCR 배포](repo:.github/container/README.md)
