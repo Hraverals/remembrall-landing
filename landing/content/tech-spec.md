@@ -176,23 +176,227 @@ MVP 범위는 Shorts 지원, 영상에서 장소 추출, 실제 장소와 좌표
 
 ## 에이전트 평가 {#agent-eval}
 
-작성 중이다.
+꺼내기 에이전트는 골든셋 장면을 격리된 PostgreSQL에 넣고, 실제 후보 준비 · 임베딩 · 에이전트 모델(`gemini-3.6-flash`)로 실행해 평가했다. 아래 숫자는 모두 [에이전트 평가 결과](<repo:backend/docs/에이전트 평가 결과.md>) 문서의 값이다.
+
+### 채점 방식
+
+- 채점은 별도 모델(엘리스 OpenAI 호환 엔드포인트의 `anthropic/claude-sonnet-5-5`, 온도 0)이 [에이전트 평가 기준](<repo:backend/docs/에이전트 평가 기준.md>) 문서로 한다.
+- 필수 조건을 어기거나 서버 검증에 실패하면 BAD(1점), 위반이 없고 기대한 선택과 같으면 GOOD(5점), 그 밖은 ACCEPTABLE(3점)이다.
+- 에이전트 실패와 채점 실패는 품질 점수에서 빼고 신뢰성 지표로 따로 센다.
+- 날씨는 평가에서 장면마다 고정값을 주는 가짜 클라이언트를 쓴다.
+
+필수 조건은 일곱 가지다. 받은 후보만 쓴다 / 콘텐츠와 장소를 바르게 잇는다 / 확인되지 않은 사실을 단정하지 않는다 / 사용자 상황을 지어내지 않는다 / 제안 형태의 제약을 지킨다 / 방문 불가 정보와 모순되는 제안을 하지 않는다 / 공용 후보의 저장 관계를 드러내지 않는다.
+
+<small>근거: [에이전트 평가 결과](<repo:backend/docs/에이전트 평가 결과.md>) · [에이전트 평가 기준](<repo:backend/docs/에이전트 평가 기준.md>) · [Judge README](repo:backend/Remembrall/src/test/resources/recall/evaluation/judge/README.md)</small>
+
+### 버전별 변경
+
+| 버전 | 바꾼 것                                                                                                       |
+| ---- | ------------------------------------------------------------------------------------------------------------- |
+| v1   | 기본 판단 기준 프롬프트, 도구 없음                                                                            |
+| v2   | 후보 검색, 상세 조회, 거리 조회 도구 연결. 프롬프트는 id 규칙과 도구 안내만 변경                              |
+| v3   | 요약 속 운영 기간과 휴무를 이벤트 날짜와 비교하는 문단, 사용자 상태를 단정하지 않는 문단 추가                 |
+| v4   | 도구를 방문 조건 확인과 대안 검색 둘로 교체. 잠정 제안, 확인, 대안, 최종 제안의 흐름과 책임을 프롬프트에 명시 |
+
+v4의 두 도구는 지금 코드의 `checkVisitConditions` · `searchCandidates`다.
+<small>근거: [TOOL_EVALUATION.md](repo:backend/Remembrall/src/test/resources/recall/evaluation/TOOL_EVALUATION.md) · [RecallToolBinding](repo:backend/Remembrall/src/main/java/com/ktc/chungnam3/remembrall/recall/tool/RecallToolBinding.java)</small>
+
+### 회귀 세트 tune
+
+기존 골든셋 tune 24장면을 3회씩, 72건.
+
+| 실행         | BAD | 에이전트 실패 | GOOD / ACCEPTABLE | 품질 평균 | 시간 중앙값 | 시간 p95 | 실행당 토큰 | 도구를 쓴 실행 |
+| ------------ | --: | ------------: | ----------------: | --------: | ----------: | -------: | ----------: | -------------: |
+| v1 도구 OFF  |   5 |          1.4% |           46 / 20 |     4.155 |      7.66초 |  14.58초 |       1,840 |             0% |
+| v2 도구 ON   |   4 |            0% |           47 / 21 |     4.194 |      8.12초 |  11.80초 |       3,971 |            53% |
+| v3 도구 ON   |   1 |            0% |           45 / 26 |     4.222 |      8.28초 |  12.99초 |       4,069 |            50% |
+| v3 도구 OFF  |   0 |            0% |           47 / 25 |     4.306 |      6.97초 |   9.63초 |       2,033 |             0% |
+| v4 확인 중심 |   0 |          1.4% |           48 / 23 |     4.352 |      8.61초 |  11.25초 |       6,513 |            94% |
+
+v4의 에이전트 실패 1건은 모델이 JSON 앞뒤에 백틱을 붙여 변환에 실패한 것이다. 이후 응답 파싱을 보강했고, 그 뒤 실행에서는 같은 실패가 없었다.
+
+### 회귀 세트 holdout
+
+튜닝 중 보지 않은 6장면을 1회씩.
+
+| 실행         | BAD | GOOD |
+| ------------ | --: | ---: |
+| v3 도구 ON   |   0 |    6 |
+| v3 도구 OFF  |   0 |    6 |
+| v4 확인 중심 |   0 |    6 |
+
+### 도구 세트
+
+방문 조건 확인과 대안 검색의 결과가 판단을 바꿔야 하는 18장면을 3회씩, 54건. v4에서만 실행했다.
+
+| 항목              |          결과 |
+| ----------------- | ------------: |
+| BAD               |             0 |
+| 에이전트 실패     |             0 |
+| GOOD / ACCEPTABLE |        49 / 5 |
+| 확인 호출률       | 42 / 42, 100% |
+| 검색 호출률       |    3 / 9, 33% |
+| 불필요 호출률     |    8 / 9, 89% |
+| 시간 중앙값       |        9.26초 |
+| 시간 p95          |       14.32초 |
+| 실행당 토큰       |         8,877 |
+
+조건 하나만 바꾼 쌍에서 판단이 갈렸는지 본 결과다.
+
+| 쌍                               | 왼쪽 선택     | 오른쪽 선택   | 판단이 갈린 반복 |
+| -------------------------------- | ------------- | ------------- | ---------------: |
+| 산책로, 맑음과 비                | 산책로와 카페 | 실내 카페     |            3 / 3 |
+| 야외 루프탑, 맑음과 비           | 루프탑        | 실내 카페     |            3 / 3 |
+| 빵집, 오늘 휴무와 다른 날 휴무   | 브런치만      | 브런치와 빵집 |            3 / 3 |
+| 전시, 진행 중과 종료             | 전시와 카페   | 카페만        |            3 / 3 |
+| 최근 제안, 안 열어봄과 이력 없음 | 다른 카페     | 원래 카페     |            3 / 3 |
+| 식당, 첫 입력 밖에 있음과 없음   | 카페만        | 카페만        |            0 / 3 |
+
+### 확인한 것
+
+- BAD를 5건에서 0건으로 줄인 주된 변화는 도구가 아니라 v3의 운영 기간과 휴무 확인 문단이었다.
+- 첫 입력에 이미 있는 정보를 더 보여 주는 v2의 도구는 판단을 바꾸지 못했고 토큰만 두 배로 늘렸다.
+- 서버가 첫 입력에 줄 수 없는 정보(날씨, 저장 설명 전체의 휴무와 운영 기간, 최근 제안 반응)를 주는 v4의 도구는 쌍 6개 중 5개에서 판단을 바꿨다.
+- 그래서 v4 확인 중심 도구를 켜기로 했다.
+
+문서가 정한 MVP 완결 기준 5개(회귀 tune · holdout · 도구 세트 · 비용 기록 · 결과 기록)를 모두 통과했다. <small>근거: [에이전트 평가 결과 · MVP 완결 기준 판정](<repo:backend/docs/에이전트 평가 결과.md>)</small>
+
+### 영상 분석 평가셋
+
+저장 쪽 영상 분석은 별도 평가셋으로 확인했다. 2026-10-06 1차 실행에서 영상 10개, 추출 44건이 모두 상호 · 지점까지 맞았고(A), 놓친 장소는 없었다. 첫 시도 성공은 8/10이고, 재시도 후 10/10이다.
+<small>근거: [평가셋.md](repo:AI/평가셋.md)</small>
 
 ## 데이터 · 인증 {#data-auth}
 
-작성 중이다.
+데이터는 회원 → 개인 저장 → 콘텐츠 ⇄ 장소 ← 트리거 → 꺼내기 실행 → 알림으로 이어진다. 콘텐츠는 영상 하나에 하나이고 여러 회원의 저장이 함께 쓴다. 트리거는 회원과 장소의 쌍이다.
+
+| 엔티티                             | 핵심 제약                                                   | 관계 · 내용                                                          |
+| ---------------------------------- | ----------------------------------------------------------- | -------------------------------------------------------------------- |
+| 회원 `member`                      | `(auth_provider, provider_user_id)` UNIQUE                  | 기기 하나, 개인 저장 · 트리거 · 동의 여러 개                         |
+| 기기 `device`                      | `member_id` · 세션 해시 · FCM 토큰 각각 UNIQUE              | 회원당 하나. 세션 해시 · 만료 시각 · FCM 토큰                        |
+| 개인 저장 `personal_save`          | `(member_id, content_id)` UNIQUE                            | 회원이 콘텐츠를 저장한 기록                                          |
+| 콘텐츠 `content`                   | `video_id` UNIQUE                                           | 영상 하나에 하나. 제목 · 요약 · 카테고리 · 요약 임베딩 `vector(768)` |
+| 콘텐츠 · 장소 `content_place`      | `(content_id, place_id)` UNIQUE                             | 콘텐츠와 장소의 다대다 연결                                          |
+| 장소 `place`                       | `verification_provider` · `verification_place_id` 쌍 UNIQUE | 카카오 장소 ID로 같은 장소를 구분한다                                |
+| 트리거 `trigger`                   | `(member_id, place_id)` UNIQUE                              | 회원 × 장소. 지오펜스와 꺼내기의 기준                                |
+| 꺼내기 실행 `recall_execution`     | `(trigger_id, trigger_event_id)` UNIQUE                     | 도착 이벤트 하나의 실행. 실행 과정은 trace 테이블에 남는다           |
+| 알림 `notification`                | `execution_id` UNIQUE                                       | 실행마다 최대 하나                                                   |
+| 회원 동의 `member_consent`         | `(member_id, consent_type)` 유효한 것 UNIQUE                | 위치기반서비스 · 공용 후보 기여 동의와 약관 버전                     |
+| 되묻기 후보 `confirm_candidate`    | `(content_id, candidate_id)` UNIQUE                         | 사용자에게 물을 장소 후보                                            |
+| 지방행정 인허가 `business_license` | `source_id` UNIQUE                                          | 장소 반경 대조용 업소 데이터(다른 테이블과 연결 없음)                |
+
+<small>근거: 엔티티 문서 [Member](repo:backend/docs/엔티티/Member.md) · [PersonalSave](repo:backend/docs/엔티티/PersonalSave.md) · [Content](repo:backend/docs/엔티티/Content.md) · [ContentPlace](repo:backend/docs/엔티티/ContentPlace.md) · [Place](repo:backend/docs/엔티티/Place.md) · [Trigger](repo:backend/docs/엔티티/Trigger.md) · [RecallExecution](repo:backend/docs/엔티티/RecallExecution.md) · [Notification](repo:backend/docs/엔티티/Notification.md), 마이그레이션 [V1](repo:backend/Remembrall/src/main/resources/db/migration/V1__create_member_and_device.sql) · [V2](repo:backend/Remembrall/src/main/resources/db/migration/V2__replace_refresh_token_with_session.sql) · [V3](repo:backend/Remembrall/src/main/resources/db/migration/V3__add_unique_fcm_token.sql) · [V4](repo:backend/Remembrall/src/main/resources/db/migration/V4__create_content_and_personal_save.sql) · [V6](repo:backend/Remembrall/src/main/resources/db/migration/V6__create_place_and_content_place.sql) · [V7](repo:backend/Remembrall/src/main/resources/db/migration/V7__create_trigger.sql) · [V9](repo:backend/Remembrall/src/main/resources/db/migration/V9__scope_recall_event_uniqueness_to_trigger.sql) · [V10](repo:backend/Remembrall/src/main/resources/db/migration/V10__create_notification.sql) · [V11](repo:backend/Remembrall/src/main/resources/db/migration/V11__add_content_embedding.sql) · [V12](repo:backend/Remembrall/src/main/resources/db/migration/V12__create_member_consent.sql) · [V13](repo:backend/Remembrall/src/main/resources/db/migration/V13__create_business_license.sql) · [V17](repo:backend/Remembrall/src/main/resources/db/migration/V17__create_recall_execution_trace.sql) · [V18](repo:backend/Remembrall/src/main/resources/db/migration/V18__create_confirm_candidate.sql)</small>
+
+### 인증
+
+1. **게스트로 시작**
+   앱은 처음 실행할 때 무작위 설치 id(UUID v4)를 만들어 안전한 저장소에 두고, `POST /api/auth/guest`로 세션을 받는다. 서버는 설치 id를 해시해 회원을 찾거나 만든다.
+   <small>근거: [guest.ts](repo:frontend/src/shared/auth/guest.ts) · [AuthService](repo:backend/Remembrall/src/main/java/com/ktc/chungnam3/remembrall/auth/service/AuthService.java)</small>
+
+2. **불투명 세션 토큰**
+   서버는 32바이트 난수 토큰을 주고, DB에는 SHA-256 해시만 저장한다. API 요청은 `Authorization: Bearer`로 보내고, 세션 만료는 30일(기본값)이다. JWT와 리프레시 토큰은 쓰지 않는다.
+   <small>근거: [ADR002 인증 방식 변경](<repo:backend/docs/ADR/ADR002_인증 방식 변경 - JWT 폐기 및 DB 불투명 세션 전환.md>) · [SessionTokenGenerator](repo:backend/Remembrall/src/main/java/com/ktc/chungnam3/remembrall/auth/token/SessionTokenGenerator.java) · [SessionTokenHasher](repo:backend/Remembrall/src/main/java/com/ktc/chungnam3/remembrall/auth/token/SessionTokenHasher.java) · [SessionAuthenticationFilter](repo:backend/Remembrall/src/main/java/com/ktc/chungnam3/remembrall/auth/security/SessionAuthenticationFilter.java)</small>
+
+3. **회원당 기기 하나**
+   회원마다 기기 행이 하나라서, 다시 로그인하면 새 세션이 이전 세션을 대체한다.
+   <small>근거: [V1](repo:backend/Remembrall/src/main/resources/db/migration/V1__create_member_and_device.sql)(`uk_device_member`) · [AuthService](repo:backend/Remembrall/src/main/java/com/ktc/chungnam3/remembrall/auth/service/AuthService.java) · [STRUCTURE.md](repo:frontend/STRUCTURE.md)</small>
+
+4. **카카오 로그인**
+   서버에 구현돼 있다. 카카오 액세스 토큰을 `access_token_info`로 확인하고, 응답의 `app_id`가 서버 설정과 같을 때만 받는다. 앱에서는 꺼져 있다.
+   <small>근거: [KakaoUserClient](repo:backend/Remembrall/src/main/java/com/ktc/chungnam3/remembrall/auth/kakao/KakaoUserClient.java) · [providers.ts](repo:frontend/src/shared/auth/providers.ts)(`enabled: false`)</small>
 
 ## 품질 · CI {#quality}
 
-작성 중이다.
+Backend CI는 develop 대상 PR과 develop push에서 돈다. 아래 다섯 검사가 모두 성공해야 통과한다.
+
+| 검사                    | 하는 일                                                                                   |
+| ----------------------- | ----------------------------------------------------------------------------------------- |
+| Backend build           | Java 21과 저장소의 Gradle Wrapper로 테스트 코드 컴파일 · 실행 JAR 생성                    |
+| Backend JUnit           | `test` 태스크 전체 실행. `live` 태그는 제외                                               |
+| Bruno API regression    | 빌드한 JAR와 임시 PostgreSQL/pgvector로 `test/bruno`의 기본 회귀 폴더 실행                |
+| Bruno seeded regression | 테스트 전용 백엔드 · 합성 데이터 · 외부 연동 대역으로 컬렉션 4개를 두 번 실행             |
+| Backend delivery tools  | 외부 gate 보호 · 관찰 테스트, GHCR pull 배포기의 상태 전이 · 복구 검사, Compose 설정 검사 |
+
+CI는 실제 API 키 대신 무효한 고정 값을 쓰고, 꺼내기 에이전트는 stub 모드로 돈다. 실제 외부 연동은 CI에서 검증하지 않고, 꺼내기 에이전트의 판단 품질은 별도 평가(5장)로 본다.
+<small>근거: [CI.md](repo:test/CI.md) · [backend-ci.yml](repo:.github/workflows/backend-ci.yml)</small>
+
+### Bruno 컬렉션
+
+| 컬렉션                                 | 실행             | 검증하는 것                                                    |
+| -------------------------------------- | ---------------- | -------------------------------------------------------------- |
+| `test/bruno`                           | CI · 기본 회귀   | 인증 · 동의 · 기기 · 위치 이벤트 · 알림 · 저장 기본 흐름       |
+| `bruno-place-list`                     | CI · 합성 데이터 | 장소 목록의 출처 · 회원 격리 · 공통 장소 · 삭제 반영           |
+| `bruno-auth-device`                    | CI · 합성 데이터 | FCM 토큰 저장 · 이전, 세션 만료 · 재발급 · 로그아웃, 약관 버전 |
+| `bruno-analysis-lifecycle`             | CI · 합성 데이터 | 분석 실패 · 재시도 · 분석 중 삭제 · 멈춤 복구                  |
+| `bruno-recall-retry`                   | CI · 합성 데이터 | 꺼내기 재시도 한도 · 중복 방지 · 발송 실패                     |
+| `bruno-recall` · `bruno-recall-policy` | 수동 · 실제 연동 | 실제 장소 이벤트와 알림 생성, 위치 이벤트 차단 정책            |
+| `bruno-save-list` · `bruno-confirm`    | 수동 · 실제 연동 | 저장 목록 페이지네이션, 장소 후보 답변                         |
+| `bruno-live` · `bruno-geofence`        | 수동 · 실제 연동 | 실제 영상 분석, 저장 · 분석 데이터가 필요한 지오펜스           |
+| `bruno-external`                       | 배포 gate        | 실제 외부 연동 검사(8장)                                       |
+
+<small>근거: [CI.md](repo:test/CI.md) · [harness/run.sh](repo:test/harness/run.sh) · [test 폴더](https://github.com/kakaotechcampus-4/ktc4-chungnam-3/tree/develop/test)</small>
+
+### 앱
+
+앱에는 `lint`(expo lint)와 `format:check`(Prettier) 스크립트가 있다. 앱용 CI 워크플로는 없다.
+<small>근거: [package.json](repo:frontend/package.json) · [frontend README](repo:frontend/README.md) · [워크플로 폴더](https://github.com/kakaotechcampus-4/ktc4-chungnam-3/tree/develop/.github/workflows)</small>
 
 ## 배포 {#deploy}
 
-작성 중이다.
+### 서버
+
+서버는 GitHub에서 검사한 이미지를 GHCR에 올리고, 서버의 배포기가 그 이미지를 가져가는 방식이다. GitHub에 SSH 키를 두지 않는다.
+
+1. **CI 재사용**
+   main에 push하면 Backend release 워크플로가 같은 커밋으로 Backend CI 다섯 검사를 다시 돌린다.
+   <small>근거: [backend-release.yml](repo:.github/workflows/backend-release.yml)</small>
+
+2. **실제 외부 API gate**
+   빈 일회용 DB에서 실제 영상 분석 · 임베딩 · LLM 호출을 확인한다.
+   <small>근거: [backend-release.yml](repo:.github/workflows/backend-release.yml) · [container README](repo:.github/container/README.md)</small>
+
+3. **ARM64 이미지와 GHCR 게시**
+   검증한 같은 JAR로 ARM64 이미지를 만들고, 일회용 DB로 기동을 확인한 뒤 GHCR에 게시한다.
+   <small>근거: [container README](repo:.github/container/README.md)</small>
+
+4. **서버가 가져가기**
+   서버의 배포기가 1분마다 GHCR의 `deploy-main` 채널을 확인하고, 새 이미지가 있으면 가져와 교체한다. 진행 중인 분석 · 알림이 있으면 미루고, 점검(503) → pg_dump 백업 → 새 컨테이너 → 내부 · 외부 health 확인 순으로 바꾼다. 실패하면 이전 버전으로 되돌린다.
+   <small>근거: [container README](repo:.github/container/README.md) · [remembrall-pull.timer](repo:.github/container/remembrall-pull.timer)</small>
+
+배포는 두 스위치가 모두 켜져야 돈다. GitHub 쪽 `BACKEND_DEPLOY_ENABLED`가 채널 갱신을, 서버 설정의 `enabled`와 timer가 실제 적용을 정한다. 이미지 게시가 곧 운영 배포는 아니다.
+<small>근거: [container README](repo:.github/container/README.md)</small>
+
+운영에서는 두 스위치가 모두 켜져 있고, main에 머지하면 서버가 새 이미지로 바뀐다(팀 확인). GHCR 패키지는 공개로 바꾸지 않은 비공개 패키지다. 서버는 `read:packages` 권한만 있는 클래식 개인 액세스 토큰으로 ghcr.io에 로그인해 두었고, 배포기(`pull.py`)는 `docker pull`로 이미지를 가져오므로 이 로그인 정보를 그대로 쓴다(팀 확인).
+<small>근거: 팀 확인 · [pull.py](repo:.github/container/pull.py#L101)(`docker pull`) · [container README](repo:.github/container/README.md)(비공개 패키지 설정)</small>
+
+### 앱
+
+EAS 빌드 프로필은 development · preview · preview-mock · production이다. development와 preview(이를 물려받는 preview-mock 포함)는 APK를 만든다. preview는 설정 화면에 시연 도구를 켜고(`EXPO_PUBLIC_DEMO_TOOLS=1`), preview-mock은 서버 · FCM 없이 목 데이터로 시연하는 백업 APK다(`EXPO_PUBLIC_FORCE_MOCK=1`).
+
+배포 APK는 팀 레포 [Release v1.0.0](https://github.com/kakaotechcampus-4/ktc4-chungnam-3/releases/tag/v1.0.0)의 `remembrall.apk`다. preview 프로필로 빌드했고 실서버에 연결한다(팀 확인).
+<small>근거: [eas.json](repo:frontend/eas.json) · [demoTools.ts](repo:frontend/src/shared/demo/demoTools.ts) · [frontend README](repo:frontend/README.md)(시연 백업용 preview-mock) · [Release v1.0.0](https://github.com/kakaotechcampus-4/ktc4-chungnam-3/releases/tag/v1.0.0)</small>
+
+### 랜딩
+
+이 사이트는 Cloudflare Pages로 배포한다. 랜딩 레포의 `landing/` 폴더를 main push 때 빌드한다.
+<small>근거: [랜딩 README](https://github.com/Hraverals/remembrall-landing/blob/main/landing/README.md)</small>
 
 ## 개인정보 · 보안 {#privacy}
 
-작성 중이다.
+- **위치 정보 이용 동의**: OS 위치 권한과 따로 받는다. 동의하지 않았으면 위치 허용 화면이 동의 시트를 먼저 띄우고, 동의를 기록한 뒤에 권한을 요청한다. 동의 기록은 권한 결과와 무관하다. 동의할 때 서버의 현재 약관 버전을 함께 보내고, 약관이 바뀌면 다시 묻는다. 설정에서 동의를 거둘 수 있다.
+  <small>근거: [LocationPermissionScreen](repo:frontend/src/features/onboarding/LocationPermissionScreen.tsx) · [WithdrawConsentSheet](repo:frontend/src/features/settings/components/WithdrawConsentSheet.tsx) · [MemberConsentController](repo:backend/Remembrall/src/main/java/com/ktc/chungnam3/remembrall/consent/controller/MemberConsentController.java)</small>
+- **동의가 없으면**: 서버는 지오펜스 목록을 비워 주고, 도착 보고도 실행하지 않는다.
+  <small>근거: [GeofenceService](repo:backend/Remembrall/src/main/java/com/ktc/chungnam3/remembrall/geofence/service/GeofenceService.java) · [LocationEventService](repo:backend/Remembrall/src/main/java/com/ktc/chungnam3/remembrall/recall/service/LocationEventService.java)</small>
+- **위치를 보내는 때**: 앱이 서버에 좌표를 보내는 것은 지오펜스 목록을 받을 때뿐이다. 도착 보고에는 장소 id와 이벤트 id · 종류 · 시각만 보낸다.
+  <small>근거: [geofences.ts](repo:frontend/src/shared/api/geofences.ts) · [geofenceManager.ts](repo:frontend/src/runtime/geofence/geofenceManager.ts)</small>
+- **공용 후보**: 꺼내기의 공용 후보에는 공용 후보 기여 동의가 유효한 회원의 저장만 쓴다. 에이전트는 공용 후보를 다른 사람이 저장했다는 사실을 말하지 않는다(평가 기준 7번).
+  <small>근거: [PublicCandidateRepository](repo:backend/Remembrall/src/main/java/com/ktc/chungnam3/remembrall/repository/PublicCandidateRepository.java) · [에이전트 평가 기준](<repo:backend/docs/에이전트 평가 기준.md>)</small>
+- **저장하지 않는 것**: 영상 · 음성 · 전체 자막은 저장하지 않는다. 콘텐츠에는 videoId · 제목 · 요약 · 카테고리와 요약 임베딩을 둔다. 외부 장소 데이터는 약관에 맞춰 일부만 저장한다. 카카오는 장소 ID만 저장하고, VWorld 응답은 저장하지 않는다.
+  <small>근거: [카테켐프로젝트 개요](<repo:docs/카테켐프로젝트 개요.md>) · [V4](repo:backend/Remembrall/src/main/resources/db/migration/V4__create_content_and_personal_save.sql) · [KakaoPlaceClient](repo:backend/Remembrall/src/main/java/com/ktc/chungnam3/remembrall/save/place/KakaoPlaceClient.java) · [VWorldSearchClient](repo:backend/Remembrall/src/main/java/com/ktc/chungnam3/remembrall/save/place/VWorldSearchClient.java)</small>
+- **세션과 설치 id**: 세션 토큰은 DB에 해시로만 둔다. 앱은 세션과 설치 id를 `expo-secure-store`(Android Keystore)에 둔다.
+  <small>근거: [SessionTokenHasher](repo:backend/Remembrall/src/main/java/com/ktc/chungnam3/remembrall/auth/token/SessionTokenHasher.java) · [STRUCTURE.md](repo:frontend/STRUCTURE.md) · [guest.ts](repo:frontend/src/shared/auth/guest.ts)</small>
+- **키 관리**: 운영 서버의 API 키와 Firebase 인증 파일은 서버에만 두고 컨테이너에 읽기 전용으로 연결한다. 이미지에는 넣지 않는다. 배포 전 실제 연동 검사의 키는 GitHub `external-api` Environment Secret에 둔다. CI는 무효한 고정 값을 쓴다. 서버가 GHCR 이미지를 받는 토큰은 서버 root 계정의 Docker 설정에만 있고, 권한은 `read:packages` 하나다(팀 확인).
+  <small>근거: [container README](repo:.github/container/README.md) · [CI.md](repo:test/CI.md)</small>
 
 ## 디자인 시스템 {#design-system}
 

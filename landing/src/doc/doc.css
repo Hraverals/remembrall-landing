@@ -224,8 +224,11 @@
     line-height: 1.6;
 }
 
-/* 칸이 너무 좁아지기 전에 표를 가로 스크롤로 넘긴다. 표 안 코드(설정 키 · 모델 이름)는 쪼개지 않는다. */
-.doc-body td {
+/*
+ * 글자 칸이 너무 좁아지기 전에 표를 가로 스크롤로 넘긴다. 숫자 칸(md 의 "-:", align="right")은 최소 폭 없이 오른쪽 정렬.
+ * 표 안 코드(설정 키 · 모델 이름)는 쪼개지 않는다. 머리글은 줄을 바꿀 수 있다.
+ */
+.doc-body td:not([align]) {
     min-width: 6.5rem;
 }
 
@@ -241,10 +244,16 @@
     vertical-align: top;
 }
 
+.doc-body th[align="right"],
+.doc-body td[align="right"] {
+    padding-left: var(--space-md);
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+}
+
 .doc-body th {
     font-weight: 500;
     color: var(--text-secondary);
-    white-space: nowrap;
 }
 
 /*
