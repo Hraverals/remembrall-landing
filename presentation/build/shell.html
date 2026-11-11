@@ -166,6 +166,20 @@ body.show-notes #counter{bottom:calc(34vh + 12px)}
     el.replaceChildren(f);
   });
 
+  /* 유튜브 임베드: file:// 로 열면 유튜브가 재생을 막는다(오류 153). 그때는 썸네일 + 재생 버튼으로 바꾸고, 클릭하면 유튜브 새 탭 */
+  if (location.protocol === 'file:') stage.querySelectorAll('iframe[src*="youtube.com/embed/"], iframe[src*="youtube-nocookie.com/embed/"]').forEach(f => {
+    const id = (f.getAttribute('src').match(/embed\/([\w-]+)/) || [])[1]; if (!id) return;
+    const a = document.createElement('a');
+    a.href = 'https://www.youtube.com/watch?v=' + id; a.target = '_blank'; a.rel = 'noopener';
+    a.style.cssText = f.style.cssText + ';display:block;position:relative;overflow:hidden;background:#111';
+    a.innerHTML = '<img src="' + (f.dataset.poster || '') + '" alt="" style="width:100%;height:100%;object-fit:cover;display:block">'
+      + '<div style="position:absolute;left:0;top:0;width:100%;height:100%;display:flex;align-items:center;justify-content:center">'
+      + '<div style="width:160px;height:110px;border-radius:30px;background:rgba(0,0,0,.7);display:flex;align-items:center;justify-content:center">'
+      + '<div style="width:0;height:0;border-left:50px solid #fff;border-top:30px solid transparent;border-bottom:30px solid transparent;margin-left:12px"></div></div></div>';
+    a.addEventListener('click', e => e.stopPropagation());
+    f.replaceWith(a);
+  });
+
   /* 배치: 16:9 고정, 창에 맞춰 확대·축소 */
   function layout() {
     const notesH = document.body.classList.contains('show-notes') ? notesEl.offsetHeight : 0;

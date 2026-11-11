@@ -31,8 +31,8 @@
 <div style="position:absolute;left:1312px;top:250px;width:480px;height:240px;background:#FFFCFA;border:1px dashed #A69A9E;border-radius:16px;padding:32px;display:flex;flex-direction:column;justify-content:center;gap:10px">
 <p style="font-size:26px">Vertex AI Gemini</p>
 <p style="font-size:26px">YouTube Data API</p>
-<p style="font-size:26px">카카오 로컬 · LocationIQ</p>
-<p style="font-size:26px">공공 상가 · TourAPI</p>
+<p style="font-size:26px">LocationIQ · 공공 상가 · TourAPI</p>
+<p style="font-size:26px">카카오 로컬 (검증만)</p>
 </div>
 <div style="position:absolute;left:1312px;top:680px;width:480px;height:240px;background:#FFFCFA;border:1px dashed #A69A9E;border-radius:16px;padding:32px;display:flex;flex-direction:column;justify-content:center;gap:10px">
 <p style="font-size:26px">Gemini</p>
@@ -54,7 +54,8 @@
 
 ■ 화면 구성
 - 앱 → (공유) 저장 파이프라인 → DB / 앱 → (도착) 꺼내기 에이전트 → (알림, 점선) 앱
-- 오른쪽 외부 서비스: 저장 쪽(Gemini, YouTube Data API, 카카오 로컬·LocationIQ, 공공 상가·TourAPI), 꺼내기 쪽(Gemini, 기상청, FCM)
+- 오른쪽 외부 서비스: 저장 쪽(Gemini, YouTube Data API, 장소 검색용 LocationIQ·공공 상가·TourAPI, 검증 전용 카카오 로컬), 꺼내기 쪽(Gemini, 기상청, FCM)
+- 카카오 로컬은 다른 API와 역할이 다름: 장소를 찾는 데 쓰지 않고, 찾아낸 장소가 실제로 존재하는지 확인하는 데만 씀. 정책상 이름·좌표는 저장하지 않고 장소 ID만 남김. 말할 때 "검색은 LocationIQ·공공 데이터, 확인은 카카오"로 구분
 
 ■ 저장은 파이프라인, 꺼내기는 에이전트
 - 저장: URL 검증 → 영상 분석 → 장소 확정 → 트리거 저장이 정해진 순서. AI가 도구를 고를 여지가 없어 에이전트가 아니라 고정 절차로 둠. 저장 쪽 LLM 호출은 영상 분석 1회뿐
