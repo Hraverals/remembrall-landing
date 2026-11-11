@@ -6,24 +6,26 @@
   "cover": "cover",
   "order": [
     "cover", "contents",
-    "bg-search", "bg-habit",
-    "prob-defer", "prob-forget", "prob-lost", "prob-why",
+    "bg-shortform", "bg-search", "bg-habit",
+    "prob-forget", "prob-lost", "prob-why",
     "turn", "reveal", "flow",
     "scr-share", "scr-save", "scr-recall", "scr-nearby", "scr-fade", "scr-notify", "scr-onboard",
-    "tech-arch", "tech-find", "tech-place", "tech-geofence", "tech-agent", "tech-eval", "tech-fail",
+    "tech-arch", "tech-flow", "tech-find", "tech-place", "tech-geofence", "tech-agent", "tech-eval", "tech-fail", "tech-ops",
     "diff", "roadmap", "bm-flow", "bm",
-    "team", "demo", "end"
+    "team", "demo", "end",
+    "appendix-data"
   ],
   "sections": {
     "s0": {"description": "표지와 목차", "start": "cover"},
-    "s1": {"description": "배경: 정보는 숏폼에서 찾고, 저장·공유는 이미 습관이다", "start": "bg-search"},
-    "s2": {"description": "문제: 저장한 것의 대부분은 다시 열리지 않는다", "start": "prob-defer"},
+    "s1": {"description": "배경: 숏폼이 주류가 됐고, 정보는 숏폼에서 찾고, 저장·공유는 이미 습관이다", "start": "bg-shortform"},
+    "s2": {"description": "문제: 저장한 것의 대부분은 다시 열리지 않는다", "start": "prob-forget"},
     "s3": {"description": "솔루션: 흑백에서 색이 돌아오는 순간, REMEMBRALL과 주요 화면", "start": "turn"},
-    "s4": {"description": "기술: 아키텍처, 장소 확정, 지오펜스, 에이전트, 평가, 실패 설계", "start": "tech-arch"},
+    "s4": {"description": "기술: 아키텍처, 흐름, 장소 확정, 지오펜스, 에이전트, 평가, 실패 설계, CI·CD", "start": "tech-arch"},
     "s5": {"description": "차별화: 경쟁 서비스와 비교", "start": "diff"},
     "s6": {"description": "로드맵과 BM 컨셉", "start": "roadmap"},
     "s7": {"description": "팀 소개", "start": "team"},
-    "s8": {"description": "시연과 마무리", "start": "demo"}
+    "s8": {"description": "시연과 마무리", "start": "demo"},
+    "s9": {"description": "부록: 데이터 모델", "start": "appendix-data"}
   },
   "faces": {
     "noto-sans-kr": {"family": "Noto Sans KR", "href": "https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap"},

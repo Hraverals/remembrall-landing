@@ -1,6 +1,6 @@
 <section id="tech-agent" style="background:#F6F1EE;color:#2A2126;font-family:'Noto Sans KR', Arial, sans-serif;padding:160px 128px 128px;display:flex;flex-direction:column;gap:48px">
 <div style="position:absolute;left:0;top:0;width:1920px;height:6px;background:#E4DAD5"></div>
-<div style="position:absolute;left:0;top:0;width:1329px;height:6px;background:#6B4E7A"></div>
+<div style="position:absolute;left:0;top:0;width:1355px;height:6px;background:#6B4E7A"></div>
 <div style="position:absolute;left:128px;top:36px;width:1664px;display:flex;flex-direction:row;justify-content:space-between">
 <p style="font-size:24px;color:#8E8185">배경</p>
 <p style="font-size:24px;color:#8E8185">문제</p>
@@ -91,6 +91,8 @@
 
 ■ 구현
 - Spring AI ChatClient + 도구 2개, gemini-3.6-flash
+- 공용(PUBLIC) 후보는 기여 동의가 있는 저장물만 쓰는데, 현재 앱에는 그 동의 화면이 없어 공용 후보는 사실상 비어 있음 — 테크스펙
+- 도착 보고 처리는 동기: 판단·FCM 전송을 끝낸 뒤 202. 앱은 10초 타임아웃 후 같은 이벤트 ID로 재전송
 - 주의: 기본 설정은 stub 모드(항상 침묵). 시연 서버에서 LLM 모드 켜져 있는지 확인
 
 ■ 시간

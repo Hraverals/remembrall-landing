@@ -1,0 +1,74 @@
+<section id="tech-flow" style="background:#F6F1EE;color:#2A2126;font-family:'Noto Sans KR', Arial, sans-serif;padding:160px 128px 96px;display:flex;flex-direction:column;gap:32px">
+<div style="position:absolute;left:0;top:0;width:1920px;height:6px;background:#E4DAD5"></div>
+<div style="position:absolute;left:0;top:0;width:1129px;height:6px;background:#6B4E7A"></div>
+<div style="position:absolute;left:128px;top:36px;width:1664px;display:flex;flex-direction:row;justify-content:space-between">
+<p style="font-size:24px;color:#8E8185">배경</p>
+<p style="font-size:24px;color:#8E8185">문제</p>
+<p style="font-size:24px;color:#8E8185">솔루션</p>
+<p style="font-size:24px;color:#6B4E7A;font-weight:700">기술</p>
+<p style="font-size:24px;color:#8E8185">차별화</p>
+<p style="font-size:24px;color:#8E8185">로드맵</p>
+<p style="font-size:24px;color:#8E8185">팀</p>
+<p style="font-size:24px;color:#8E8185">시연</p>
+</div>
+<h2 style="font-family:'Gowun Dodum', 'Noto Sans KR', sans-serif;font-size:64px;font-weight:400;line-height:1.25">저장 흐름 · 꺼내기 흐름</h2>
+<div style="flex:1;display:flex;flex-direction:row;gap:64px;align-items:start">
+<div style="flex:1;display:flex;flex-direction:column;gap:12px;align-items:center">
+<p style="font-size:24px;font-weight:700;color:#6B4E7A;align-self:start">저장 · 파이프라인</p>
+<div style="width:100%;background:#FFFCFA;border:1px solid #DDD2CD;border-radius:12px;padding:16px 28px"><p style="font-size:26px;text-align:center">Shorts 공유 → 링크 정규화 · 저장 접수</p></div>
+<x-connector head="end" style="width:4px;height:28px;color:#A69A9E;border-width:3px"></x-connector>
+<div style="width:100%;background:#FFFCFA;border:1px solid #DDD2CD;border-radius:12px;padding:16px 28px"><p style="font-size:26px;text-align:center">같은 영상이면 분석 재사용 · 아니면 비동기 분석 (Gemini)</p></div>
+<x-connector head="end" style="width:4px;height:28px;color:#A69A9E;border-width:3px"></x-connector>
+<div style="width:100%;background:#FFFCFA;border:1px solid #DDD2CD;border-radius:12px;padding:16px 28px"><p style="font-size:26px;text-align:center">장소 검색 · 공공 데이터 교차 검증</p></div>
+<x-connector head="end" style="width:4px;height:28px;color:#A69A9E;border-width:3px"></x-connector>
+<div style="width:100%;display:flex;flex-direction:row;gap:12px">
+<div style="flex:1;background:#F4EEF6;border:2px solid #6B4E7A;border-radius:12px;padding:14px 16px"><p style="font-size:24px;text-align:center;color:#5A3F68;font-weight:700">확정 1곳</p></div>
+<div style="flex:1;background:#FFFCFA;border:1px solid #DDD2CD;border-radius:12px;padding:14px 16px"><p style="font-size:24px;text-align:center">되묻기 2~3곳</p></div>
+<div style="flex:1;background:#FFFCFA;border:1px solid #DDD2CD;border-radius:12px;padding:14px 16px"><p style="font-size:24px;text-align:center">장소 없음</p></div>
+</div>
+<x-connector head="end" style="width:4px;height:28px;color:#A69A9E;border-width:3px"></x-connector>
+<div style="width:100%;background:#FFFCFA;border:1px solid #DDD2CD;border-radius:12px;padding:16px 28px"><p style="font-size:26px;text-align:center">카카오 장소 ID 검증</p></div>
+<x-connector head="end" style="width:4px;height:28px;color:#A69A9E;border-width:3px"></x-connector>
+<div style="width:100%;background:#2A2126;border-radius:12px;padding:16px 28px"><p style="font-size:26px;text-align:center;color:#FFFCFA">임베딩 저장 · 장소 트리거 생성</p></div>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:12px;align-items:center">
+<p style="font-size:24px;font-weight:700;color:#6B4E7A;align-self:start">꺼내기 · 에이전트</p>
+<div style="width:100%;background:#FFFCFA;border:1px solid #DDD2CD;border-radius:12px;padding:16px 28px"><p style="font-size:26px;text-align:center">지오펜스 진입 → 도착 보고</p></div>
+<x-connector head="end" style="width:4px;height:28px;color:#A69A9E;border-width:3px"></x-connector>
+<div style="width:100%;background:#FFFCFA;border:1px solid #DDD2CD;border-radius:12px;padding:16px 28px"><p style="font-size:26px;text-align:center">게이트 · 동의 · 30분 · 2시간 · 같은 장소 7일</p></div>
+<x-connector head="end" style="width:4px;height:28px;color:#A69A9E;border-width:3px"></x-connector>
+<div style="width:100%;background:#FFFCFA;border:1px solid #DDD2CD;border-radius:12px;padding:16px 28px"><p style="font-size:26px;text-align:center">후보 1km + 의미 검색 · 방문 조건 확인</p></div>
+<x-connector head="end" style="width:4px;height:28px;color:#A69A9E;border-width:3px"></x-connector>
+<div style="width:100%;display:flex;flex-direction:row;gap:12px">
+<div style="flex:1;background:#F4EEF6;border:2px solid #6B4E7A;border-radius:12px;padding:14px 16px"><p style="font-size:24px;text-align:center;color:#5A3F68;font-weight:700">PROPOSE</p></div>
+<div style="flex:1;background:#FFFCFA;border:1px solid #DDD2CD;border-radius:12px;padding:14px 16px"><p style="font-size:24px;text-align:center">NO_ACTION</p></div>
+</div>
+<x-connector head="end" style="width:4px;height:28px;color:#A69A9E;border-width:3px"></x-connector>
+<div style="width:100%;background:#FFFCFA;border:1px solid #DDD2CD;border-radius:12px;padding:16px 28px"><p style="font-size:26px;text-align:center">서버 검증 · PLACE / COURSE / CONTENT</p></div>
+<x-connector head="end" style="width:4px;height:28px;color:#A69A9E;border-width:3px"></x-connector>
+<div style="width:100%;background:#2A2126;border-radius:12px;padding:16px 28px"><p style="font-size:26px;text-align:center;color:#FFFCFA">알림 저장 · FCM 전송 → 202</p></div>
+</div>
+</div>
+<aside>■ 이 장의 역할
+- 15번 구성도를 한 단계 들여다본 흐름도 2개. 테크스펙 '저장 흐름'·'꺼내기 흐름' mermaid를 옮김
+
+■ 저장 흐름 (테크스펙 · 저장 파이프라인 문서)
+- 앱이 Shorts 주소를 정규화(youtu.be, ?si=, m.youtube.com 통일)해 저장 요청. 서버는 videoId로 콘텐츠를 재사용하고 회원의 개인 저장만 연결
+- 분석이 필요한 영상만 비동기 실행기로 보냄(동시 2개, 대기 100개). 앱에는 먼저 응답
+- YouTube에서 제목·설명·태그·게시일·채널 작성자 댓글 수집 → Gemini가 영상과 메타데이터에서 요약·카테고리·상호·지점·지역·기간 정보를 구조화
+- 지점명이 있으면 VWorld·LocationIQ로 기준점 → 주변 상가·인허가 데이터 대조. 없으면 TourAPI·공공 상가 먼저, 필요하면 LocationIQ 결과를 거름
+- 후보 1곳 → 검증 후 확정 / 2~3곳 → 되묻기 선택지 / 0곳 또는 4곳 이상 → 장소 없음
+- 확정 장소와 되묻기 선택지는 카카오 장소 ID로 사전 검증. 조회 결과가 없으면 후보에서 제외, 호출 오류면 남겨 두고 사용자가 고를 때 재검증
+- 제목·요약·카테고리를 gemini-embedding-001(768차원)로 임베딩 → 확정 장소가 있으면 콘텐츠에 연결하고 회원별 장소 트리거 생성
+
+■ 꺼내기 흐름 (테크스펙 · LocationEventService)
+- 앱: 로그인 + 위치 '항상 허용' + 위치 이용 동의가 모두 있어야 지오펜스 목록을 받음. Android 100개 중 99개 장소 + 1개 재조회. 최근 7일 발송 성공한 장소는 등록 목록에서도 제외
+- 장소 지오펜스 ENTER에서 도착 보고. 202를 못 받으면(타임아웃·통신 실패·5xx) 같은 triggerEventId로 재전송, 30분 지나면 폐기
+- 서버 게이트 순서: 회원 행 잠금 → 트리거 존재 → 이벤트 30분 이내 → 회원 2시간 쿨다운 → 같은 장소 7일 중복 → 위치 동의. 같은 이벤트 재수신은 이전 실행이 실패·타임아웃일 때만 1회 재실행
+- 후보: 반경 1km 개인 10 + 공용 10 + 의미 검색 5. 에이전트가 checkVisitConditions(운영·휴무·최근 알림·날씨), 필요 시 searchCandidates. 도구 최대 6회, 90초
+- PROPOSE 형태: PLACE 1곳 / COURSE 서로 다른 2곳 이상·도보 30분 이내 / CONTENT 장소 없는 콘텐츠 1건. 서버 검증 실패면 알림 없이 종료
+- 통과하면 알림 저장 → FCM 전송 → 그 뒤 202 응답(동기). 앱은 알림의 첫 항목만 열고, COURSE는 첫 장소 상세로
+
+■ 시간
+- 약 40초</aside>
+</section>

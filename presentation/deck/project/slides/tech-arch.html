@@ -1,6 +1,6 @@
 <section id="tech-arch" style="background:#F6F1EE;color:#2A2126;font-family:'Noto Sans KR', Arial, sans-serif;padding:160px 128px 128px;display:flex;flex-direction:column;gap:48px">
 <div style="position:absolute;left:0;top:0;width:1920px;height:6px;background:#E4DAD5"></div>
-<div style="position:absolute;left:0;top:0;width:1108px;height:6px;background:#6B4E7A"></div>
+<div style="position:absolute;left:0;top:0;width:1073px;height:6px;background:#6B4E7A"></div>
 <div style="position:absolute;left:128px;top:36px;width:1664px;display:flex;flex-direction:row;justify-content:space-between">
 <p style="font-size:24px;color:#8E8185">배경</p>
 <p style="font-size:24px;color:#8E8185">문제</p>
@@ -22,7 +22,7 @@
 <p style="font-size:24px;color:#6A5D61">Spring Boot · 고정 절차</p>
 </div>
 <div style="position:absolute;left:560px;top:530px;width:600px;height:120px;background:#2A2126;border-radius:16px;padding:20px 32px;display:flex;flex-direction:column;justify-content:center">
-<p style="font-size:28px;font-weight:700;color:#FFFCFA">PostgreSQL · PostGIS · pgvector</p>
+<p style="font-size:28px;font-weight:700;color:#FFFCFA">PostgreSQL · pgvector</p>
 </div>
 <div style="position:absolute;left:560px;top:680px;width:600px;height:240px;background:#F4EEF6;border:2px solid #6B4E7A;border-radius:16px;padding:32px;display:flex;flex-direction:column;justify-content:center;gap:12px">
 <h3 style="font-family:'Gowun Dodum', 'Noto Sans KR', sans-serif;font-size:40px;font-weight:400;color:#5A3F68">꺼내기 에이전트</h3>
@@ -65,7 +65,7 @@
 - 앱: Expo SDK 57, React Native 0.86, TypeScript, Reanimated, react-native-maps, expo-location·task-manager·notifications·share-intent, EAS Build (Android 우선)
 - 서버: Java 21, Spring Boot 4.1, Spring AI 2.0, JPA, Flyway(마이그레이션 21개), firebase-admin
 - AI: Vertex AI Gemini(영상 분석·에이전트), gemini-embedding-001(768차원) → pgvector
-- DB: PostgreSQL + PostGIS(좌표) + pgvector(의미 검색) 단일 DB
+- DB: PostgreSQL + pgvector(의미 검색) 단일 DB. 거리 계산은 하버사인 공식(PostgreSQL 내장 함수)으로 하고 PostGIS는 쓰지 않음 — MVP 규모에선 충분, 커지면 공간 인덱스 검토(테크스펙 트레이드오프)
 
 ■ 주요 설계 결정 (ADR)
 - ADR001 Java/Spring 단일 앱: Python 분리의 명확한 이점 없음, 배포·통신 단순, 팀 숙련도. DB는 PG 하나 — MySQL+벡터DB(동기화 부담), MongoDB(관계 많아 부적합), ES 분리 기각. 재검토 조건: 검색량 때문에 응답시간 목표를 못 맞추면 분리
@@ -73,7 +73,8 @@
 - ADR003 지오펜스: 가까운 N곳 + 재조회 원(17번 장)
 - ADR004 임베딩: 768차원(pgvector 인덱스 한도 2,000 이하), 직접 정규화, 저장용/검색용 task_type 구분, 제목+요약+카테고리를 임베딩. 실패해도 분석 결과는 저장
 - ADR005 Spring AI: 기존 모델 연결·관측 재사용. LangChain4j 기각, LangGraph4j는 다단계 분기·상태 저장이 필요해지면 재검토
-- 결과 전달 FCM + 202: 에이전트 실행 시간이 일정치 않고 iOS 백그라운드 제한 → 앱엔 즉시 202, 결과는 푸시. 로컬 알림·WebSocket·폴링 기각
+- 결과 전달 FCM: 알림은 앱 응답이 아니라 푸시로 전달. 로컬 알림·WebSocket·폴링 기각(ADR001)
+- 도착 보고는 동기 처리: 서버가 게이트 → 에이전트 판단 → 서버 검증 → FCM 전송까지 끝낸 뒤 202. 앱은 10초 타임아웃, 못 받으면 같은 이벤트 ID로 재전송, 서버는 같은 이벤트 중복 실행 차단(테크스펙·LocationEventService)
 
 ■ 영상 분석 엔진 전환 일화
 - 처음 쓰던 Elice API(OpenAI 호환)는 영상 입력 400, 다른 엔드포인트 404 → Vertex AI로 전환

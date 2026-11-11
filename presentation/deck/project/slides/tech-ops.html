@@ -1,0 +1,73 @@
+<section id="tech-ops" style="background:#F6F1EE;color:#2A2126;font-family:'Noto Sans KR', Arial, sans-serif;padding:160px 128px 128px;display:flex;flex-direction:column;gap:40px">
+<div style="position:absolute;left:0;top:0;width:1920px;height:6px;background:#E4DAD5"></div>
+<div style="position:absolute;left:0;top:0;width:1525px;height:6px;background:#6B4E7A"></div>
+<div style="position:absolute;left:128px;top:36px;width:1664px;display:flex;flex-direction:row;justify-content:space-between">
+<p style="font-size:24px;color:#8E8185">배경</p>
+<p style="font-size:24px;color:#8E8185">문제</p>
+<p style="font-size:24px;color:#8E8185">솔루션</p>
+<p style="font-size:24px;color:#6B4E7A;font-weight:700">기술</p>
+<p style="font-size:24px;color:#8E8185">차별화</p>
+<p style="font-size:24px;color:#8E8185">로드맵</p>
+<p style="font-size:24px;color:#8E8185">팀</p>
+<p style="font-size:24px;color:#8E8185">시연</p>
+</div>
+<h2 style="font-family:'Gowun Dodum', 'Noto Sans KR', sans-serif;font-size:64px;font-weight:400;line-height:1.25">CI · CD</h2>
+<div style="flex:1;display:flex;flex-direction:column;gap:32px;justify-content:center">
+<div style="display:flex;flex-direction:column;gap:16px">
+<p style="font-size:24px;font-weight:700;color:#6B4E7A">PR마다 · GitHub Actions</p>
+<div style="display:flex;flex-direction:row;align-items:center;gap:16px">
+<div style="flex:1;background:#FFFCFA;border:1px solid #DDD2CD;border-radius:12px;padding:20px 24px"><p style="font-size:26px;text-align:center">빌드</p></div>
+<x-connector head="end" style="width:40px;height:4px;color:#A69A9E;border-width:3px"></x-connector>
+<div style="flex:1;background:#FFFCFA;border:1px solid #DDD2CD;border-radius:12px;padding:20px 24px"><p style="font-size:26px;text-align:center">JUnit <b>526</b></p></div>
+<x-connector head="end" style="width:40px;height:4px;color:#A69A9E;border-width:3px"></x-connector>
+<div style="flex:1;background:#FFFCFA;border:1px solid #DDD2CD;border-radius:12px;padding:20px 24px"><p style="font-size:26px;text-align:center">Bruno API 회귀 <b>356</b></p></div>
+<x-connector head="end" style="width:40px;height:4px;color:#A69A9E;border-width:3px"></x-connector>
+<div style="flex:1;background:#FFFCFA;border:1px solid #DDD2CD;border-radius:12px;padding:20px 24px"><p style="font-size:26px;text-align:center">배포 도구 검사</p></div>
+</div>
+<p style="font-size:24px;color:#6A5D61">임시 PostgreSQL + pgvector · 실제 키 대신 테스트 값 · 에이전트는 stub</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:16px">
+<p style="font-size:24px;font-weight:700;color:#6B4E7A">main 반영 · 서버</p>
+<div style="display:flex;flex-direction:row;align-items:center;gap:16px">
+<div style="flex:1;background:#FFFCFA;border:1px solid #DDD2CD;border-radius:12px;padding:20px 24px"><p style="font-size:26px;text-align:center">실제 외부 API 검사</p></div>
+<x-connector head="end" style="width:40px;height:4px;color:#A69A9E;border-width:3px"></x-connector>
+<div style="flex:1;background:#FFFCFA;border:1px solid #DDD2CD;border-radius:12px;padding:20px 24px"><p style="font-size:26px;text-align:center">ARM64 이미지 → GHCR</p></div>
+<x-connector head="end" style="width:40px;height:4px;color:#A69A9E;border-width:3px"></x-connector>
+<div style="flex:1;background:#FFFCFA;border:1px solid #DDD2CD;border-radius:12px;padding:20px 24px"><p style="font-size:26px;text-align:center">DB 백업 · 컨테이너 교체</p></div>
+<x-connector head="end" style="width:40px;height:4px;color:#A69A9E;border-width:3px"></x-connector>
+<div style="flex:1;background:#F4EEF6;border:2px solid #6B4E7A;border-radius:12px;padding:20px 24px"><p style="font-size:26px;text-align:center;color:#5A3F68;font-weight:700">health 확인 · 실패 시 롤백</p></div>
+</div>
+<p style="font-size:24px;color:#6A5D61">일회용 DB로 외부 연동 확인 · 배포기가 작업 중이면 교체를 미룸</p>
+</div>
+<div style="display:flex;flex-direction:row;gap:24px">
+<div style="flex:1;display:flex;flex-direction:row;align-items:center;gap:20px;background:#FFFCFA;border:1px solid #DDD2CD;border-radius:12px;padding:20px 28px"><x-icon name="Home" style="color:#6B4E7A;width:36px;height:36px"></x-icon><p style="font-size:26px">앱 · EAS preview APK + 서버 없는 preview-mock</p></div>
+<div style="flex:1;display:flex;flex-direction:row;align-items:center;gap:20px;background:#FFFCFA;border:1px solid #DDD2CD;border-radius:12px;padding:20px 28px"><x-icon name="Globe" style="color:#6B4E7A;width:36px;height:36px"></x-icon><p style="font-size:26px">랜딩 · Cloudflare Pages 자동 배포</p></div>
+</div>
+</div>
+<aside>■ 이 장의 역할
+- 테스트·CI·배포까지 운영을 갖췄다는 것. 예시 발표(강원대)도 '아키텍처 및 모니터링' 장을 따로 둠
+
+■ PR마다 (test/CI.md · 테크스펙 테스트 전략)
+- develop 대상 PR마다 GitHub Actions: 빌드 → JUnit(live 태그 제외) → Bruno 기본 회귀 → 합성 데이터 기반 Bruno 회귀 → 배포 도구 검사
+- Bruno 회귀는 임시 PostgreSQL + pgvector를 띄워서 실행. Bruno CLI 4.3.0 고정, 보고서 7일 보관
+- CI는 실제 키 대신 테스트 값을 쓰고 꺼내기 에이전트는 stub으로 돌림
+- 차단 정책 테스트는 202 응답만으로 통과시키지 않고, 읽기 전용 DB 조회로 실제 실행 건수까지 검증
+- 수치: 백엔드 테스트 파일 91개, 테스트 메서드 526개(@Test + @ParameterizedTest) / Bruno 요청 356개(컬렉션 7개: 기본 114, recall-policy 88, save-list 41, geofence 38, confirm 36, recall 25, live 14) / QA 시나리오 83개(P0~P2)
+- 프론트: lint·포맷 검사, Android 공유·백그라운드 위치·FCM·알림 열기 흐름은 기기 QA. 프론트 자동 테스트 파일은 0개(질문 대비)
+
+■ main 반영 · 서버 (테크스펙 릴리즈)
+- main에 반영되면 CI + 실제 외부 API 검사(배포 전 일회용 DB)를 거쳐 ARM64 이미지를 GHCR에 게시
+- 운영 배포기가 deploy-main 채널을 확인. 작업이 진행 중이면 교체를 미룸
+- 교체 시 기존 DB 백업 → 새 컨테이너 내·외부 health 확인 → 실패하면 이전 이미지로 복구. 교체 중 짧은 점검 시간 있음
+- 채널 갱신과 서버 배포기가 모두 활성화되어야 운영에 반영
+
+■ 앱 · 랜딩
+- Android: GitHub Release v1.0.0의 remembrall.apk = 실서버 연결 EAS preview 빌드. preview-mock = 서버·FCM 없이 시연하는 백업 빌드(같은 패키지라 한 폰에 동시 설치 불가)
+- 랜딩: Cloudflare Pages가 랜딩 저장소 main의 landing/을 빌드
+
+■ 모니터링 (질문 대비)
+- Grafana 같은 별도 모니터링 대시보드는 없음. 에이전트 실행은 Trace(후보 검토·도구 호출·결과·판단 변경)로 DB에 기록되고, 평가 파이프라인이 품질을 측정. 운영 지표(알림 열람률 등)는 테크스펙 '추가 지표'에 후속 항목으로 정리
+
+■ 시간
+- 약 30초</aside>
+</section>

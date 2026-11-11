@@ -1,6 +1,6 @@
 <section id="tech-place" style="background:#F6F1EE;color:#2A2126;font-family:'Noto Sans KR', Arial, sans-serif;padding:160px 128px 128px;display:flex;flex-direction:column;gap:48px">
 <div style="position:absolute;left:0;top:0;width:1920px;height:6px;background:#E4DAD5"></div>
-<div style="position:absolute;left:0;top:0;width:1182px;height:6px;background:#6B4E7A"></div>
+<div style="position:absolute;left:0;top:0;width:1242px;height:6px;background:#6B4E7A"></div>
 <div style="position:absolute;left:128px;top:36px;width:1664px;display:flex;flex-direction:row;justify-content:space-between">
 <p style="font-size:24px;color:#8E8185">배경</p>
 <p style="font-size:24px;color:#8E8185">문제</p>
@@ -47,6 +47,11 @@
 </div>
 <p style="font-size:28px;font-weight:700">상호명 · 지점까지 정확</p>
 <p style="font-size:24px;color:#6A5D61">실제 Shorts 10편 · 놓친 장소 0</p>
+<div style="display:flex;flex-direction:row;align-items:center;gap:16px;border-top:1px solid #DDD2CD;padding:20px 0 0 0">
+<p style="font-size:24px;color:#6A5D61">재실행</p>
+<p style="font-size:28px;font-weight:700">확정 6</p>
+<p style="font-size:24px;color:#6A5D61">되묻기·없음 3 · 영상 오류 1</p>
+</div>
 </div>
 </div>
 <aside>■ 이 장의 역할
@@ -82,9 +87,14 @@
 - TourAPI: 공원·관광지
 - 카카오 로컬: 존재 검증. 이름·좌표는 저장하지 않고 ID만 — 반환 타입에서 아예 빼서 구조적으로 막음
 
-■ 59/59 평가
+■ 59/59 평가 (1차 · 정확도)
 - 실제 Shorts 10편, 영상을 직접 보며 전수 대조. A(상호+지점 정확)/B(지역만)/C(틀림) 기준 → 59곳 전부 A, 놓친 장소 0
 - 1차 8편 성공(44곳), 실패 2편은 재시도로 성공(+15곳) — 평가셋 머리말엔 44건으로 적혀 있어 질문 시 구분 필요
+
+■ 재실행 6/10 (2차 · 재현성) — 테크스펙
+- 장소 10개가 든 Shorts를 10번 돌렸을 때 평균 6편은 확정, 3편은 되묻기 또는 장소 없음으로 빠지고, 1편은 영상 자체의 장소 표기 오류
+- Gemini 추출이 실행마다 조금씩 달라서 생기는 결과. 되묻기·장소 없음은 "모르면 추측하지 않는다"는 설계된 동작이지 오답이 아님
+- 두 수치를 같이 말하는 법: "뽑은 장소는 전부 정확했다(정확도). 다만 매번 확정까지 가는 비율은 60%이고, 나머지는 사용자에게 묻거나 저장을 보류한다(재현성)." 59/59만 말하면 테크스펙을 읽은 심사위원이 6/10으로 반박할 수 있음
 - Gemini 2.5 Flash 시점 측정(현재 3.8 Flash)
 - 카테고리: 영상 7종, 장소 6종(축제는 일시적 행사라 장소에서 제외 → 시간 트리거 대상)
 - LocationIQ 응답 평균 589ms, 최대 1,252ms

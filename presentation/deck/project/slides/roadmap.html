@@ -1,6 +1,6 @@
 <section id="roadmap" style="background:#F6F1EE;color:#2A2126;font-family:'Noto Sans KR', Arial, sans-serif;padding:160px 128px 128px;display:flex;flex-direction:column;gap:48px">
 <div style="position:absolute;left:0;top:0;width:1920px;height:6px;background:#E4DAD5"></div>
-<div style="position:absolute;left:0;top:0;width:1625px;height:6px;background:#6B4E7A"></div>
+<div style="position:absolute;left:0;top:0;width:1638px;height:6px;background:#6B4E7A"></div>
 <div style="position:absolute;left:128px;top:36px;width:1664px;display:flex;flex-direction:row;justify-content:space-between">
 <p style="font-size:24px;color:#8E8185">배경</p>
 <p style="font-size:24px;color:#8E8185">문제</p>
@@ -25,9 +25,9 @@
 <p style="font-size:24px;font-weight:700;color:#6B4E7A">NEXT</p>
 <h3 style="font-family:'Gowun Dodum', 'Noto Sans KR', sans-serif;font-size:52px;font-weight:400">시간</h3>
 <p style="font-size:30px;color:#6A5D61">일정 트리거 · 캘린더</p>
-<p style="font-size:30px;color:#6A5D61">Instagram 릴스</p>
 <p style="font-size:30px;color:#6A5D61">카카오 로그인</p>
 <p style="font-size:30px;color:#6A5D61">iOS</p>
+<p style="font-size:30px;color:#6A5D61">장소 직접 찾기 저장</p>
 </div>
 <div style="flex:1;display:flex;flex-direction:column;gap:24px;background:#FFFCFA;border:1px solid #DDD2CD;border-radius:16px;padding:48px 44px">
 <p style="font-size:24px;font-weight:700;color:#6B4E7A">LATER</p>
@@ -42,11 +42,16 @@
 
 ■ 화면 구성
 - NOW·MVP(장소): YouTube Shorts / 위치 트리거 / AI 판단 알림 / Android
-- NEXT(시간): 일정 트리거·캘린더 / Instagram 릴스 / 카카오 로그인 / iOS
+- NEXT(시간): 일정 트리거·캘린더 / 카카오 로그인 / iOS / 장소 직접 찾기 저장
 - LATER(함께): 공용 풀 추천 / 길 안내 / 파트너 BM
 
+■ Instagram을 로드맵에서 뺀 이유
+- 테크스펙 스펙 아웃: "Instagram Reels(정책상의 문제)". 정책 때문에 제외한 항목을 '다음 단계'에 올리면 "정책 문제면 다음에도 못 하는 것 아니냐"는 질문에 답이 없음
+- 질문이 나오면: "Instagram은 API 정책상 영상 접근이 막혀 있어 현재로선 제외. 정책이 열리거나 다른 수집 경로가 생기면 그때 검토"
+- 장소 직접 찾기: 화면은 있고 검색 결과가 목 데이터. 서버 저장 연동이 후속 범위(테크스펙 스펙 아웃)
+
 ■ MVP에서 의도적으로 뺀 것 (프로젝트 개요)
-- Instagram, iOS, 일정·기간 트리거
+- Instagram(정책), iOS, 일정·기간 트리거
 - 카카오 로그인 노출, 알림 목록·회원 탈퇴 API, 장소 직접 찾기 실제 저장, 길 안내
 
 ■ NEXT — 이미 준비된 것

@@ -1,6 +1,6 @@
 <section id="tech-geofence" style="background:#F6F1EE;color:#2A2126;font-family:'Noto Sans KR', Arial, sans-serif;padding:160px 128px 128px;display:flex;flex-direction:column;gap:48px">
 <div style="position:absolute;left:0;top:0;width:1920px;height:6px;background:#E4DAD5"></div>
-<div style="position:absolute;left:0;top:0;width:1255px;height:6px;background:#6B4E7A"></div>
+<div style="position:absolute;left:0;top:0;width:1299px;height:6px;background:#6B4E7A"></div>
 <div style="position:absolute;left:128px;top:36px;width:1664px;display:flex;flex-direction:row;justify-content:space-between">
 <p style="font-size:24px;color:#8E8185">배경</p>
 <p style="font-size:24px;color:#8E8185">문제</p>
@@ -59,7 +59,7 @@
 - 남은 한 자리 = 재조회 원. 반경 = max(3km, 가장 먼 등록 장소 + 500m), 중심 = 현재 위치
 - 재조회 원 안의 장소는 전부 등록된 상태 → 원을 벗어나는 순간 서버에 다시 물어 목록 교체
 - 지역을 미리 나눌 필요 없음, Android/iOS 같은 로직
-- 서버: PostGIS로 가까운 순 조회
+- 서버: 현재 위치 기준 하버사인 거리로 가까운 순 조회(PostgreSQL 내장 함수, PostGIS 미사용)
 
 ■ 기각한 대안
 - 지역+장소 2단계 등록: 지역 지오펜스가 슬롯을 차지
@@ -73,7 +73,7 @@
 - 재부팅·앱 업데이트 후 자동 복원
 - 장소별 안/밖 상태를 파일에 기억 → 집 근처 장소 때문에 앱을 열 때마다 알림이 가는 것 방지(Android는 등록 시 초기 ENTER가 오는데 이미 안이면 무시)
 - 도착 보고 큐: 최대 20건, 시간 예산 12초, 실패 시 같은 이벤트 ID로 재전송
-- 서버는 항상 202 즉시 응답 → 판단 결과는 FCM
+- 서버는 에이전트 판단과 FCM 전송까지 끝낸 뒤 202 응답(동기). 앱은 10초 타임아웃 후 같은 이벤트 ID로 재전송, 서버는 같은 이벤트 중복 실행을 막음
 
 ■ 알려진 한계 (Notion: 자체 인지)
 - Android는 스쳐 지나가도 ENTER 발생 → 2시간 쿨다운을 소모해 이후 실제 방문 알림이 막힐 수 있음
