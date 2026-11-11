@@ -1555,7 +1555,6 @@ html,body{margin:0;height:100%;background:transparent;overflow:hidden}
 <p style="font-size:28px;font-weight:700;font-family:'Courier New', monospace">checkVisitConditions</p>
 <div style="display:flex;flex-direction:row;flex-wrap:wrap;gap:10px">
 <p style="font-size:24px;background:#E6DAEB;border-radius:999px;padding:6px 18px">영업 · 휴무</p>
-<p style="font-size:24px;background:#E6DAEB;border-radius:999px;padding:6px 18px">알림 무시 이력</p>
 <p style="font-size:24px;background:#E6DAEB;border-radius:999px;padding:6px 18px">실시간 날씨</p>
 </div>
 </div>
@@ -1594,7 +1593,7 @@ html,body{margin:0;height:100%;background:transparent;overflow:hidden}
   · 이미 본 콘텐츠·장소는 서버가 SQL에서 자동 제외
 - checkVisitConditions(장소 최대 3곳)
   · 요약 원문 2,000자에서 운영 기간·휴무 확인(첫 입력은 200자로 잘림)
-  · 최근 7일 보낸 알림을 열어봤는지(무시 여부)
+  · (슬라이드에서 뺌) 최근 7일 알림 열람 여부도 코드에서는 확인하지만, 같은 장소는 7일 안에 다시 알리지 않는 서버 규칙이 먼저 걸려서 실제로는 거의 영향이 없음 → 발표에서는 영업·휴무와 날씨 두 가지만 말할 것
   · 기상청 초단기실황·단기예보·6시간 강수확률
 - 회원 ID·트리거 정보는 서버가 주입 → 모델이 다른 사용자 데이터를 조회할 수 없음
 
@@ -1952,7 +1951,7 @@ html,body{margin:0;height:100%;background:transparent;overflow:hidden}
 
 ■ 차별점 (아래 두 줄)
 - 근처 도착 알림: 앱을 켜지 않아도 OS 지오펜스가 근처 도착을 감지해 먼저 꺼내 줌 → 저장 후 방치를 가장 근본적으로 해결
-- AI 알림 판단: 근접만으로 보내지 않고 영업·날씨·최근 알림 무시 여부를 보고 판단(스팸 방지)
+- AI 알림 판단: 근접만으로 보내지 않고 영업·휴무·날씨를 보고 판단(스팸 방지)
 - (로드맵) 공간(맛집 → 지도)과 시간(축제·팝업 → 캘린더) 분기는 장소 하나에만 집중하는 기존 앱과 다른 방향
 
 ■ 주의
