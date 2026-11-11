@@ -10,3 +10,33 @@ body {
     position: fixed;
     inset: 0;
 }
+
+/* 무대: 1920×1080 을 그대로 두고 잘라낼 영역이 iframe 에 차게 옮기고 키운다(위치 · 배율은 Embed.tsx). */
+.app-embed__stage {
+    position: absolute;
+    width: 1920px;
+    height: 1080px;
+    transform-origin: 0 0;
+}
+
+/* 한 바퀴 진행 막대. 색은 발표 덱 위쪽 진행 막대와 같다(채움 #6B4E7A, 트랙 #E4DAD5). */
+.app-embed__bar {
+    position: absolute;
+    display: flex;
+    gap: 6px;
+}
+
+.app-embed__segment {
+    flex: 1 1 0;
+    overflow: hidden;
+    border-radius: 3px;
+    background: #e4dad5;
+}
+
+.app-embed__fill {
+    display: block;
+    height: 100%;
+    background: #6b4e7a;
+    transform: scaleX(0);
+    transform-origin: 0 50%;
+}

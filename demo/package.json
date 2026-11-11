@@ -15,6 +15,7 @@
         "fonts": "node scripts/copy-fonts.mjs",
         "shots": "node scripts/shots.mjs",
         "embed": "node scripts/embed.mjs",
+        "embed:crop": "node scripts/embed-crop.mjs",
         "check:portable": "node scripts/check-portable.mjs",
         "check:readme": "node scripts/check-readme.mjs"
     },

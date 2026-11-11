@@ -292,7 +292,9 @@ Remembrall 이 없을 때. Remembrall 화면 · YouTube 로고 · 고유 UI 는 
 `npm run embed` 는 `embed.html`(진입 `src/app/embed-main.tsx`)을 HTML 한 파일로 빌드해 `../presentation/rmd-player.html` 에 쓴다. 발표 슬라이드(`presentation/index.html`)가 `<iframe src="rmd-player.html#S5">` 로 부른다. kit · scenarios 를 고쳤으면 다시 돌리고 결과를 커밋한다.
 
 - JS · CSS · 사진 · 아이콘은 파일 안에 넣는다(`file://` 로 열어도 돈다). 폰트는 넣지 않고 Google Fonts 링크로 부른다(빌드가 kit.css 의 fonts.css import 를 빼고 서체 토큰을 덮는다. kit 은 고치지 않는다).
-- 해시(`#S1` ~ `#S6`)로 시나리오를 고른다. 바탕은 투명이고 무대는 iframe 안에 16:9 contain 으로 그린다.
+- 해시(`#S1` ~ `#S6`)로 시나리오를 고른다. 바탕은 투명이다.
+- 무대의 빈 여백을 잘라내고 확대한다. 시나리오마다 한 바퀴 동안 폰 · 자막 · 옆 설명 · 컨셉 표시가 차지하는 영역(`src/app/embedCrop.ts`)이 iframe 에 꽉 차게 맞춘다. 이 표는 `npm run embed:crop` 이 브라우저로 재서 만든다. kit · scenarios 의 배치 · 자막 · 카메라를 고쳤으면 `embed:crop` → `embed` 순서로 다시 돌린다.
+- 무대 아래에 한 바퀴 진행 막대(높이 6px)를 둔다. 비트마다 칸을 나누고 지난 칸은 채우고 지금 칸은 진행만큼 채운다. 처음으로 돌아가면 비워진다. kit 이 재생 시각을 내주지 않아 재생을 시작한 때부터 잰 시계를 쓰고 비트가 끝날 때마다 다시 맞춘다. 발표 모드(`?show`)에는 없다.
 - 부모와는 postMessage 로 말한다. 준비되면 부모에 `rmd:ready` 를 보내고 첫 화면에 멈춰 있는다. `rmd:play` 를 받으면 처음부터 loop 재생하고, `rmd:stop` 을 받으면 첫 화면으로 돌아가 멈춘다.
 - 개발할 때는 `http://localhost:5174/embed.html#S5` 를 바로 연다(부모가 없으면 곧바로 재생한다. 폰트는 kit 것을 쓴다).
 
@@ -326,6 +328,7 @@ Remembrall 이 없을 때. Remembrall 화면 · YouTube 로고 · 고유 UI 는 
 | `npm run dev`                                                      | 갤러리(http://localhost:5174). `?s=S5` 로 시나리오 선택, `?s=S5&t=3.2` · `?s=S5&beat=2`(`&view=phone` · `&bg=transparent`)는 1920×1080 정지 화면 |
 | `npm run build` · `typecheck` · `lint` · `format` · `format:check` | 빌드 · 타입 · 린트 · 포맷                                                                                                                        |
 | `npm run embed`                                                    | 임베드 플레이어를 HTML 한 파일로 빌드해 `../presentation/rmd-player.html` 에 쓴다(7장)                                                           |
+| `npm run embed:crop`                                               | 임베드 플레이어가 잘라낼 영역을 브라우저로 재서 `src/app/embedCrop.ts` 에 쓴다(7장)                                                              |
 | `npm run check:portable`                                           | kit · scenarios 의 import 와 CSS 선택자 검사                                                                                                     |
 | `npm run check:readme`                                             | 이 문서의 사용 예 · 시나리오 표가 코드와 같은지 검사                                                                                             |
 | `npm run shots`                                                    | 비트별 끝 상태(무대 · 폰만) · step 재생 · 뒤로 가기 · 맞춤 · 녹화 스크린샷을 `.shots/` 에(설치된 Edge, `SHOTS_BROWSER_CHANNEL=chrome` 로 바꿈)   |
