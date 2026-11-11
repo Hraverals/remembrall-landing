@@ -168,3 +168,29 @@ button {
 .app-record--transparent {
     background: #00ff00;
 }
+
+/* 발표 화면: 녹화 화면처럼 창 전체에 무대를 contain 한다. 넘길 때 새 무대가 앞 무대 위로 나타난다. */
+.app-show {
+    position: fixed;
+    inset: 0;
+    overflow: hidden;
+    cursor: none;
+    background: #f6f1ee;
+}
+
+.app-show__layer {
+    position: absolute;
+    inset: 0;
+    background: #f6f1ee;
+}
+
+/* 엔진의 끝 크로스페이드(0.4초)와 같은 길이. */
+.app-show__layer--enter {
+    animation: app-show-enter 0.4s linear both;
+}
+
+@keyframes app-show-enter {
+    from {
+        opacity: 0;
+    }
+}

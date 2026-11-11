@@ -7,7 +7,9 @@
 //   ?record=S5          녹화 모드: 1920×1080 무대만 컨트롤 · 커서 없이 loop 재생(창에 맞춰 contain)
 //     &speed=1.5        재생 속도(0.25 ~ 4, 기본 1)
 //     &bg=transparent   무대 바탕 없이 페이지를 크로마키 초록(#00FF00)으로 칠한다(화면 녹화는 투명을 담지 못한다)
-import { findScenario } from "../scenarios";
+//   ?show               발표 모드: S1 → S6 을 키보드로 넘기며 본다(무대만, 컨트롤 · 커서 없이)
+//   ?show=S2,S3,S5      발표 모드: 적은 순서대로(없는 id 는 건너뛴다. 하나도 없으면 전체)
+import { findScenario, SCENARIOS } from "../scenarios";
 import type { Scenario } from "../kit";
 
 export type Frozen = {
@@ -65,5 +67,14 @@ export function readParams(search: string) {
                           ? "transparent"
                           : "screen",
               };
-    return { scenarioId: scenario?.id ?? null, frozen, recording };
+    const showList = params.get("show");
+    let show: readonly Scenario[] | null = null;
+    if (showList != null) {
+        const picked = showList
+            .split(",")
+            .map((id) => findScenario(id.trim()))
+            .filter((item) => item != null);
+        show = picked.length > 0 ? picked : SCENARIOS;
+    }
+    return { scenarioId: scenario?.id ?? null, frozen, recording, show };
 }
