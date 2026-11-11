@@ -249,7 +249,7 @@ Remembrall 이 없을 때. Remembrall 화면 · YouTube 로고 · 고유 UI 는 
 
 ### S6 추천에서 방문까지 (컨셉)
 
-앱에 없는 BM 컨셉 화면이다(07e 추천 진입 · 14 추천 · 08d 도착 혜택 · 15 광고주 성과). 장소 · 채널 이름은 모두 지어낸 이름이고 숫자는 설명용 예시다. 무대 옆에 퍼널 4단계(추천 → 저장 → 근처 도착 → 혜택 사용)가 켜지고, 비트 3 에서 머리말이 "사장님 화면"으로 바뀌며 15 와 같은 숫자가 나온다.
+앱에 없는 BM 컨셉 화면이다(07e 추천 진입 · 14 추천 · 08d 도착 혜택 · 15 광고주 성과). 장소 · 채널 이름은 모두 지어낸 이름이고 숫자는 설명용 예시다. 무대 옆에 퍼널 4단계(추천 → 저장 → 근처 도착 → 혜택 사용)가 켜지고, 비트 3 에서 머리말이 "사장님 화면"으로 바뀐다. 옆 칸에는 숫자를 두지 않는다(숫자는 폰 안 15 에만, "예시" 표시와 함께 나온다).
 
 | 비트 | id       | 이름 | 시각       | 자막                                       |
 | ---- | -------- | ---- | ---------- | ------------------------------------------ |
@@ -287,6 +287,15 @@ Remembrall 이 없을 때. Remembrall 화면 · YouTube 로고 · 고유 UI 는 
 - → · Space · 클릭은 다음 시나리오, ← 는 이전 시나리오(처음부터), R 은 지금 시나리오 다시 재생이다. 넘길 때 0.4초 크로스페이드로 바뀐다. 양 끝에서는 넘어가지 않는다.
 - 넘김 대기를 빼면 S1 ~ S6 한 바퀴는 1배속으로 61.8초다(시나리오마다 5장 표의 "한 바퀴"에서 끝 크로스페이드 0.4초를 뺀 길이).
 
+### 임베드 플레이어(발표 슬라이드용)
+
+`npm run embed` 는 `embed.html`(진입 `src/app/embed-main.tsx`)을 HTML 한 파일로 빌드해 `../presentation/rmd-player.html` 에 쓴다. 발표 슬라이드(`presentation/index.html`)가 `<iframe src="rmd-player.html#S5">` 로 부른다. kit · scenarios 를 고쳤으면 다시 돌리고 결과를 커밋한다.
+
+- JS · CSS · 사진 · 아이콘은 파일 안에 넣는다(`file://` 로 열어도 돈다). 폰트는 넣지 않고 Google Fonts 링크로 부른다(빌드가 kit.css 의 fonts.css import 를 빼고 서체 토큰을 덮는다. kit 은 고치지 않는다).
+- 해시(`#S1` ~ `#S6`)로 시나리오를 고른다. 바탕은 투명이고 무대는 iframe 안에 16:9 contain 으로 그린다.
+- 부모와는 postMessage 로 말한다. 준비되면 부모에 `rmd:ready` 를 보내고 첫 화면에 멈춰 있는다. `rmd:play` 를 받으면 처음부터 loop 재생하고, `rmd:stop` 을 받으면 첫 화면으로 돌아가 멈춘다.
+- 개발할 때는 `http://localhost:5174/embed.html#S5` 를 바로 연다(부모가 없으면 곧바로 재생한다. 폰트는 kit 것을 쓴다).
+
 ## 8. 고지
 
 - 사진: `kit/assets/photos/credits.json` (picsum = Unsplash, 사진마다 작가 · 원본 주소). 처음 11장은 landing 에서 복사했고 4장(490 · 444 · 478 · 326)은 `npm run photos` 로 받았다.
@@ -316,6 +325,7 @@ Remembrall 이 없을 때. Remembrall 화면 · YouTube 로고 · 고유 UI 는 
 | ------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `npm run dev`                                                      | 갤러리(http://localhost:5174). `?s=S5` 로 시나리오 선택, `?s=S5&t=3.2` · `?s=S5&beat=2`(`&view=phone` · `&bg=transparent`)는 1920×1080 정지 화면 |
 | `npm run build` · `typecheck` · `lint` · `format` · `format:check` | 빌드 · 타입 · 린트 · 포맷                                                                                                                        |
+| `npm run embed`                                                    | 임베드 플레이어를 HTML 한 파일로 빌드해 `../presentation/rmd-player.html` 에 쓴다(7장)                                                           |
 | `npm run check:portable`                                           | kit · scenarios 의 import 와 CSS 선택자 검사                                                                                                     |
 | `npm run check:readme`                                             | 이 문서의 사용 예 · 시나리오 표가 코드와 같은지 검사                                                                                             |
 | `npm run shots`                                                    | 비트별 끝 상태(무대 · 폰만) · step 재생 · 뒤로 가기 · 맞춤 · 녹화 스크린샷을 `.shots/` 에(설치된 Edge, `SHOTS_BROWSER_CHANNEL=chrome` 로 바꿈)   |

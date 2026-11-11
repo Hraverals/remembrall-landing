@@ -1,10 +1,10 @@
 // S6 추천에서 방문까지(BM 컨셉, concept: true). 앱에 없는 컨셉 화면 07e · 14 · 08d · 15 를 비트 4개로 본다(1배속 12.8초).
 // 장소 · 채널 이름은 모두 지어낸 이름이고 15 숫자는 설명용 예시다. 무대 오른쪽 위 "컨셉" 배지는 엔진이 전 구간에 그린다.
-// 무대 옆에는 퍼널 4단계(추천 → 저장 → 근처 도착 → 혜택 사용)가 비트에 맞춰 켜지고, 비트 3 에서 15 숫자와 같이 값이 나타난다.
+// 무대 옆에는 퍼널 4단계(추천 → 저장 → 근처 도착 → 혜택 사용)가 비트에 맞춰 켜진다(숫자는 폰 안 15 에만 둔다).
 //   0 발견    0   ~ 2.6   07e → 1.2 추천 진입 줄 탭 → 1.4 14 · ① 켜짐
 //   1 저장    2.6 ~ 5.2   3.4 오후 네시(광고) 카드 저장 버튼 탭 → 저장된 상태 · ② 켜짐
 //   2 도착    5.2 ~ 9.0   5.3 2주 뒤 지도 + 알림창 열린 채 · ③ 켜짐 → 6.8 알림 탭 → 7.0 08d · ④ 켜짐 → 7.5 썸네일 풀림(0.6초)
-//   3 성과    9.0 ~ 12.4  9.2 15(머리말 "사장님 화면") → 9.6 부터 막대가 줄마다 0.15초씩 늦게 0.9초 동안 차오름 · 옆 설명 값
+//   3 성과    9.0 ~ 12.4  9.2 15(머리말 "사장님 화면") → 9.6 부터 막대가 줄마다 0.15초씩 늦게 0.9초 동안 차오름
 //   12.4 ~ 12.8 처음으로 크로스페이드(엔진) · 옆 설명도 처음으로
 import { easeInOutQuad, progress } from "../../kit/engine/clock";
 import { defineScenario } from "../../kit/engine/types";
@@ -30,14 +30,11 @@ const fillAt = (index: number) => FILL_AT + FILL_STAGGER * index;
 
 // 옆 설명 ①~④ 가 켜지는 시각(0.4초).
 const LIGHT_AT = [0.2, 2.8, 5.4, DETAIL_AT] as const;
-// 옆 설명 값이 나타나는 시각: ① 은 15 가 보일 때, ② · ③ · ④ 는 15 의 저장 · 근처 도착 알림 · 도착 혜택 사용 막대와 같이.
-const VALUE_AT = [9.4, fillAt(0), fillAt(1), fillAt(3)] as const;
 
 function asideAt(t: number): AsideView {
     const reset = progress(t, END, 0.4);
     return {
         lit: LIGHT_AT.map((at) => progress(t, at, 0.4) * (1 - reset)),
-        values: VALUE_AT.map((at) => progress(t, at, 0.4) * (1 - reset)),
         owner: progress(t, 9.2, 0.3) * (1 - reset),
     };
 }

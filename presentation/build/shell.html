@@ -24,6 +24,7 @@
     <x-icon name="Search">          아이콘 (이름 목록은 맨 아래 스크립트 ICONS)
     <x-connector x1 y1 x2 y2 ...>   화살표 (route: straight | elbow | hv | vh, head: end | both | none)
     <x-embed><template>…</template> 작은 독립 페이지 (로고 모션)
+    <iframe src="rmd-player.html#S5">  시나리오 애니메이션 (그 장에 들어오면 처음부터 재생, 나가면 멈춤)
     data-build-in="rise 1"          슬라이드가 열릴 때 순서대로 떠오르는 요소 (rise | fade | pop)
     data-transition="fade"          이 슬라이드에서 다음으로 넘어갈 때 페이드
 -->
@@ -183,6 +184,16 @@ body.show-notes #counter{bottom:calc(34vh + 12px)}
   }
   function resetBuilds(sec) { sec.querySelectorAll('[data-build-in]').forEach(el => { el.style.animation = 'none'; }); }
 
+  /* 시나리오 플레이어(rmd-player.html iframe): 들어온 슬라이드만 처음부터 재생하고 나가면 멈춘다.
+     file:// 에서는 iframe 안을 직접 만질 수 없어 postMessage 로 말한다. */
+  const players = sec => sec ? [...sec.querySelectorAll('iframe[src^="rmd-player.html"]')] : [];
+  const tell = (sec, msg) => players(sec).forEach(f => f.contentWindow && f.contentWindow.postMessage(msg, '*'));
+  /* 플레이어가 늦게 준비된 경우(#N 으로 바로 열었을 때): 지금 슬라이드의 것이면 재생시킨다 */
+  addEventListener('message', e => {
+    if (e.data !== 'rmd:ready') return;
+    if (players(slides[cur]).some(f => f.contentWindow === e.source)) e.source.postMessage('rmd:play', '*');
+  });
+
   /* 이동 */
   let cur = -1;
   function go(n, push = true) {
@@ -196,6 +207,8 @@ body.show-notes #counter{bottom:calc(34vh + 12px)}
     next.classList.add('active');
     if (fade) next.classList.add('fade-in');
     playBuilds(next);
+    tell(prev, 'rmd:stop');
+    tell(next, 'rmd:play');
     cur = n;
     const aside = next.querySelector(':scope > aside');
     notesEl.innerHTML = `<b>${n + 1} / ${slides.length} · ${next.id}</b>` + (aside ? aside.innerHTML : '(노트 없음)');

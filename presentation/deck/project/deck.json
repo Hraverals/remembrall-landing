@@ -7,11 +7,11 @@
   "order": [
     "cover", "contents",
     "bg-search", "bg-habit",
-    "prob-defer", "prob-forget", "prob-why",
+    "prob-defer", "prob-forget", "prob-lost", "prob-why",
     "turn", "reveal", "flow",
-    "scr-save", "scr-recall", "scr-notify", "scr-onboard",
-    "tech-arch", "tech-place", "tech-geofence", "tech-agent", "tech-eval", "tech-fail",
-    "diff", "roadmap", "bm",
+    "scr-share", "scr-save", "scr-recall", "scr-nearby", "scr-fade", "scr-notify", "scr-onboard",
+    "tech-arch", "tech-find", "tech-place", "tech-geofence", "tech-agent", "tech-eval", "tech-fail",
+    "diff", "roadmap", "bm-flow", "bm",
     "team", "demo", "end"
   ],
   "sections": {

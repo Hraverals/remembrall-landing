@@ -1,0 +1,12 @@
+/* 임베드 플레이어: iframe 안을 꽉 채우고 바탕은 투명(슬라이드 배경이 비친다). */
+html,
+body {
+    margin: 0;
+    overflow: hidden;
+    background: transparent;
+}
+
+.app-embed {
+    position: fixed;
+    inset: 0;
+}
