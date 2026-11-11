@@ -1,0 +1,97 @@
+# demo 와 presentation 을 GitHub Pages 로 배포한다(저장소 Settings → Pages → Source 는 "GitHub Actions").
+#   /remembrall-landing/              랜딩(https://remembrall-landing.pages.dev)으로 넘기는 리다이렉트 페이지
+#   /remembrall-landing/demo/         demo 빌드 결과(갤러리, ?show 발표 모드, ?record 녹화 모드)
+#   /remembrall-landing/presentation/ 커밋된 index.html · rmd-player.html · index.html 이 부르는 deck/assets 파일
+# presentation 은 여기서 다시 만들지 않는다. 커밋된 index.html 과 rmd-player.html 을 그대로 올린다.
+name: pages
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "demo/**"
+      - "presentation/**"
+      - ".github/workflows/pages.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# 배포는 한 번에 하나만. 진행 중인 배포는 끝까지 둔다.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          # demo 를 개발 · 검증한 버전(demo 에는 .nvmrc · engines 가 없다).
+          node-version: 24
+          cache: npm
+          cache-dependency-path: demo/package-lock.json
+
+      - name: demo 빌드
+        working-directory: demo
+        # base 는 여기서만 넘긴다. vite.config 는 그대로라 dev 서버는 루트에서 돈다.
+        run: |
+          npm ci
+          npm run build -- --base=/remembrall-landing/demo/
+
+      - name: 배포 폴더 조립
+        run: |
+          rm -rf _site
+          mkdir -p _site/demo _site/presentation
+          cp -R demo/dist/. _site/demo/
+
+          cp presentation/index.html presentation/rmd-player.html _site/presentation/
+          # index.html 이 부르는 deck/assets 파일만 옮긴다. 파일이 없거나 대소문자가 다르면 여기서 멈춘다.
+          grep -oE 'deck/assets/[A-Za-z0-9._-]+\.[A-Za-z0-9]+' presentation/index.html | sort -u > _site/.assets
+          test -s _site/.assets
+          while read -r file; do
+            mkdir -p "_site/presentation/$(dirname "$file")"
+            cp "presentation/$file" "_site/presentation/$file"
+          done < _site/.assets
+          rm _site/.assets
+
+          cat > _site/index.html <<'HTML'
+          <!doctype html>
+          <html lang="ko">
+            <head>
+              <meta charset="utf-8" />
+              <meta name="viewport" content="width=device-width, initial-scale=1" />
+              <title>REMEMBRALL</title>
+              <link rel="canonical" href="https://remembrall-landing.pages.dev/" />
+              <meta http-equiv="refresh" content="0; url=https://remembrall-landing.pages.dev/" />
+              <script>
+                location.replace("https://remembrall-landing.pages.dev/");
+              </script>
+            </head>
+            <body>
+              <p><a href="https://remembrall-landing.pages.dev/">REMEMBRALL 소개 페이지로 이동</a></p>
+              <p><a href="presentation/">발표 자료</a> · <a href="demo/">시나리오 데모</a></p>
+            </body>
+          </html>
+          HTML
+
+      - uses: actions/configure-pages@v6
+
+      - uses: actions/upload-pages-artifact@v5
+        with:
+          path: _site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v5
